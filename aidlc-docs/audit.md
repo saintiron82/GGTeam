@@ -201,3 +201,16 @@
 **Context**: M0 공통 기반 코드화 완료. 각 담당자 병렬 구현 착수 가능.
 
 ---
+## CONSTRUCTION - 백엔드 C 개별 병렬 개발 시작 (feature/backend-c)
+**Timestamp**: 2026-06-18T16:00:00+09:00
+**User Input**: "현재 프로젝트가 IDE 환경으로 프로젝트를 진행하고 ai dlc 방법론으로 개발할꺼야 . 브런치는 feature/backend-c로만들어서 백앤드 c가 해야할 역할에 맞게 프로젝트 해야할 업무 진행 시작해줘. 참고는 aidlc-docs에 문서가잇을꺼야 . 거기문서참고하면 내 역할에 맞는 업무가 있어."
+**AI Response**: feature/backend-c 브랜치 생성. 03-backend-assignment.md 기준 백엔드 C 역할(워크플로우 & 대시보드) 구현 착수. 범위: workflow(ApprovalServiceImpl - Pull배정 동시성/승인/반려/수정/재분석/이력), notification(NotificationServiceImpl - 발송/재시도), dashboard(DashboardController/DashboardService - 칸반/필터/검색/알림집계), workflow/api(OperatorController). 05-parallel-work-plan M1 원칙에 따라 백엔드 A 의존부(엔티티/Repository/StateMachine)와 백엔드 B 의존부(DraftResponseService/AIAnalysisService)는 stub 선행으로 독립 개발. 담당 스토리: US-12,15,16,17,18,20,21,22,24,25,27.
+**Context**: CONSTRUCTION / Code Generation (팀 병렬) - 백엔드 C 파트 구현.
+
+---
+## CONSTRUCTION - 백엔드 C 구현 완료 (feature/backend-c)
+**Timestamp**: 2026-06-18T16:40:00+09:00
+**AI Response**: 백엔드 C(워크플로우 & 대시보드) 구현 완료. (1)workflow: ApprovalServiceImpl(Pull배정 원자적 동시성 BR-12/14, 우선순위 BR-13, 승인/수정/반려/재분석, 이력 append-only BR-22), OperatorController(API 6종), InquiryDetailAssembler, CurrentOperatorProvider. (2)notification: NotificationServiceImpl(발송/재시도 BR-23~25a/SENT전이), NotificationChannel 추상화+시뮬레이션. (3)dashboard: DashboardService(칸반/필터검색/알림집계 US-20/22/12), DashboardController(API 3종). (4)persistence: ApprovalHistory 엔티티/Repo(C소유) + A/B 의존 엔티티 stub 선행. (5)병렬 stub: StubInquiryStateMachine(전이테이블 충실)/StubDraftResponseService/StubAIAnalysisService — @ConditionalOnMissingBean으로 A/B 정식빈 머지 시 자동 대체. **검증**: Gradle Wrapper 추가(8.10.2), `gradlew compileJava` 성공, `gradlew test` 31개 통과/0실패(ApprovalService 8, Notification 4, StateMachine 8, Dashboard 3, OperatorController MockMvc 8). 요약문서: aidlc-docs/construction/backend/code/backend-c-summary.md.
+**Context**: CONSTRUCTION / Code Generation (팀 병렬) - 백엔드 C 파트 구현 완료. M2 통합 시 stub→A/B 정식 구현 교체.
+
+---
