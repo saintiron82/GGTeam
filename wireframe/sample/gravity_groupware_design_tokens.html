@@ -1,0 +1,411 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif}
+:root{
+  --g-primary:#05539A;
+  --g-accent:#06ADEC;
+  --g-text:#242021;
+}
+.wrap{padding:1.5rem 0;color:var(--color-text-primary)}
+.tab-bar{display:flex;gap:4px;margin-bottom:1.5rem;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:0}
+.tab{padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--color-text-secondary);background:none;border-top:none;border-left:none;border-right:none;border-radius:0;transition:color .15s}
+.tab.active{color:#05539A;border-bottom-color:#05539A}
+.section{display:none}
+.section.active{display:block}
+.sec-title{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:12px;margin-top:24px}
+.sec-title:first-child{margin-top:0}
+.token-table{width:100%;border-collapse:collapse;font-size:13px}
+.token-table th{text-align:left;padding:6px 10px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary)}
+.token-table td{padding:7px 10px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:middle;color:var(--color-text-primary)}
+.token-table tr:last-child td{border-bottom:none}
+.swatch{width:28px;height:28px;border-radius:4px;display:inline-block;border:0.5px solid rgba(0,0,0,.12);flex-shrink:0}
+.swatch-row{display:flex;align-items:center;gap:8px}
+.chip{display:inline-block;font-size:11px;font-family:monospace;padding:2px 6px;border-radius:3px;background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.scale-strip{display:flex;gap:0;border-radius:6px;overflow:hidden;height:36px;margin-bottom:6px}
+.scale-cell{flex:1;display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;font-size:9px;font-weight:600;cursor:default;transition:flex .2s}
+.scale-cell:hover{flex:2}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.token-group{background:var(--color-background-secondary);border-radius:8px;padding:12px 14px;margin-bottom:8px}
+.tg-label{font-size:11px;font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.tg-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:13px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.tg-row:last-child{border-bottom:none}
+.tg-name{color:var(--color-text-primary);font-family:monospace;font-size:12px}
+.tg-val{color:var(--color-text-secondary);font-size:12px}
+.shadow-demo{border-radius:8px;padding:16px 20px;font-size:13px;font-weight:500;background:var(--color-background-primary);margin-bottom:8px;color:var(--color-text-primary)}
+.radius-demo{height:48px;width:100%;background:rgba(5,83,154,.12);border:1px solid rgba(5,83,154,.25);margin-bottom:4px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#05539A;font-weight:600}
+.col-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:12px 14px}
+.col-title{font-size:12px;font-weight:600;margin-bottom:10px;color:var(--color-text-primary)}
+.mode-toggle{float:right;font-size:11px;padding:4px 10px;border:0.5px solid var(--color-border-secondary);border-radius:4px;background:none;cursor:pointer;color:var(--color-text-secondary)}
+.info-box{background:rgba(5,83,154,.07);border:0.5px solid rgba(5,83,154,.2);border-radius:6px;padding:10px 14px;font-size:12px;color:#05539A;margin-bottom:12px;line-height:1.6}
+.typ-row{display:flex;flex-direction:column;padding:12px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.typ-row:last-child{border-bottom:none}
+.typ-meta{display:flex;gap:12px;margin-top:6px}
+.typ-tag{font-size:11px;padding:2px 7px;border-radius:3px;background:var(--color-background-secondary);color:var(--color-text-secondary);font-family:monospace}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">GRAVITY 그룹웨어 디자인 토큰 시스템</h2>
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+  <div>
+    <div style="font-size:18px;font-weight:600;color:var(--color-text-primary)">GRAVITY 디자인 토큰</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">Figma Variables — Primitives / Semantic / Component</div>
+  </div>
+  <div style="display:flex;gap:6px">
+    <span class="badge" style="background:rgba(5,83,154,.12);color:#05539A">Light Mode</span>
+    <span class="badge" style="background:rgba(6,173,236,.1);color:#0688b8">v1.0</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab active" onclick="switchTab('color',this)">컬러 시스템</button>
+  <button class="tab" onclick="switchTab('typo',this)">타이포그래피</button>
+  <button class="tab" onclick="switchTab('spacing',this)">스페이싱</button>
+  <button class="tab" onclick="switchTab('elevation',this)">엘리베이션</button>
+  <button class="tab" onclick="switchTab('radius',this)">Border Radius</button>
+  <button class="tab" onclick="switchTab('semantic',this)">Semantic / Dark</button>
+</div>
+
+<!-- COLOR -->
+<div id="sec-color" class="section active">
+
+<div class="info-box">
+  Primary Blue <strong>#05539A</strong>가 신뢰감의 중심. Accent Sky <strong>#06ADEC</strong>는 뱃지·링크·하이라이트 한정. Neutral Gray는 배경·보더·텍스트 전용.
+</div>
+
+<div class="sec-title">Collection: Primitives — Primary Blue Scale</div>
+<div id="primary-strip" class="scale-strip"></div>
+<table class="token-table">
+<thead><tr><th>Token</th><th>Hex</th><th>미리보기</th><th>사용처</th></tr></thead>
+<tbody id="primary-rows"></tbody>
+</table>
+
+<div class="sec-title">Collection: Primitives — Accent Sky Scale</div>
+<div id="accent-strip" class="scale-strip"></div>
+<table class="token-table">
+<thead><tr><th>Token</th><th>Hex</th><th>미리보기</th><th>사용처</th></tr></thead>
+<tbody id="accent-rows"></tbody>
+</table>
+
+<div class="sec-title">Collection: Primitives — Neutral Gray Scale</div>
+<div id="neutral-strip" class="scale-strip"></div>
+<table class="token-table">
+<thead><tr><th>Token</th><th>Hex</th><th>미리보기</th><th>사용처</th></tr></thead>
+<tbody id="neutral-rows"></tbody>
+</table>
+
+<div class="sec-title">Collection: Primitives — Semantic Colors</div>
+<table class="token-table">
+<thead><tr><th>Token</th><th>Light Hex</th><th>미리보기</th><th>사용처</th></tr></thead>
+<tbody id="semantic-rows"></tbody>
+</table>
+
+<div class="sec-title">Collection: Semantic — Surface</div>
+<table class="token-table">
+<thead><tr><th>Token</th><th>Value</th><th>미리보기</th><th>사용처</th></tr></thead>
+<tbody id="surface-rows"></tbody>
+</table>
+</div>
+
+<!-- TYPO -->
+<div id="sec-typo" class="section">
+<div class="info-box">한국어 <strong>Pretendard</strong> · 영문/숫자 <strong>DM Sans</strong>. 두 폰트 모두 Google Fonts / npm 설치 가능. Pretendard는 weight 300~800 로드 권장.</div>
+<div id="typo-list"></div>
+</div>
+
+<!-- SPACING -->
+<div id="sec-spacing" class="section">
+<div class="sec-title">Collection: Primitives — Base Spacing (4px Grid)</div>
+<table class="token-table">
+<thead><tr><th>Token</th><th>Value</th><th>시각화</th><th>사용처</th></tr></thead>
+<tbody id="spacing-rows"></tbody>
+</table>
+<div class="sec-title" style="margin-top:20px">Collection: Component — Padding</div>
+<table class="token-table">
+<thead><tr><th>Token</th><th>Value</th><th>사용처</th></tr></thead>
+<tbody id="padding-rows"></tbody>
+</table>
+</div>
+
+<!-- ELEVATION -->
+<div id="sec-elevation" class="section">
+<div class="sec-title">Collection: Semantic — Elevation</div>
+<div id="shadow-list"></div>
+</div>
+
+<!-- RADIUS -->
+<div id="sec-radius" class="section">
+<div class="sec-title">Collection: Primitives — Border Radius</div>
+<div id="radius-list"></div>
+</div>
+
+<!-- SEMANTIC / DARK -->
+<div id="sec-semantic" class="section">
+<div class="sec-title">Figma Variables — 3-Collection 구조</div>
+<div class="two-col">
+  <div class="col-card">
+    <div class="col-title">① Primitives</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.7">
+      Raw values만 저장. 변수명에 의미 없음.<br>
+      <code style="font-size:11px">blue/500, gray/200, space/16</code><br><br>
+      — Color Scales (Primary, Accent, Neutral)<br>
+      — Semantic Hex values<br>
+      — Spacing base values<br>
+      — Radius values<br>
+      — Shadow raw values
+    </div>
+  </div>
+  <div class="col-card">
+    <div class="col-title">② Semantic</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.7">
+      Primitives를 참조. 의미 기반 이름.<br>
+      <code style="font-size:11px">color/brand/primary, color/text/default</code><br><br>
+      — color/brand/*<br>
+      — color/text/* (default, muted, inverse)<br>
+      — color/bg/* (page, surface, overlay)<br>
+      — color/border/*<br>
+      — color/status/* (success, warning, error, info)<br>
+      — elevation/*<br>
+      — radius/*
+    </div>
+  </div>
+</div>
+<div class="col-card" style="margin-top:8px">
+  <div class="col-title">③ Component</div>
+  <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.7">
+    Semantic을 참조. 컴포넌트별 전용 토큰.<br>
+    <code style="font-size:11px">button/primary/bg, input/border/default</code><br><br>
+    — button/* · input/* · badge/* · card/* · sidebar/* · header/* · modal/*<br>
+    — 컴포넌트 상태별: default / hover / active / disabled / focused
+  </div>
+</div>
+
+<div class="sec-title" style="margin-top:20px">다크 모드 대응 구조</div>
+<table class="token-table">
+<thead><tr><th>Semantic Token</th><th>Light Mode (Default)</th><th>Dark Mode</th><th>역할</th></tr></thead>
+<tbody>
+<tr><td><span class="chip">color/bg/page</span></td><td>#FFFFFF</td><td>#0F1217</td><td>페이지 기본 배경</td></tr>
+<tr><td><span class="chip">color/bg/surface</span></td><td>#F4F6F9</td><td>#1A1F2B</td><td>카드·패널 배경</td></tr>
+<tr><td><span class="chip">color/bg/elevated</span></td><td>#FFFFFF</td><td>#222838</td><td>모달·드롭다운</td></tr>
+<tr><td><span class="chip">color/bg/sidebar</span></td><td>#EEF2F8</td><td>#161B27</td><td>사이드내비 배경</td></tr>
+<tr><td><span class="chip">color/text/default</span></td><td>#242021</td><td>#E8EAED</td><td>본문 텍스트</td></tr>
+<tr><td><span class="chip">color/text/muted</span></td><td>#6B7280</td><td>#8B95A4</td><td>보조 텍스트, 레이블</td></tr>
+<tr><td><span class="chip">color/text/inverse</span></td><td>#FFFFFF</td><td>#0F1217</td><td>파란 버튼 위 텍스트</td></tr>
+<tr><td><span class="chip">color/border/default</span></td><td>#DDE2EA</td><td>#2E3447</td><td>기본 보더</td></tr>
+<tr><td><span class="chip">color/border/strong</span></td><td>#B3BCC9</td><td>#404A62</td><td>강조 보더, 구분선</td></tr>
+<tr><td><span class="chip">color/brand/primary</span></td><td>#05539A</td><td>#3D82C4</td><td>Primary 브랜드 컬러</td></tr>
+<tr><td><span class="chip">color/brand/accent</span></td><td>#06ADEC</td><td>#34C1F5</td><td>Accent 하이라이트</td></tr>
+<tr><td><span class="chip">color/status/success-bg</span></td><td>#ECFDF5</td><td>#0D2B1F</td><td>성공 상태 배경</td></tr>
+<tr><td><span class="chip">color/status/error-bg</span></td><td>#FEF2F2</td><td>#2B0D0D</td><td>에러 상태 배경</td></tr>
+</tbody>
+</table>
+<div style="font-size:12px;color:var(--color-text-secondary);margin-top:10px;line-height:1.7">
+  Figma에서 <strong>Variable Mode</strong>를 Light / Dark 두 개로 설정. Semantic 컬렉션의 각 토큰에 Mode별 값을 매핑. Component 토큰은 Semantic을 참조하므로 자동 대응됨.
+</div>
+</div>
+
+</div>
+
+<script>
+function switchTab(id,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+const primaryScale=[
+  {step:'50',hex:'#EDF3FA',use:'호버 배경, 선택 행 배경'},
+  {step:'100',hex:'#CFDFF0',use:'활성 메뉴 배경, 칩 배경'},
+  {step:'200',hex:'#9EC0E2',use:'비활성 아이콘, 플레이스홀더'},
+  {step:'300',hex:'#6EA0D4',use:'보조 버튼 보더'},
+  {step:'400',hex:'#3D80C5',use:'보조 버튼, 아이콘 강조'},
+  {step:'600',hex:'#05539A',use:'Primary 버튼, 브랜드 컬러 메인 ★'},
+  {step:'700',hex:'#043E75',use:'호버 상태, 포커스 링'},
+  {step:'800',hex:'#022B52',use:'헤더 배경 옵션, 다크 강조'},
+];
+const accentScale=[
+  {step:'50',hex:'#E8F7FD',use:'Info 배경, 알림 배경'},
+  {step:'100',hex:'#B8E8F9',use:'뱃지 배경(연하게)'},
+  {step:'200',hex:'#80D4F5',use:'아이콘 틴트'},
+  {step:'300',hex:'#47C0F1',use:'링크 언더라인'},
+  {step:'400',hex:'#06ADEC',use:'Accent 메인 ★ — 뱃지, 링크, 하이라이트'},
+  {step:'600',hex:'#0589BE',use:'Accent 호버'},
+  {step:'700',hex:'#04688F',use:'눌림 상태'},
+  {step:'800',hex:'#034A65',use:'다크 모드 Accent 텍스트'},
+];
+const neutralScale=[
+  {step:'50',hex:'#F8F9FA',use:'페이지 배경'},
+  {step:'100',hex:'#F1F3F6',use:'사이드바·헤더 배경'},
+  {step:'200',hex:'#E2E6EC',use:'구분선, 비활성 보더'},
+  {step:'300',hex:'#C8CDD7',use:'보더 기본'},
+  {step:'400',hex:'#9AA1AF',use:'플레이스홀더 텍스트'},
+  {step:'600',hex:'#6B7280',use:'보조 텍스트, 레이블'},
+  {step:'700',hex:'#3F4551',use:'보조 아이콘, 설명 텍스트'},
+  {step:'800',hex:'#242021',use:'기본 텍스트, 아이콘 베이스 ★'},
+];
+const semanticColors=[
+  {token:'success/default',hex:'#10B981',bg:'#ECFDF5',text:'성공 상태, 완료 뱃지'},
+  {token:'success/bg',hex:'#ECFDF5',bg:'#ECFDF5',text:'성공 배경'},
+  {token:'warning/default',hex:'#F59E0B',bg:'#FFFBEB',text:'경고, 주의 상태'},
+  {token:'warning/bg',hex:'#FFFBEB',bg:'#FFFBEB',text:'경고 배경'},
+  {token:'error/default',hex:'#EF4444',bg:'#FEF2F2',text:'에러, 유효성 실패'},
+  {token:'error/bg',hex:'#FEF2F2',bg:'#FEF2F2',text:'에러 배경'},
+  {token:'info/default',hex:'#05539A',bg:'#EDF3FA',text:'정보 알림 (Primary Blue)'},
+  {token:'info/bg',hex:'#EDF3FA',bg:'#EDF3FA',text:'정보 배경 (Primary/50)'},
+];
+const surfaceTokens=[
+  {token:'surface/page',val:'Neutral/50 · #F8F9FA',bg:'#F8F9FA',use:'최상위 페이지 배경'},
+  {token:'surface/card',val:'#FFFFFF',bg:'#FFFFFF',use:'카드, 컨텐츠 패널'},
+  {token:'surface/sidebar',val:'Neutral/100 · #F1F3F6',bg:'#F1F3F6',use:'글로벌 내비게이션 사이드바'},
+  {token:'surface/header',val:'#FFFFFF + border',bg:'#FFFFFF',use:'탑 헤더 바 배경'},
+  {token:'surface/modal',val:'#FFFFFF + overlay',bg:'#FFFFFF',use:'모달·다이얼로그 배경'},
+  {token:'surface/overlay',val:'rgba(36,32,33,.4)',bg:'rgba(36,32,33,.4)',use:'모달 스크림(딤처리)'},
+];
+
+function renderStrip(id,scale){
+  const el=document.getElementById(id);
+  scale.forEach(s=>{
+    const d=document.createElement('div');
+    d.className='scale-cell';
+    d.style.background=s.hex;
+    const lum=parseInt(s.hex.slice(1,3),16)*0.299+parseInt(s.hex.slice(3,5),16)*0.587+parseInt(s.hex.slice(5,7),16)*0.114;
+    d.style.color=lum>140?'rgba(0,0,0,.45)':'rgba(255,255,255,.6)';
+    d.textContent=s.step;
+    d.title=s.hex;
+    el.appendChild(d);
+  });
+}
+function renderColorTable(id,scale,prefix){
+  const tb=document.getElementById(id);
+  scale.forEach(s=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="chip">${prefix}/${s.step}</span></td><td style="font-family:monospace;font-size:12px">${s.hex}</td><td><div class="swatch" style="background:${s.hex}"></div></td><td style="color:var(--color-text-secondary);font-size:12px">${s.use}</td>`;
+    tb.appendChild(tr);
+  });
+}
+function renderSemanticTable(){
+  const tb=document.getElementById('semantic-rows');
+  semanticColors.forEach(s=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="chip">${s.token}</span></td><td style="font-family:monospace;font-size:12px">${s.hex}</td><td><div class="swatch" style="background:${s.hex}"></div></td><td style="color:var(--color-text-secondary);font-size:12px">${s.text}</td>`;
+    tb.appendChild(tr);
+  });
+}
+function renderSurfaceTable(){
+  const tb=document.getElementById('surface-rows');
+  surfaceTokens.forEach(s=>{
+    const lum=s.bg.startsWith('rgba')?180:parseInt(s.bg.slice(1,3),16)*0.299+parseInt(s.bg.slice(3,5),16)*0.587+parseInt(s.bg.slice(5,7),16)*0.114;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="chip">${s.token}</span></td><td style="font-family:monospace;font-size:12px">${s.val}</td><td><div class="swatch" style="background:${s.bg}"></div></td><td style="color:var(--color-text-secondary);font-size:12px">${s.use}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+renderStrip('primary-strip',primaryScale);
+renderStrip('accent-strip',accentScale);
+renderStrip('neutral-strip',neutralScale);
+renderColorTable('primary-rows',primaryScale,'primary');
+renderColorTable('accent-rows',accentScale,'accent');
+renderColorTable('neutral-rows',neutralScale,'neutral');
+renderSemanticTable();
+renderSurfaceTable();
+
+const typoScale=[
+  {name:'Display',size:'32px',lh:'1.3',wt:'700',ls:'-0.02em',usage:'빈 화면 메시지, 온보딩 타이틀'},
+  {name:'Heading 1',size:'24px',lh:'1.35',wt:'700',ls:'-0.01em',usage:'페이지 타이틀'},
+  {name:'Heading 2',size:'20px',lh:'1.4',wt:'600',ls:'-0.005em',usage:'섹션 헤더, 카드 타이틀'},
+  {name:'Heading 3',size:'16px',lh:'1.45',wt:'600',ls:'0',usage:'서브섹션, 테이블 헤더'},
+  {name:'Body Large',size:'15px',lh:'1.65',wt:'400',ls:'0',usage:'주요 본문, 리드 카피'},
+  {name:'Body',size:'14px',lh:'1.6',wt:'400',ls:'0',usage:'기본 본문, 폼 레이블'},
+  {name:'Body Small',size:'13px',lh:'1.55',wt:'400',ls:'0',usage:'보조 텍스트, 설명'},
+  {name:'Caption',size:'12px',lh:'1.5',wt:'400',ls:'0.01em',usage:'메타데이터, 날짜, 파일크기'},
+  {name:'Label',size:'12px',lh:'1.4',wt:'600',ls:'0.03em',usage:'버튼 텍스트, 뱃지, 태그'},
+];
+const typoEl=document.getElementById('typo-list');
+typoScale.forEach(t=>{
+  const row=document.createElement('div');
+  row.className='typ-row';
+  row.innerHTML=`<div style="font-size:${t.size};font-weight:${t.wt};letter-spacing:${t.ls};line-height:${t.lh};color:var(--color-text-primary)">${t.name}</div><div class="typ-meta"><span class="typ-tag">size: ${t.size}</span><span class="typ-tag">lh: ${t.lh}</span><span class="typ-tag">wt: ${t.wt}</span><span class="typ-tag">ls: ${t.ls}</span></div><div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px">${t.usage}</div>`;
+  typoEl.appendChild(row);
+});
+
+const spacingBase=[
+  {token:'space/1',val:'4px',use:'아이콘-텍스트 간격, 인라인 요소'},
+  {token:'space/2',val:'8px',use:'목록 아이템 간격, 소형 gap'},
+  {token:'space/3',val:'12px',use:'버튼 내부 수직 padding'},
+  {token:'space/4',val:'16px',use:'카드 내부 padding, 기본 gap ★'},
+  {token:'space/5',val:'20px',use:'폼 필드 사이 간격'},
+  {token:'space/6',val:'24px',use:'섹션 내부 요소 간격'},
+  {token:'space/8',val:'32px',use:'카드 사이 gap, 섹션 패딩'},
+  {token:'space/10',val:'40px',use:'섹션 상단 여백'},
+  {token:'space/12',val:'48px',use:'페이지 수직 패딩'},
+  {token:'space/16',val:'64px',use:'대형 섹션 구분'},
+  {token:'space/20',val:'80px',use:'랜딩/온보딩 여백'},
+];
+const paddingTokens=[
+  {token:'padding/xs',val:'4px 8px',use:'소형 뱃지, 탭 레이블'},
+  {token:'padding/sm',val:'6px 12px',use:'소형 버튼, 칩'},
+  {token:'padding/md',val:'8px 16px',use:'기본 버튼, 입력 필드 ★'},
+  {token:'padding/lg',val:'12px 20px',use:'대형 버튼, 카드 헤더'},
+  {token:'padding/xl',val:'16px 24px',use:'페이지 컨텐츠 패딩'},
+];
+
+const stb=document.getElementById('spacing-rows');
+spacingBase.forEach(s=>{
+  const tr=document.createElement('tr');
+  const w=parseInt(s.val)*1.2;
+  tr.innerHTML=`<td><span class="chip">${s.token}</span></td><td style="font-family:monospace;font-size:13px;font-weight:600">${s.val}</td><td><div style="height:14px;background:#05539A;border-radius:2px;width:${Math.min(w,200)}px;opacity:.7"></div></td><td style="font-size:12px;color:var(--color-text-secondary)">${s.use}</td>`;
+  stb.appendChild(tr);
+});
+const ptb=document.getElementById('padding-rows');
+paddingTokens.forEach(s=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><span class="chip">${s.token}</span></td><td style="font-family:monospace;font-size:13px;font-weight:600">${s.val}</td><td style="font-size:12px;color:var(--color-text-secondary)">${s.use}</td>`;
+  ptb.appendChild(tr);
+});
+
+const shadows=[
+  {level:'Level 0',css:'none',label:'기본 카드, 인라인 요소 (보더로만 구분)',bg:'var(--color-background-secondary)'},
+  {level:'Level 1',css:'0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05)',label:'카드, 테이블 헤더 고정',bg:'var(--color-background-primary)'},
+  {level:'Level 2',css:'0 4px 12px rgba(0,0,0,.1), 0 2px 4px rgba(0,0,0,.06)',label:'드롭다운, 셀렉트 팝업, 툴팁',bg:'var(--color-background-primary)'},
+  {level:'Level 3',css:'0 8px 24px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.07)',label:'모달 다이얼로그, 사이드 패널',bg:'var(--color-background-primary)'},
+  {level:'Level 4',css:'0 16px 48px rgba(0,0,0,.14), 0 8px 16px rgba(0,0,0,.08)',label:'팝오버, 컨텍스트 메뉴',bg:'var(--color-background-primary)'},
+];
+const shEl=document.getElementById('shadow-list');
+shadows.forEach(s=>{
+  const d=document.createElement('div');
+  d.className='shadow-demo';
+  d.style.boxShadow=s.css;
+  d.style.background=s.bg;
+  d.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:13px;font-weight:600">${s.level}</span><span class="chip" style="font-size:10px">${s.css==='none'?'none':s.css.split(',')[0]+'...'}</span></div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px">${s.label}</div>`;
+  shEl.appendChild(d);
+});
+
+const radii=[
+  {token:'radius/xs',val:'2px',use:'인라인 코드, 소형 태그'},
+  {token:'radius/sm',val:'4px',use:'뱃지, 버튼, 입력 필드 ★'},
+  {token:'radius/md',val:'6px',use:'보조 카드, 툴팁'},
+  {token:'radius/lg',val:'8px',use:'기본 카드, 드롭다운, 모달 ★'},
+  {token:'radius/xl',val:'12px',use:'대형 모달, 사이드 패널'},
+  {token:'radius/2xl',val:'16px',use:'온보딩 카드, 특별 강조 요소'},
+  {token:'radius/full',val:'9999px',use:'아바타, 상태 표시 도트, 토글'},
+];
+const rdEl=document.getElementById('radius-list');
+radii.forEach(r=>{
+  const w=document.createElement('div');
+  w.style.marginBottom='10px';
+  const preview=document.createElement('div');
+  preview.className='radius-demo';
+  preview.style.borderRadius=r.val;
+  preview.innerHTML=`<span>${r.token} · ${r.val}</span>`;
+  const desc=document.createElement('div');
+  desc.style.cssText='font-size:12px;color:var(--color-text-secondary);margin-top:3px;padding:0 4px';
+  desc.textContent=r.use;
+  w.appendChild(preview);
+  w.appendChild(desc);
+  rdEl.appendChild(w);
+});
+</script>

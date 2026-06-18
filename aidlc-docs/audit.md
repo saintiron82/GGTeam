@@ -289,3 +289,35 @@
 **Context**: CONSTRUCTION / Code Generation (팀 병렬) - 백엔드 C 파트 구현 완료. M2 통합 시 stub→A/B 정식 구현 교체.
 
 ---
+
+## CONSTRUCTION - Frontend(Unit2) UX/Wireframe Design 착수 (기획자)
+**Timestamp**: 2026-06-18T16:00:00+09:00
+**User Input**: "AI DLC 개발 방법론으로 할거야" (선행 맥락: 프론트 기획자로서 Vite 실제 프로젝트로 와이어프레임을 직접 보면서 그리고 싶다, 프론트 개발자와 충돌 방지를 위해 폴더 분리 요청)
+**AI Response**: 프론트 기획자 작업을 AI-DLC CONSTRUCTION 단계의 Unit2(Frontend) UX/화면 설계로 정렬. 충돌 방지를 위해 개발자 frontend/(5173)와 분리된 기획 전용 wireframe/(5174) Vite 프로젝트 생성 완료(5개 화면 스캐폴드). 방법론 원칙에 따라 설계 산출물은 aidlc-docs/construction/frontend/ux-design/ 에 문서화하고, wireframe/ 는 시각적 프로토타입으로 병행하는 계획 제시.
+**Context**: CONSTRUCTION Unit2 Frontend - UX/Wireframe Design stage 착수. 승인 게이트 진행 예정.
+
+---
+
+## CONSTRUCTION - Frontend UX Design / 01-IA 확정
+**Timestamp**: 2026-06-18T16:20:00+09:00
+**User Input**: "1. 응 2. 아니 리스트뷰도 있었으면 해 3. 응"
+**AI Response**: 01-information-architecture.md 확정. (1)S6 편집기=S5 상세 내 영역 유지, (2)S7 리스트 뷰를 '선택/후순위' → 정식 화면으로 승격(S4 칸반과 보드/리스트 토글, 동일 데이터), (3)URL 네이밍 유지. 네비게이션 흐름·구현 우선순위에 리스트 뷰 반영.
+**Context**: CONSTRUCTION Unit2 Frontend - IA(1단계) 승인 완료. 다음 단계 와이어프레임(02) 진행 예정.
+
+---
+
+## CONSTRUCTION - Frontend UX Design / 02-와이어프레임 S7 추가
+**Timestamp**: 2026-06-18T16:25:00+09:00
+**User Input**: "응" (리스트 뷰 추가 진행 승인)
+**AI Response**: S7 리스트 뷰 와이어프레임 추가. wireframe/src/screens/ListScreen.tsx 생성(표 형태+필터+페이징+보드/리스트 토글), KanbanScreen에 칸반/리스트 토글 추가, main.tsx 네비에 리스트 뷰 등록(6개 화면). 02-wireframes.md에 S7 명세 추가. Vite HMR 반영, 진단 오류 없음.
+**Context**: CONSTRUCTION Unit2 Frontend - 와이어프레임에 S7 반영 완료.
+
+---
+
+## CONSTRUCTION - Frontend UX Design / 와이어프레임 GRAVITY 디자인 가이드 적용 + 기획 피드백 반영
+**Timestamp**: 2026-06-18T17:30:00+09:00
+**User Input**: "지금 만들어진 와이어프레임에 디자인 가이드를 적용하고 싶어" → 이후 화면별 피드백(상태칩 닷 제거/통일, 필터·페이지네이션 가이드화, 칸반 상태 그룹핑, 리스트 유형 컬럼 통합·완료시각 추가, 고객 폼 자동입력, 로그인 비밀번호 찾기 등) + "프론트 개발자가 볼 수 있게 문서로 남겨줘"
+**AI Response**: sample/gravity_*.html 토큰을 wireframe-kit.tsx에 시맨틱 토큰으로 적용(Primary/Accent/Neutral, Pretendard·DM Sans, Radius/Elevation), index.html에 폰트+hover/focus CSS. 컴포넌트 정비(Btn variant, Field required/helper/error, Badge/UrgencyBadge/TypeBadge/StatusBadge/Select/SearchBox/Pagination). 6개 화면 반영: 상태칩 닷 제거 통일, 칸반 접수+AI분석중 표시 그룹핑(5컬럼, enum 불변), 리스트 "유형(고객→AI)" 통합·상태/유형 칩·완료시각 컬럼·가이드 페이지네이션, 상세↔편집기 영역 관계 명시, 고객 폼 유저ID/닉네임 자동입력(읽기전용), 로그인 비밀번호 찾기 링크. 06-wireframe-feedback-and-decisions.md 작성(개발자 전달용, 백엔드 합의 필요 5건 포함). 진단 오류 없음, Vite HMR 정상.
+**Context**: CONSTRUCTION Unit2 Frontend - 와이어프레임 디자인 가이드 적용 및 기획 피드백 반영 완료. 백엔드 협의 필요: 칸반 그룹핑 동의/유형 색상 승인/completedAt 필드/고객 로그인 컨텍스트/비밀번호 찾기 API.
+
+---

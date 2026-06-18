@@ -1,0 +1,889 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{padding:1.5rem 0;font-size:13px;color:var(--color-text-primary)}
+.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.top-title{font-size:17px;font-weight:600}
+.top-sub{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.cat-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:0}
+.ctab{padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--color-text-secondary);border-radius:0;transition:color .12s}
+.ctab.on{color:#05539A;border-bottom-color:#05539A}
+.cat-sec{display:none}
+.cat-sec.on{display:block}
+.comp-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.cnav{padding:5px 12px;font-size:12px;border:0.5px solid var(--color-border-tertiary);border-radius:20px;cursor:pointer;background:none;color:var(--color-text-secondary);transition:all .12s}
+.cnav.sel{background:#05539A;color:#fff;border-color:#05539A}
+.comp-panel{display:none}
+.comp-panel.on{display:block}
+.cp-head{background:var(--color-background-secondary);border-radius:8px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.cp-name{font-size:15px;font-weight:600}
+.cp-desc{font-size:12px;color:var(--color-text-secondary);margin-top:3px;line-height:1.5}
+.cp-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.bdg{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
+.bdg-blue{background:rgba(5,83,154,.1);color:#05539A}
+.bdg-gray{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.section-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:8px;margin-top:14px}
+.section-lbl:first-of-type{margin-top:0}
+.preview-box{background:var(--color-background-secondary);border-radius:8px;padding:16px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px}
+.tbl th{text-align:left;padding:6px 10px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+.tbl td{padding:7px 10px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top;line-height:1.5}
+.tbl tr:last-child td{border-bottom:none}
+.chip{display:inline-block;font-family:monospace;font-size:11px;padding:1px 6px;border-radius:3px;background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.note-box{border-left:3px solid #05539A;padding:8px 12px;background:rgba(5,83,154,.05);border-radius:0;font-size:12px;line-height:1.6;color:var(--color-text-primary);margin-bottom:10px}
+.warn-box{border-left:3px solid #F59E0B;padding:8px 12px;background:rgba(245,158,11,.06);font-size:12px;line-height:1.6;color:var(--color-text-primary);margin-bottom:10px}
+.state-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g-btn{display:inline-flex;align-items:center;gap:6px;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;padding:7px 16px;border:none;line-height:1}
+.g-btn-primary{background:#05539A;color:#fff}
+.g-btn-secondary{background:#fff;color:#05539A;border:1px solid #05539A}
+.g-btn-ghost{background:transparent;color:#242021;border:1px solid #DDE2EA}
+.g-btn-danger{background:#EF4444;color:#fff}
+.g-btn-sm{padding:5px 12px;font-size:12px}
+.g-btn-lg{padding:10px 22px;font-size:14px}
+.g-btn-dis{opacity:.38;pointer-events:none}
+.g-input{display:block;width:100%;padding:7px 12px;border:1px solid #C8CDD7;border-radius:4px;font-size:13px;color:#242021;background:#fff;outline:none}
+.g-input-err{border-color:#EF4444}
+.g-input-focus{border-color:#05539A;box-shadow:0 0 0 3px rgba(5,83,154,.12)}
+.g-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600}
+.tag-default{background:#F1F3F6;color:#6B7280;border:0.5px solid #DDE2EA}
+.tag-info{background:rgba(5,83,154,.1);color:#05539A}
+.tag-success{background:#ECFDF5;color:#065F46}
+.tag-warning{background:#FFFBEB;color:#92400E}
+.tag-error{background:#FEF2F2;color:#991B1B}
+.g-check{width:16px;height:16px;border:1.5px solid #C8CDD7;border-radius:3px;display:inline-flex;align-items:center;justify-content:center}
+.g-check.checked{background:#05539A;border-color:#05539A;color:#fff}
+.g-radio{width:16px;height:16px;border:1.5px solid #C8CDD7;border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
+.g-radio.checked:after{content:'';width:7px;height:7px;background:#05539A;border-radius:50%;display:block}
+.g-radio.checked{border-color:#05539A}
+.g-toggle{width:34px;height:20px;border-radius:10px;position:relative;display:inline-block}
+.g-toggle.off{background:#DDE2EA}
+.g-toggle.on{background:#05539A}
+.g-toggle-thumb{position:absolute;top:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:left .15s}
+.g-toggle.off .g-toggle-thumb{left:3px}
+.g-toggle.on .g-toggle-thumb{left:17px}
+.g-card{background:#fff;border:0.5px solid #DDE2EA;border-radius:8px;padding:16px}
+.g-divider{height:0.5px;background:#DDE2EA;margin:8px 0}
+.empty-state{display:flex;flex-direction:column;align-items:center;padding:32px 16px;gap:8px;text-align:center}
+.skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;border-radius:4px;height:14px}
+.spinner{width:20px;height:20px;border:2px solid #DDE2EA;border-top-color:#05539A;border-radius:50%}
+.tab-bar-demo{display:flex;border-bottom:0.5px solid #DDE2EA;gap:0}
+.tab-item{padding:8px 16px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:#6B7280}
+.tab-item.active-tab{color:#05539A;border-bottom-color:#05539A;font-weight:600}
+.acc-item{border:0.5px solid #DDE2EA;border-radius:6px;overflow:hidden;margin-bottom:6px}
+.acc-head{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:500;background:#fff}
+.acc-body{padding:10px 14px;font-size:12px;color:#6B7280;border-top:0.5px solid #DDE2EA;background:#F8F9FA;line-height:1.6}
+.alert-demo{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:6px;font-size:13px;margin-bottom:6px}
+.breadcrumb{display:flex;align-items:center;gap:4px;font-size:13px}
+.bc-sep{color:#C8CDD7}
+.pager{display:flex;gap:4px;align-items:center}
+.pg{width:30px;height:30px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid #DDE2EA;background:#fff;color:#6B7280}
+.pg.cur{background:#05539A;color:#fff;border-color:#05539A}
+.tooltip-wrap{position:relative;display:inline-flex;align-items:center}
+.tooltip-tip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#242021;color:#fff;font-size:11px;padding:4px 9px;border-radius:4px;white-space:nowrap;pointer-events:none}
+.tooltip-tip:after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#242021}
+.drawer-demo{display:flex;height:160px;border:0.5px solid #DDE2EA;border-radius:8px;overflow:hidden}
+.drawer-overlay{flex:1;background:#F8F9FA;display:flex;align-items:center;justify-content:center;font-size:12px;color:#9AA1AF}
+.drawer-panel{width:220px;background:#fff;border-left:0.5px solid #DDE2EA;padding:14px;display:flex;flex-direction:column;gap:8px}
+</style>
+
+<div class="w">
+<h2 class="sr-only">GRAVITY 그룹웨어 Atomic 컴포넌트 스펙</h2>
+
+<div class="top-bar">
+  <div>
+    <div class="top-title">GRAVITY 컴포넌트 스펙</div>
+    <div class="top-sub">Atomic Design System — Figma Component Library</div>
+  </div>
+  <div style="display:flex;gap:5px">
+    <span class="bdg bdg-blue" style="padding:4px 10px;border-radius:6px">v1.0</span>
+    <span class="bdg bdg-gray" style="padding:4px 10px;border-radius:6px">26 components</span>
+  </div>
+</div>
+
+<div class="cat-tabs">
+  <button class="ctab on" onclick="switchCat('form',this)">인풋 & 폼</button>
+  <button class="ctab" onclick="switchCat('feedback',this)">피드백 & 상태</button>
+  <button class="ctab" onclick="switchCat('layout',this)">레이아웃</button>
+  <button class="ctab" onclick="switchCat('nav',this)">네비게이션</button>
+</div>
+
+<div id="cat-form" class="cat-sec on">
+  <div class="comp-nav">
+    <button class="cnav sel" onclick="switchComp('form','btn',this)">Button</button>
+    <button class="cnav" onclick="switchComp('form','input',this)">Input</button>
+    <button class="cnav" onclick="switchComp('form','select',this)">Select</button>
+    <button class="cnav" onclick="switchComp('form','check',this)">Checkbox / Radio / Toggle</button>
+    <button class="cnav" onclick="switchComp('form','date',this)">DatePicker</button>
+    <button class="cnav" onclick="switchComp('form','file',this)">File Upload</button>
+  </div>
+
+  <div id="form-btn" class="comp-panel on">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Button</div>
+        <div class="cp-desc">그룹웨어 내 모든 액션의 시작점. 위계 구조가 명확해야 한다.</div>
+        <div class="cp-badges">
+          <span class="bdg bdg-blue">Variants: 5종</span>
+          <span class="bdg bdg-blue">Size: sm / md / lg</span>
+          <span class="bdg bdg-gray">Icon optional</span>
+          <span class="bdg bdg-gray">Loading state</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box">
+      <button class="g-btn g-btn-primary"><i class="ti ti-check" style="font-size:14px" aria-hidden="true"></i>Primary</button>
+      <button class="g-btn g-btn-secondary">Secondary</button>
+      <button class="g-btn g-btn-ghost">Ghost</button>
+      <button class="g-btn g-btn-danger"><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i>Danger</button>
+      <button class="g-btn g-btn-primary g-btn-sm">Small</button>
+      <button class="g-btn g-btn-primary g-btn-lg">Large</button>
+      <button class="g-btn g-btn-primary g-btn-dis">Disabled</button>
+    </div>
+    <div class="section-lbl">Figma Variants & Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">variant</span></td><td>Variant</td><td>primary / secondary / ghost / danger / icon-only</td></tr>
+        <tr><td><span class="chip">size</span></td><td>Variant</td><td>sm (28px) / md (34px) / lg (42px)</td></tr>
+        <tr><td><span class="chip">state</span></td><td>Variant</td><td>default / hover / active / disabled / loading</td></tr>
+        <tr><td><span class="chip">icon-left</span></td><td>Boolean</td><td>true / false</td></tr>
+        <tr><td><span class="chip">icon-right</span></td><td>Boolean</td><td>true / false</td></tr>
+        <tr><td><span class="chip">full-width</span></td><td>Boolean</td><td>true / false</td></tr>
+        <tr><td><span class="chip">label</span></td><td>Text</td><td>버튼 라벨 텍스트</td></tr>
+      </tbody>
+    </table>
+    <div class="section-lbl">상태별 스타일</div>
+    <table class="tbl">
+      <thead><tr><th>State</th><th>Primary 기준</th><th>공통 규칙</th></tr></thead>
+      <tbody>
+        <tr><td><span class="state-pill" style="background:rgba(5,83,154,.1)"><span class="dot" style="background:#05539A"></span>default</span></td><td>bg #05539A · text #fff</td><td>—</td></tr>
+        <tr><td><span class="state-pill" style="background:#F1F3F6"><span class="dot" style="background:#6B7280"></span>hover</span></td><td>bg #043E75</td><td>cursor: pointer</td></tr>
+        <tr><td><span class="state-pill" style="background:#EDF3FA"><span class="dot" style="background:#3D80C5"></span>active</span></td><td>bg #022B52 · scale 0.98</td><td>transform: scale(0.98)</td></tr>
+        <tr><td><span class="state-pill" style="background:#F8F9FA"><span class="dot" style="background:#C8CDD7"></span>disabled</span></td><td>opacity 0.38</td><td>pointer-events: none</td></tr>
+        <tr><td><span class="state-pill" style="background:#EDF3FA"><span class="dot" style="background:#06ADEC"></span>loading</span></td><td>spinner + label 숨김</td><td>pointer-events: none</td></tr>
+        <tr><td><span class="state-pill" style="background:rgba(5,83,154,.08)"><span class="dot" style="background:#05539A"></span>focus</span></td><td>outline: 2px solid #05539A</td><td>outline-offset: 2px</td></tr>
+      </tbody>
+    </table>
+    <div class="section-lbl">UX 가이드라인</div>
+    <div class="note-box">한 화면에 Primary 버튼은 1개만. 주요 액션(저장, 제출)은 Primary, 보조 액션은 Secondary 또는 Ghost로 위계를 명확히 한다.</div>
+    <div class="warn-box">Danger 버튼은 삭제·철회 등 되돌릴 수 없는 액션에만 사용. 폼 하단에 단독 배치하지 않고, 반드시 취소(Ghost) 버튼과 함께 제공.</div>
+    <div class="section-lbl">사용처</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.7">결재 상신·반려 · 공지 등록 · 인사 신청서 제출 · 회원 삭제 확인 모달</div>
+  </div>
+
+  <div id="form-input" class="comp-panel">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Input</div>
+        <div class="cp-desc">텍스트 입력의 기반. 레이블·도움말·에러 메시지를 항상 세트로 구성.</div>
+        <div class="cp-badges">
+          <span class="bdg bdg-blue">Text / Number / Search / Textarea</span>
+          <span class="bdg bdg-gray">Label + Helper + Error</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box" style="flex-direction:column;align-items:stretch;gap:12px">
+      <div>
+        <div style="font-size:12px;font-weight:600;margin-bottom:4px">직급 <span style="color:#EF4444">*</span></div>
+        <input class="g-input" placeholder="직급을 입력하세요" style="max-width:300px">
+        <div style="font-size:11px;color:#9AA1AF;margin-top:3px">인사 시스템과 동기화됩니다</div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;margin-bottom:4px">이메일</div>
+        <input class="g-input g-input-err" value="invalid@" style="max-width:300px">
+        <div style="font-size:11px;color:#EF4444;margin-top:3px"><i class="ti ti-alert-circle" style="font-size:12px" aria-hidden="true"></i> 올바른 이메일 형식이 아닙니다</div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;margin-bottom:4px">검색</div>
+        <div style="position:relative;max-width:300px">
+          <i class="ti ti-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:15px;color:#9AA1AF" aria-hidden="true"></i>
+          <input class="g-input" placeholder="이름, 부서 검색" style="padding-left:32px">
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">type</span></td><td>Variant</td><td>text / number / search / textarea / password</td></tr>
+        <tr><td><span class="chip">state</span></td><td>Variant</td><td>default / focused / filled / error / disabled / readonly</td></tr>
+        <tr><td><span class="chip">size</span></td><td>Variant</td><td>sm (30px) / md (36px) / lg (42px)</td></tr>
+        <tr><td><span class="chip">label</span></td><td>Text</td><td>레이블 문자열</td></tr>
+        <tr><td><span class="chip">required</span></td><td>Boolean</td><td>true → 빨간 * 표시</td></tr>
+        <tr><td><span class="chip">helper-text</span></td><td>Text</td><td>도움말 텍스트</td></tr>
+        <tr><td><span class="chip">error-text</span></td><td>Text</td><td>에러 메시지 (state=error 시 노출)</td></tr>
+        <tr><td><span class="chip">prefix-icon</span></td><td>Boolean</td><td>Search 타입에 자동 적용</td></tr>
+        <tr><td><span class="chip">suffix-icon</span></td><td>Boolean</td><td>비밀번호 토글, 클리어 버튼</td></tr>
+        <tr><td><span class="chip">rows</span></td><td>Number</td><td>Textarea 전용, 기본 4</td></tr>
+      </tbody>
+    </table>
+    <div class="note-box">레이블은 항상 Input 상단에 위치. 플레이스홀더를 레이블 대용으로 사용하지 않는다. 에러 메시지는 빨간색 텍스트 + 아이콘으로 명확히 표시.</div>
+    <div class="warn-box">Textarea의 resize는 vertical만 허용. 가로 resize는 레이아웃 깨짐 유발.</div>
+  </div>
+
+  <div id="form-select" class="comp-panel">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Select / Dropdown</div>
+        <div class="cp-desc">단일/다중 선택. 옵션이 5개 이하일 땐 Radio를 우선 검토.</div>
+        <div class="cp-badges">
+          <span class="bdg bdg-blue">Single / Multi</span>
+          <span class="bdg bdg-gray">Searchable</span>
+          <span class="bdg bdg-gray">Clearable</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box" style="flex-direction:column;align-items:stretch;gap:8px">
+      <div style="position:relative;max-width:260px">
+        <div class="g-input" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+          <span style="color:#9AA1AF">부서 선택</span>
+          <i class="ti ti-chevron-down" style="font-size:15px;color:#9AA1AF" aria-hidden="true"></i>
+        </div>
+      </div>
+      <div style="max-width:260px;border:1px solid #C8CDD7;border-radius:4px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,.1)">
+        <div style="padding:7px 10px;font-size:12px;color:#9AA1AF;border-bottom:0.5px solid #DDE2EA;display:flex;gap:6px;align-items:center"><i class="ti ti-search" style="font-size:13px" aria-hidden="true"></i>검색</div>
+        <div style="padding:7px 12px;font-size:13px;background:rgba(5,83,154,.06);color:#05539A;font-weight:500"><i class="ti ti-check" style="font-size:13px;margin-right:4px" aria-hidden="true"></i>개발팀</div>
+        <div style="padding:7px 12px;font-size:13px">디자인팀</div>
+        <div style="padding:7px 12px;font-size:13px">인사팀</div>
+        <div style="padding:7px 12px;font-size:13px;color:#9AA1AF">기획팀</div>
+      </div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">mode</span></td><td>Variant</td><td>single / multi</td></tr>
+        <tr><td><span class="chip">state</span></td><td>Variant</td><td>default / open / selected / error / disabled</td></tr>
+        <tr><td><span class="chip">searchable</span></td><td>Boolean</td><td>옵션 검색 인풋 활성화</td></tr>
+        <tr><td><span class="chip">clearable</span></td><td>Boolean</td><td>선택 초기화 × 버튼</td></tr>
+        <tr><td><span class="chip">max-height</span></td><td>Number</span></td><td>드롭다운 최대 높이 (기본 220px)</td></tr>
+        <tr><td><span class="chip">placeholder</span></td><td>Text</td><td>미선택 시 안내 텍스트</td></tr>
+      </tbody>
+    </table>
+    <div class="note-box">드롭다운은 항상 트리거 버튼 너비 이상으로 열림. 화면 하단 잘림 시 위로 열리는 플립 동작 필요 (개발 주의사항).</div>
+  </div>
+
+  <div id="form-check" class="comp-panel">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Checkbox / Radio / Toggle</div>
+        <div class="cp-desc">선택 컨트롤 3종. 용도에 따라 명확히 구분해서 사용.</div>
+        <div class="cp-badges">
+          <span class="bdg bdg-blue">Checkbox: 다중선택</span>
+          <span class="bdg bdg-blue">Radio: 단일선택</span>
+          <span class="bdg bdg-blue">Toggle: 즉시 ON/OFF</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box" style="gap:16px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px">
+          <div class="g-check checked"><i class="ti ti-check" style="font-size:10px" aria-hidden="true"></i></div>수신 동의
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px">
+          <div class="g-check" style="background:#F8F9FA"></div>선택 항목
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;opacity:.4">
+          <div class="g-check"></div>비활성
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px">
+          <div class="g-radio checked"></div>서울 사무소
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px">
+          <div class="g-radio"></div>부산 지사
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+          <div class="g-toggle on"><div class="g-toggle-thumb"></div></div>알림 ON
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+          <div class="g-toggle off"><div class="g-toggle-thumb"></div></div>알림 OFF
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>컴포넌트</th><th>Props</th><th>States</th></tr></thead>
+      <tbody>
+        <tr><td>Checkbox</td><td><span class="chip">checked</span> <span class="chip">indeterminate</span> <span class="chip">label</span></td><td>default / checked / indeterminate / disabled / error</td></tr>
+        <tr><td>Radio</td><td><span class="chip">selected</span> <span class="chip">label</span> <span class="chip">description</span></td><td>default / selected / disabled</td></tr>
+        <tr><td>Toggle</td><td><span class="chip">on</span> <span class="chip">label-on</span> <span class="chip">label-off</span> <span class="chip">size</span></td><td>off / on / disabled</td></tr>
+      </tbody>
+    </table>
+    <div class="note-box">Toggle은 설정 변경이 즉시 반영될 때만 사용. 폼 제출 후 적용되는 항목은 Checkbox를 사용한다.</div>
+    <div class="section-lbl">사용처</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.7">Checkbox: 게시판 목록 일괄 선택, 권한 설정 다중 선택 · Radio: 결재 라인 선택, 휴가 종류 선택 · Toggle: 알림 설정, 다크모드 전환</div>
+  </div>
+
+  <div id="form-date" class="comp-panel">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">DatePicker / TimePicker</div>
+        <div class="cp-desc">날짜·시간 입력. 직접 타이핑과 캘린더 팝업 양쪽 지원.</div>
+        <div class="cp-badges">
+          <span class="bdg bdg-blue">Date / Time / DateTime / DateRange</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">mode</span></td><td>Variant</td><td>date / time / datetime / date-range</td></tr>
+        <tr><td><span class="chip">state</span></td><td>Variant</td><td>default / open / filled / error / disabled</td></tr>
+        <tr><td><span class="chip">min-date</span></td><td>Text</td><td>선택 가능 최소 날짜</td></tr>
+        <tr><td><span class="chip">max-date</span></td><td>Text</td><td>선택 가능 최대 날짜</td></tr>
+        <tr><td><span class="chip">format</span></td><td>Text</td><td>YYYY.MM.DD (기본, 한국 표준)</td></tr>
+        <tr><td><span class="chip">time-format</span></td><td>Variant</td><td>12h / 24h (기본 24h)</td></tr>
+      </tbody>
+    </table>
+    <div class="note-box">날짜 형식은 YYYY.MM.DD 한국 표준 통일. 영문 월 약자(Jan/Feb) 사용 금지. DateRange는 시작일이 종료일보다 클 수 없도록 반드시 유효성 처리.</div>
+    <div class="section-lbl">사용처</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.7">휴가 신청서(DateRange) · 회의실 예약(DateTime) · 공지 게시 기간 설정(DateRange) · 생년월일 입력(Date)</div>
+  </div>
+
+  <div id="form-file" class="comp-panel">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">File Upload</div>
+        <div class="cp-desc">단일·다중 파일 업로드. 드래그앤드롭 + 클릭 선택 양쪽 지원.</div>
+        <div class="cp-badges">
+          <span class="bdg bdg-blue">Single / Multiple</span>
+          <span class="bdg bdg-gray">Drag & Drop</span>
+          <span class="bdg bdg-gray">Preview</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box">
+      <div style="border:1.5px dashed #C8CDD7;border-radius:6px;padding:24px 32px;display:flex;flex-direction:column;align-items:center;gap:8px;background:#F8F9FA;cursor:pointer;transition:border-color .15s">
+        <i class="ti ti-upload" style="font-size:24px;color:#9AA1AF" aria-hidden="true"></i>
+        <div style="font-size:13px;color:#242021;font-weight:500">파일을 끌어다 놓거나 클릭하여 선택</div>
+        <div style="font-size:11px;color:#9AA1AF">최대 10MB · PDF, DOCX, XLSX, PNG, JPG</div>
+      </div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">mode</span></td><td>Variant</td><td>single / multiple</td></tr>
+        <tr><td><span class="chip">state</span></td><td>Variant</td><td>idle / dragover / uploading / success / error</td></tr>
+        <tr><td><span class="chip">accept</span></td><td>Text</td><td>허용 확장자 (예: .pdf, .docx)</td></tr>
+        <tr><td><span class="chip">max-size</span></td><td>Text</td><td>최대 파일 크기 표시용 (예: 10MB)</td></tr>
+        <tr><td><span class="chip">show-preview</span></td><td>Boolean</td><td>이미지 썸네일 미리보기</td></tr>
+        <tr><td><span class="chip">file-list</span></td><td>Boolean</td><td>업로드된 파일 목록 표시</td></tr>
+      </tbody>
+    </table>
+    <div class="warn-box">업로드 진행 중에는 취소 버튼을 반드시 제공. 에러 시 구체적인 사유(파일 크기 초과 / 형식 불일치)를 명시.</div>
+  </div>
+</div>
+
+<div id="cat-feedback" class="cat-sec">
+  <div class="comp-nav">
+    <button class="cnav sel" onclick="switchComp('feedback','badge',this)">Badge / Tag</button>
+    <button class="cnav" onclick="switchComp('feedback','alert',this)">Alert / Toast</button>
+    <button class="cnav" onclick="switchComp('feedback','empty',this)">Empty State</button>
+    <button class="cnav" onclick="switchComp('feedback','loading',this)">Loading / Skeleton</button>
+  </div>
+
+  <div id="feedback-badge" class="comp-panel on">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Badge / Tag</div>
+        <div class="cp-desc">상태 표시 및 분류용 레이블. 남용하지 말 것 — 화면당 색상 종류는 3개 이하.</div>
+        <div class="cp-badges">
+          <span class="bdg bdg-blue">Badge: 상태표시</span>
+          <span class="bdg bdg-blue">Tag: 분류/필터</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box" style="gap:8px;flex-wrap:wrap">
+      <span class="g-badge tag-default">미처리</span>
+      <span class="g-badge tag-info"><span class="dot" style="background:#05539A;margin-right:2px"></span>처리중</span>
+      <span class="g-badge tag-success"><span class="dot" style="background:#10B981;margin-right:2px"></span>완료</span>
+      <span class="g-badge tag-warning">반려</span>
+      <span class="g-badge tag-error">취소</span>
+      <span class="g-badge" style="background:rgba(6,173,236,.12);color:#0588BF">신규</span>
+      <span class="g-badge tag-default" style="padding:3px 10px;border-radius:4px">개발팀</span>
+      <span class="g-badge tag-default" style="padding:3px 10px;border-radius:4px"><i class="ti ti-x" style="font-size:10px;margin-left:3px" aria-hidden="true"></i> 필터태그</span>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">type</span></td><td>Variant</td><td>badge / tag</td></tr>
+        <tr><td><span class="chip">color</span></td><td>Variant</td><td>default / info / success / warning / error / accent</td></tr>
+        <tr><td><span class="chip">size</span></td><td>Variant</td><td>sm / md</td></tr>
+        <tr><td><span class="chip">dot</span></td><td>Boolean</td><td>상태 도트 표시</td></tr>
+        <tr><td><span class="chip">removable</span></td><td>Boolean</td><td>× 버튼 (Tag 전용)</td></tr>
+        <tr><td><span class="chip">count</span></td><td>Text</td><td>숫자 카운터 (알림 배지)</td></tr>
+      </tbody>
+    </table>
+    <div class="note-box">결재 상태 컬러 규칙: 미처리=gray, 진행중=info(Primary Blue), 완료=success, 반려=warning, 취소=error. Accent Sky는 "신규", "NEW" 등 강조 뱃지에만 한정.</div>
+  </div>
+
+  <div id="feedback-alert" class="comp-panel">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Alert / Toast / Snackbar</div>
+        <div class="cp-desc">사용자에게 정보·경고·에러를 전달하는 피드백 컴포넌트.</div>
+        <div class="cp-badges">
+          <span class="bdg bdg-blue">Alert: 인라인 고정</span>
+          <span class="bdg bdg-blue">Toast: 우상단 플로팅</span>
+          <span class="bdg bdg-gray">Auto-dismiss 가능</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box" style="flex-direction:column;align-items:stretch;gap:8px">
+      <div class="alert-demo" style="background:#EDF3FA;border:0.5px solid rgba(5,83,154,.3)">
+        <i class="ti ti-info-circle" style="font-size:18px;color:#05539A;flex-shrink:0;margin-top:1px" aria-hidden="true"></i>
+        <div><div style="font-size:13px;font-weight:600;color:#022B52">안내</div><div style="font-size:12px;color:#05539A;margin-top:2px">결재 요청이 팀장에게 전달되었습니다.</div></div>
+      </div>
+      <div class="alert-demo" style="background:#ECFDF5;border:0.5px solid rgba(16,185,129,.3)">
+        <i class="ti ti-circle-check" style="font-size:18px;color:#10B981;flex-shrink:0;margin-top:1px" aria-hidden="true"></i>
+        <div><div style="font-size:13px;font-weight:600;color:#065F46">저장 완료</div><div style="font-size:12px;color:#047857;margin-top:2px">변경 사항이 성공적으로 저장되었습니다.</div></div>
+      </div>
+      <div class="alert-demo" style="background:#FEF2F2;border:0.5px solid rgba(239,68,68,.3)">
+        <i class="ti ti-alert-triangle" style="font-size:18px;color:#EF4444;flex-shrink:0;margin-top:1px" aria-hidden="true"></i>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600;color:#991B1B">제출 실패</div><div style="font-size:12px;color:#DC2626;margin-top:2px">필수 항목을 모두 입력해주세요.</div></div>
+        <i class="ti ti-x" style="font-size:15px;color:#9AA1AF;cursor:pointer;flex-shrink:0" aria-hidden="true"></i>
+      </div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">variant</span></td><td>Variant</td><td>alert / toast / snackbar</td></tr>
+        <tr><td><span class="chip">status</span></td><td>Variant</td><td>info / success / warning / error</td></tr>
+        <tr><td><span class="chip">title</span></td><td>Text</td><td>굵은 제목 (선택)</td></tr>
+        <tr><td><span class="chip">message</span></td><td>Text</td><td>본문 메시지</td></tr>
+        <tr><td><span class="chip">closable</span></td><td>Boolean</td><td>× 닫기 버튼</td></tr>
+        <tr><td><span class="chip">action</span></td><td>Text</td><td>인라인 액션 버튼 레이블</td></tr>
+        <tr><td><span class="chip">duration</span></td><td>Number</td><td>Toast 자동 소멸 시간(ms), 0=유지</td></tr>
+      </tbody>
+    </table>
+    <div class="note-box">Toast는 우상단에 쌓임 (max 3개). 4초 후 자동 소멸 기본. Error Toast는 사용자가 직접 닫을 때까지 유지. Alert는 폼 상단 또는 섹션 내부에 인라인 배치.</div>
+  </div>
+
+  <div id="feedback-empty" class="comp-panel">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Empty State</div>
+        <div class="cp-desc">데이터 없음·검색 결과 없음·접근 권한 없음 등 다양한 빈 상태를 안내.</div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box">
+      <div class="empty-state" style="width:100%">
+        <div style="width:48px;height:48px;border-radius:50%;background:#EDF3FA;display:flex;align-items:center;justify-content:center">
+          <i class="ti ti-file-text" style="font-size:22px;color:#05539A" aria-hidden="true"></i>
+        </div>
+        <div style="font-size:14px;font-weight:600;color:#242021">등록된 공지사항이 없습니다</div>
+        <div style="font-size:12px;color:#9AA1AF">아직 작성된 공지사항이 없습니다. 첫 번째 공지를 작성해보세요.</div>
+        <button class="g-btn g-btn-primary g-btn-sm" style="margin-top:4px"><i class="ti ti-plus" style="font-size:13px" aria-hidden="true"></i>공지 작성</button>
+      </div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">type</span></td><td>Variant</td><td>no-data / no-result / no-permission / error</td></tr>
+        <tr><td><span class="chip">icon</span></td><td>Instance swap</td><td>상황별 아이콘 교체</td></tr>
+        <tr><td><span class="chip">title</span></td><td>Text</td><td>주요 안내 문구</td></tr>
+        <tr><td><span class="chip">description</span></td><td>Text</td><td>부가 설명</td></tr>
+        <tr><td><span class="chip">action</span></td><td>Boolean</td><td>CTA 버튼 노출 여부</td></tr>
+        <tr><td><span class="chip">action-label</span></td><td>Text</td><td>버튼 텍스트</td></tr>
+      </tbody>
+    </table>
+    <div class="note-box">빈 상태 메시지는 부정형("없습니다") + 긍정 유도("작성해보세요") 구조로 작성. 권한 없음 유형은 CTA 버튼 없이 안내만 제공.</div>
+  </div>
+
+  <div id="feedback-loading" class="comp-panel">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Loading Spinner / Skeleton</div>
+        <div class="cp-desc">데이터 로딩 중 사용자의 불안감을 줄이는 피드백. Skeleton 우선 사용.</div>
+        <div class="cp-badges">
+          <span class="bdg bdg-blue">Spinner: 즉각 피드백</span>
+          <span class="bdg bdg-blue">Skeleton: 레이아웃 유지</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box" style="gap:20px;align-items:flex-start">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div class="spinner" style="animation:spin 0.8s linear infinite"></div>
+        <div style="font-size:11px;color:#9AA1AF">Spinner sm</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;flex:1;max-width:220px">
+        <div class="skeleton" style="width:60%;height:12px"></div>
+        <div class="skeleton" style="width:100%;height:12px"></div>
+        <div class="skeleton" style="width:85%;height:12px"></div>
+        <div class="skeleton" style="width:100%;height:56px;margin-top:4px;border-radius:6px"></div>
+      </div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>컴포넌트</th><th>Props</th><th>사용 기준</th></tr></thead>
+      <tbody>
+        <tr><td>Spinner</td><td><span class="chip">size</span> sm(16) / md(24) / lg(40)<br><span class="chip">color</span> primary / white / muted</td><td>버튼 내 로딩, 작은 영역 즉시 피드백</td></tr>
+        <tr><td>Skeleton</td><td><span class="chip">type</span> text / card / table-row / avatar<br><span class="chip">lines</span> 줄 수</td><td>페이지/카드/목록 초기 로딩 (300ms 이상)</td></tr>
+      </tbody>
+    </table>
+    <div class="note-box">300ms 미만 로딩은 피드백 불필요. 그 이상이면 Skeleton 먼저, 3초 초과 시 Spinner + 취소 옵션 제공. 테이블 로딩은 Skeleton row 3~5개 표시.</div>
+  </div>
+</div>
+
+<div id="cat-layout" class="cat-sec">
+  <div class="comp-nav">
+    <button class="cnav sel" onclick="switchComp('layout','card',this)">Card</button>
+    <button class="cnav" onclick="switchComp('layout','modal',this)">Modal / Dialog</button>
+    <button class="cnav" onclick="switchComp('layout','drawer',this)">Drawer</button>
+    <button class="cnav" onclick="switchComp('layout','tabs',this)">Tabs</button>
+    <button class="cnav" onclick="switchComp('layout','accordion',this)">Accordion</button>
+    <button class="cnav" onclick="switchComp('layout','divider',this)">Divider</button>
+  </div>
+
+  <div id="layout-card" class="comp-panel on">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Card</div>
+        <div class="cp-desc">정보 그룹핑의 기본 컨테이너. 그룹웨어에서 가장 많이 쓰이는 레이아웃 단위.</div>
+        <div class="cp-badges">
+          <span class="bdg bdg-blue">Default / Clickable / Selected / Elevated</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box" style="gap:10px;align-items:flex-start">
+      <div class="g-card" style="flex:1;min-width:0">
+        <div style="font-size:11px;color:#9AA1AF;margin-bottom:4px">처리 대기</div>
+        <div style="font-size:22px;font-weight:700;color:#242021">12</div>
+        <div style="font-size:12px;color:#9AA1AF;margin-top:4px">결재 문서</div>
+      </div>
+      <div class="g-card" style="flex:2;min-width:0;border-color:#05539A">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:13px;font-weight:600">2024년 연차 신청서</div>
+          <span class="g-badge tag-info">처리중</span>
+        </div>
+        <div style="font-size:12px;color:#6B7280">2024.01.15 — 2024.01.17 (3일)</div>
+        <div class="g-divider" style="margin:10px 0"></div>
+        <div style="font-size:12px;color:#9AA1AF">신청자: 김민준 · 개발팀</div>
+      </div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">variant</span></td><td>Variant</td><td>default / clickable / selected / elevated</td></tr>
+        <tr><td><span class="chip">state</span></td><td>Variant</td><td>default / hover / active / selected / disabled</td></tr>
+        <tr><td><span class="chip">padding</span></td><td>Variant</td><td>sm(12px) / md(16px) / lg(24px)</td></tr>
+        <tr><td><span class="chip">header</span></td><td>Boolean</td><td>카드 헤더 영역 표시</td></tr>
+        <tr><td><span class="chip">footer</span></td><td>Boolean</td><td>카드 푸터(액션) 영역</td></tr>
+        <tr><td><span class="chip">border-accent</span></td><td>Boolean</td><td>좌측 컬러 보더 (상태 강조)</td></tr>
+      </tbody>
+    </table>
+    <div class="note-box">Clickable 카드는 전체 영역이 클릭 가능. 카드 내에 별도의 버튼이 있을 경우엔 Default 카드 사용 (이벤트 충돌 방지).</div>
+  </div>
+
+  <div id="layout-modal" class="comp-panel">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Modal / Dialog</div>
+        <div class="cp-desc">중단이 필요한 작업에만 사용. 불필요한 Modal 남용은 작업 흐름을 방해한다.</div>
+        <div class="cp-badges">
+          <span class="bdg bdg-blue">sm / md / lg / fullscreen</span>
+          <span class="bdg bdg-gray">Confirm Dialog 별도</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div style="min-height:300px;background:rgba(36,32,33,.35);display:flex;align-items:center;justify-content:center;border-radius:8px;padding:16px">
+      <div style="background:#fff;border-radius:8px;width:100%;max-width:420px;overflow:hidden">
+        <div style="padding:16px 20px;border-bottom:0.5px solid #DDE2EA;display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:15px;font-weight:600;color:#242021">결재 반려 사유 입력</div>
+          <i class="ti ti-x" style="font-size:18px;color:#9AA1AF;cursor:pointer" aria-hidden="true"></i>
+        </div>
+        <div style="padding:20px">
+          <div style="font-size:12px;font-weight:600;margin-bottom:6px">반려 사유 <span style="color:#EF4444">*</span></div>
+          <textarea class="g-input" rows="3" placeholder="반려 사유를 구체적으로 입력해주세요" style="resize:vertical"></textarea>
+        </div>
+        <div style="padding:12px 20px;border-top:0.5px solid #DDE2EA;display:flex;gap:8px;justify-content:flex-end">
+          <button class="g-btn g-btn-ghost g-btn-sm">취소</button>
+          <button class="g-btn g-btn-danger g-btn-sm"><i class="ti ti-arrow-back-up" style="font-size:13px" aria-hidden="true"></i>반려하기</button>
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">size</span></td><td>Variant</td><td>sm(360px) / md(480px) / lg(640px) / fullscreen</td></tr>
+        <tr><td><span class="chip">type</span></td><td>Variant</td><td>default / confirm / form / alert</td></tr>
+        <tr><td><span class="chip">title</span></td><td>Text</td><td>모달 제목</td></tr>
+        <tr><td><span class="chip">closable</span></td><td>Boolean</td><td>× 버튼 및 ESC 키 닫기</td></tr>
+        <tr><td><span class="chip">backdrop-close</span></td><td>Boolean</td><td>딤 클릭 시 닫기 (폼 모달은 false)</td></tr>
+        <tr><td><span class="chip">scrollable</span></td><td>Boolean</td><td>body 영역 스크롤 허용</td></tr>
+      </tbody>
+    </table>
+    <div class="warn-box">폼이 포함된 Modal은 backdrop 클릭 닫기 비활성화 (입력 데이터 유실 방지). 삭제 확인 Dialog는 confirm 타입으로 별도 정의, Danger 버튼이 우측.</div>
+  </div>
+
+  <div id="layout-drawer" class="comp-panel">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Drawer (사이드 패널)</div>
+        <div class="cp-desc">상세 정보 조회나 편집처럼 현재 화면 컨텍스트를 유지한 채 열리는 패널.</div>
+        <div class="cp-badges">
+          <span class="bdg bdg-blue">Right / Left</span>
+          <span class="bdg bdg-gray">sm(320) / md(400) / lg(560)</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box" style="padding:0">
+      <div class="drawer-demo" style="width:100%">
+        <div class="drawer-overlay">메인 콘텐츠 영역</div>
+        <div class="drawer-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div style="font-size:13px;font-weight:600;color:#242021">문서 상세</div>
+            <i class="ti ti-x" style="font-size:16px;color:#9AA1AF;cursor:pointer" aria-hidden="true"></i>
+          </div>
+          <div class="g-divider"></div>
+          <div style="font-size:12px;color:#9AA1AF">신청자</div>
+          <div style="font-size:13px;color:#242021">김민준 / 개발팀</div>
+          <div style="font-size:12px;color:#9AA1AF;margin-top:6px">신청일</div>
+          <div style="font-size:13px;color:#242021">2024.01.15</div>
+          <div style="display:flex;gap:6px;margin-top:auto;padding-top:8px">
+            <button class="g-btn g-btn-primary g-btn-sm" style="flex:1">승인</button>
+            <button class="g-btn g-btn-ghost g-btn-sm" style="flex:1">반려</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="note-box">Drawer는 목록에서 항목을 선택할 때 상세를 보여주는 용도가 주. 별도 페이지 이동 없이 컨텍스트를 유지해 효율적. 복잡한 편집 폼은 Modal 또는 별도 페이지가 적합.</div>
+  </div>
+
+  <div id="layout-tabs" class="comp-panel">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Tabs</div>
+        <div class="cp-desc">같은 수준의 콘텐츠를 전환. 탭은 5개 이하 권장, 넘으면 드롭다운 탭으로 전환.</div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box" style="flex-direction:column;align-items:stretch;gap:0;padding:0">
+      <div class="tab-bar-demo" style="padding:0 16px;margin:0">
+        <div class="tab-item active-tab">전체</div>
+        <div class="tab-item">처리대기</div>
+        <div class="tab-item">진행중</div>
+        <div class="tab-item">완료</div>
+      </div>
+      <div style="padding:14px 16px;font-size:12px;color:#9AA1AF">탭 콘텐츠 영역</div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">variant</span></td><td>Variant</td><td>line (기본) / pill / card</td></tr>
+        <tr><td><span class="chip">size</span></td><td>Variant</td><td>sm / md / lg</td></tr>
+        <tr><td><span class="chip">count-badge</span></td><td>Boolean</td><td>탭에 카운트 뱃지 표시</td></tr>
+        <tr><td><span class="chip">icon</span></td><td>Boolean</td><td>탭 아이콘 표시</td></tr>
+        <tr><td><span class="chip">disabled</span></td><td>Boolean</td><td>개별 탭 비활성화</td></tr>
+      </tbody>
+    </table>
+    <div class="note-box">탭 클릭은 URL 파라미터에 반영할 것 (새로고침, 공유 시 탭 상태 유지). 탭 레이블은 명사 또는 짧은 동사구, 5자 이내 권장.</div>
+  </div>
+
+  <div id="layout-accordion" class="comp-panel">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Accordion</div>
+        <div class="cp-desc">콘텐츠를 접어 세로 공간을 절약. FAQ, 설정 항목, 상세 필터에 적합.</div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box" style="flex-direction:column;align-items:stretch;gap:0">
+      <div class="acc-item">
+        <div class="acc-head">
+          <span>연차 신청 방법</span>
+          <i class="ti ti-chevron-down" style="font-size:15px;color:#9AA1AF;transform:rotate(180deg)" aria-hidden="true"></i>
+        </div>
+        <div class="acc-body">인사 메뉴 → 휴가 신청 → 연차 선택 후 날짜 입력. 팀장 승인 후 최종 확정됩니다.</div>
+      </div>
+      <div class="acc-item">
+        <div class="acc-head">
+          <span>결재 라인 변경</span>
+          <i class="ti ti-chevron-down" style="font-size:15px;color:#9AA1AF" aria-hidden="true"></i>
+        </div>
+      </div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">state</span></td><td>Variant</td><td>collapsed / expanded</td></tr>
+        <tr><td><span class="chip">multiple</span></td><td>Boolean</td><td>여러 항목 동시 열기 허용</td></tr>
+        <tr><td><span class="chip">icon-position</span></td><td>Variant</td><td>right (기본) / left</td></tr>
+        <tr><td><span class="chip">bordered</span></td><td>Boolean</td><td>외곽 보더 스타일</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="layout-divider" class="comp-panel">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Divider</div>
+        <div class="cp-desc">섹션 구분선. 과도한 사용은 레이아웃 무게감 증가 — 공백으로 구분 가능하면 Divider 생략.</div>
+      </div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">direction</span></td><td>Variant</td><td>horizontal / vertical</td></tr>
+        <tr><td><span class="chip">style</span></td><td>Variant</td><td>solid / dashed</td></tr>
+        <tr><td><span class="chip">label</span></td><td>Text</td><td>가운데 텍스트 레이블 (선택)</td></tr>
+        <tr><td><span class="chip">spacing</span></td><td>Variant</td><td>sm(8px) / md(16px) / lg(24px) 상하 마진</td></tr>
+      </tbody>
+    </table>
+    <div class="note-box">카드 내부 구분: Divider 대신 padding + 배경색 차이로 처리 우선. Divider는 카드 헤더/푸터 구분선, 폼 섹션 간 구분에 한정 사용.</div>
+  </div>
+</div>
+
+<div id="cat-nav" class="cat-sec">
+  <div class="comp-nav">
+    <button class="cnav sel" onclick="switchComp('nav','breadcrumb',this)">Breadcrumb</button>
+    <button class="cnav" onclick="switchComp('nav','pagination',this)">Pagination</button>
+    <button class="cnav" onclick="switchComp('nav','tooltip',this)">Tooltip</button>
+  </div>
+
+  <div id="nav-breadcrumb" class="comp-panel on">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Breadcrumb</div>
+        <div class="cp-desc">현재 위치를 계층적으로 안내. 그룹웨어의 깊은 메뉴 구조에서 필수.</div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box">
+      <div class="breadcrumb">
+        <a href="#" style="color:#05539A;text-decoration:none;font-size:13px">홈</a>
+        <span class="bc-sep"><i class="ti ti-chevron-right" style="font-size:13px" aria-hidden="true"></i></span>
+        <a href="#" style="color:#05539A;text-decoration:none;font-size:13px">인사관리</a>
+        <span class="bc-sep"><i class="ti ti-chevron-right" style="font-size:13px" aria-hidden="true"></i></span>
+        <a href="#" style="color:#05539A;text-decoration:none;font-size:13px">휴가관리</a>
+        <span class="bc-sep"><i class="ti ti-chevron-right" style="font-size:13px" aria-hidden="true"></i></span>
+        <span style="font-size:13px;color:#242021;font-weight:600">연차 신청</span>
+      </div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">separator</span></td><td>Variant</td><td>chevron (기본) / slash / dot</td></tr>
+        <tr><td><span class="chip">max-items</span></td><td>Number</td><td>초과 시 ... 로 줄임 (기본 5)</td></tr>
+        <tr><td><span class="chip">home-icon</span></td><td>Boolean</td><td>첫 항목을 홈 아이콘으로</td></tr>
+        <tr><td><span class="chip">current-not-link</span></td><td>Boolean</td><td>현재 페이지는 링크 비활성 (기본 true)</td></tr>
+      </tbody>
+    </table>
+    <div class="note-box">현재 페이지(마지막 항목)는 링크 스타일 없이 일반 텍스트로 표시. 깊이가 5단계 초과 시 중간 항목을 ... 으로 축약 후 호버 시 전체 경로 표시.</div>
+  </div>
+
+  <div id="nav-pagination" class="comp-panel">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Pagination</div>
+        <div class="cp-desc">목록 페이지 이동. 게시판, 결재 목록, 직원 검색 결과에 사용.</div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box" style="justify-content:center">
+      <div class="pager">
+        <div class="pg"><i class="ti ti-chevron-left" style="font-size:13px" aria-label="이전 페이지"></i></div>
+        <div class="pg">1</div>
+        <div class="pg cur">2</div>
+        <div class="pg">3</div>
+        <div class="pg">4</div>
+        <div class="pg" style="width:auto;padding:0 8px;letter-spacing:.05em">...</div>
+        <div class="pg">12</div>
+        <div class="pg"><i class="ti ti-chevron-right" style="font-size:13px" aria-label="다음 페이지"></i></div>
+      </div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">total</span></td><td>Number</td><td>전체 페이지 수</td></tr>
+        <tr><td><span class="chip">current</span></td><td>Number</td><td>현재 페이지</td></tr>
+        <tr><td><span class="chip">sibling-count</span></td><td>Number</td><td>현재 페이지 양옆 표시 개수 (기본 2)</td></tr>
+        <tr><td><span class="chip">show-edges</span></td><td>Boolean</td><td>첫/마지막 페이지 항상 표시</td></tr>
+        <tr><td><span class="chip">page-size-select</span></td><td>Boolean</td><td>페이지당 항목 수 선택 셀렉트 (10/20/50)</td></tr>
+        <tr><td><span class="chip">jump-to</span></td><td>Boolean</td><td>페이지 번호 직접 입력</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="nav-tooltip" class="comp-panel">
+    <div class="cp-head">
+      <div>
+        <div class="cp-name">Tooltip</div>
+        <div class="cp-desc">아이콘이나 잘린 텍스트에 부가 설명. 필수 정보는 Tooltip에 담지 않는다.</div>
+      </div>
+    </div>
+    <div class="section-lbl">프리뷰</div>
+    <div class="preview-box" style="justify-content:center;padding:32px 16px">
+      <div class="tooltip-wrap">
+        <div class="tooltip-tip">결재 반려 시 사유 입력 필수</div>
+        <button class="g-btn g-btn-ghost g-btn-sm"><i class="ti ti-info-circle" style="font-size:14px" aria-hidden="true"></i>반려하기</button>
+      </div>
+    </div>
+    <div class="section-lbl">Figma Props</div>
+    <table class="tbl">
+      <thead><tr><th>Property</th><th>Type</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip">placement</span></td><td>Variant</td><td>top / bottom / left / right (+ start/end 변형)</td></tr>
+        <tr><td><span class="chip">content</span></td><td>Text</td><td>툴팁 내용 (1~2줄 권장)</td></tr>
+        <tr><td><span class="chip">max-width</span></td><td>Number</td><td>기본 200px</td></tr>
+        <tr><td><span class="chip">delay</span></td><td>Number</td><td>표시 지연 ms (기본 300ms)</td></tr>
+        <tr><td><span class="chip">trigger</span></td><td>Variant</td><td>hover (기본) / click / focus</td></tr>
+      </tbody>
+    </table>
+    <div class="warn-box">중장년층 사용자 고려: 툴팁에만 담긴 중요 정보는 보조 텍스트나 레이블로 노출 병행. 모바일에서 hover 툴팁은 동작하지 않으므로 터치로도 접근 가능하게 설계.</div>
+    <div class="section-lbl">사용처</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.7">아이콘 버튼(icon-only) 설명 · 잘린 텍스트(ellipsis) 전체보기 · 입력 필드 도움말 보조 · 상태 뱃지 설명</div>
+  </div>
+</div>
+</div>
+
+<style>
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skeleton{animation:shimmer 1.5s infinite}
+</style>
+<script>
+function switchCat(id,el){
+  document.querySelectorAll('.cat-sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('cat-'+id).classList.add('on');
+  el.classList.add('on');
+}
+function switchComp(cat,id,el){
+  const sec=document.getElementById('cat-'+cat);
+  sec.querySelectorAll('.comp-panel').forEach(p=>p.classList.remove('on'));
+  sec.querySelectorAll('.cnav').forEach(b=>b.classList.remove('sel'));
+  document.getElementById(cat+'-'+id).classList.add('on');
+  el.classList.add('sel');
+}
+</script>

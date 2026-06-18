@@ -1,0 +1,309 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{padding:1rem 0;font-size:13px;color:var(--color-text-primary)}
+.tab-bar{display:flex;gap:0;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:18px}
+.tab{padding:7px 16px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--color-text-secondary);border-radius:0}
+.tab.on{color:#05539A;border-bottom-color:#05539A}
+.sec{display:none}.sec.on{display:block}
+.lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:8px;margin-top:16px}
+.lbl:first-child{margin-top:0}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px;table-layout:fixed}
+.tbl th{text-align:left;padding:6px 10px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+.tbl td{padding:7px 10px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top;line-height:1.6;word-break:keep-all}
+.tbl tr:last-child td{border-bottom:none}
+.chip{display:inline-block;font-family:monospace;font-size:11px;padding:1px 6px;border-radius:3px;background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.note{border-left:3px solid #05539A;padding:8px 12px;background:rgba(5,83,154,.05);font-size:12px;line-height:1.6;margin-bottom:10px}
+.warn{border-left:3px solid #F59E0B;padding:8px 12px;background:rgba(245,158,11,.05);font-size:12px;line-height:1.6;margin-bottom:10px}
+.badge-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;padding:10px;background:var(--color-background-secondary);border-radius:6px}
+.bdg{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:700}
+.b-wait{background:#FEF3C7;color:#92400E}
+.b-prog{background:rgba(5,83,154,.1);color:#05539A}
+.b-done{background:#ECFDF5;color:#065F46}
+.b-rej{background:#FEF2F2;color:#991B1B}
+.b-recall{background:#F4F6F9;color:#6B7280;border:1px solid #E2E6EC}
+.b-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;display:inline-block}
+.flow-steps{display:flex;align-items:center;gap:0;overflow-x:auto;padding:12px;background:var(--color-background-secondary);border-radius:8px;margin-bottom:10px}
+.fs{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
+.fs-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.fs-label{font-size:10px;font-weight:600;white-space:nowrap}
+.fs-line{width:40px;height:1px;background:#DDE2EA;flex-shrink:0;margin-top:-14px}
+</style>
+
+<div class="w">
+<h2 class="sr-only">전자결재 컴포넌트 스펙 및 Figma 구성 가이드</h2>
+
+<div class="tab-bar">
+  <button class="tab on" onclick="sw('status',this)">상태 시스템</button>
+  <button class="tab" onclick="sw('list',this)">목록 화면 스펙</button>
+  <button class="tab" onclick="sw('write',this)">기안 작성 스펙</button>
+  <button class="tab" onclick="sw('detail',this)">결재 상세 스펙</button>
+  <button class="tab" onclick="sw('figma',this)">Figma 구성</button>
+</div>
+
+<div id="sec-status" class="sec on">
+  <div class="lbl">결재 상태 뱃지 시스템</div>
+  <div class="badge-row">
+    <span class="bdg b-wait"><span class="b-dot" style="background:#D97706"></span>결재 대기</span>
+    <span class="bdg b-prog"><span class="b-dot" style="background:#05539A"></span>진행중</span>
+    <span class="bdg b-done"><span class="b-dot" style="background:#10B981"></span>승인</span>
+    <span class="bdg b-rej"><span class="b-dot" style="background:#EF4444"></span>반려</span>
+    <span class="bdg b-recall"><span class="b-dot" style="background:#9AA1AF"></span>회수</span>
+  </div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>상태</th><th>배경색</th><th>텍스트색</th><th>Dot색</th><th>발생 조건</th></tr></thead>
+    <tbody>
+      <tr><td>결재 대기</td><td><span class="chip">#FEF3C7</span></td><td><span class="chip">#92400E</span></td><td><span class="chip">#D97706</span></td><td>현재 결재자의 차례 — 처리 행동 필요</td></tr>
+      <tr><td>진행중</td><td><span class="chip">rgba(5,83,154,.1)</span></td><td><span class="chip">#05539A</span></td><td><span class="chip">#05539A</span></td><td>상신 후 결재 중 (내 차례 아님)</td></tr>
+      <tr><td>승인</td><td><span class="chip">#ECFDF5</span></td><td><span class="chip">#065F46</span></td><td><span class="chip">#10B981</span></td><td>최종 결재자 승인 완료</td></tr>
+      <tr><td>반려</td><td><span class="chip">#FEF2F2</span></td><td><span class="chip">#991B1B</span></td><td><span class="chip">#EF4444</span></td><td>결재자 중 1명 이상 반려</td></tr>
+      <tr><td>회수</td><td><span class="chip">#F4F6F9</span></td><td><span class="chip">#6B7280</span></td><td><span class="chip">#9AA1AF</span></td><td>기안자가 직접 회수</td></tr>
+      <tr><td>임시 저장</td><td><span class="chip">#F4F6F9</span></td><td><span class="chip">#6B7280</span></td><td>—</td><td>상신 전 임시 보관</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">결재 프로세스 흐름</div>
+  <div class="flow-steps">
+    <div class="fs">
+      <div class="fs-circle" style="background:#F4F6F9;color:#6B7280;border:1.5px solid #E2E6EC">초</div>
+      <div class="fs-label" style="color:#9AA1AF">임시저장</div>
+    </div>
+    <div class="fs-line"></div>
+    <div class="fs">
+      <div class="fs-circle" style="background:#EDF3FA;color:#05539A;border:1.5px solid #C8D9EF">상신</div>
+      <div class="fs-label" style="color:#05539A">상신</div>
+    </div>
+    <div class="fs-line"></div>
+    <div class="fs">
+      <div class="fs-circle" style="background:#FEF3C7;color:#92400E;border:1.5px solid #FCD34D">결</div>
+      <div class="fs-label" style="color:#92400E">결재 대기</div>
+    </div>
+    <div class="fs-line"></div>
+    <div class="fs">
+      <div class="fs-circle" style="background:#ECFDF5;color:#065F46;border:1.5px solid #6EE7B7">승</div>
+      <div class="fs-label" style="color:#065F46">승인 완료</div>
+    </div>
+    <div style="width:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:-14px;font-size:11px;color:#B3BCC9">or</div>
+    <div class="fs">
+      <div class="fs-circle" style="background:#FEF2F2;color:#991B1B;border:1.5px solid #FCA5A5">반</div>
+      <div class="fs-label" style="color:#991B1B">반려</div>
+    </div>
+  </div>
+  <div class="note">결재 대기 상태(노란 Amber)는 즉각 처리가 필요한 신호. 목록에서 가장 눈에 띄어야 하며, 대기함 탭의 카운트 뱃지도 Amber 계열 대신 빨간 뱃지로 긴급성 표현.</div>
+
+  <div class="lbl">타임라인 스텝 상태</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>Variant</th><th>Dot 스타일</th><th>의미</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip">done</span></td><td>배경 #10B981, 흰 체크</td><td>처리 완료 (상신, 승인)</td></tr>
+      <tr><td><span class="chip">active</span></td><td>배경 #05539A, 흰 점</td><td>현재 처리자 — 나의 차례</td></tr>
+      <tr><td><span class="chip">rejected</span></td><td>배경 #EF4444, 흰 X</td><td>반려 처리됨</td></tr>
+      <tr><td><span class="chip">pending</span></td><td>흰 배경, #DDE2EA 보더</td><td>미래 결재 예정자</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div id="sec-list" class="sec">
+  <div class="lbl">테이블 컬럼 스펙</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>컬럼</th><th>너비</th><th>정렬</th><th>내용</th><th>정렬 가능</th></tr></thead>
+    <tbody>
+      <tr><td>체크박스</td><td>36px (fixed)</td><td>center</td><td>일괄 선택 · 전체선택 indeterminate 지원</td><td>—</td></tr>
+      <tr><td>문서 제목 / 종류</td><td>1fr (최소 200px)</td><td>left</td><td>제목 1줄 ellipsis + 문서 종류 12px gray · 미열람 dot</td><td>가능</td></tr>
+      <tr><td>기안자</td><td>120px</td><td>left</td><td>이름 + 부서(gray 11px)</td><td>가능</td></tr>
+      <tr><td>문서번호</td><td>100px</td><td>left</td><td>monospace 폰트</td><td>—</td></tr>
+      <tr><td>기안일</td><td>90px</td><td>left</td><td>YYYY.MM.DD · 기본 내림차순 정렬</td><td>기본 정렬</td></tr>
+      <tr><td>결재 단계</td><td>90px</td><td>center</td><td>N/M 단계 형식</td><td>—</td></tr>
+      <tr><td>상태</td><td>90px</td><td>center</td><td>Badge 컴포넌트</td><td>가능</td></tr>
+      <tr><td>액션</td><td>80px</td><td>center</td><td>처리(대기)/상세 버튼 · 상태 따라 다름</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">필터 컴포넌트 구성</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>필터</th><th>컴포넌트</th><th>기본값</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td>기간</td><td>DatePicker(range)</td><td>최근 30일</td><td>빠른 선택: 오늘/7일/30일/90일</td></tr>
+      <tr><td>기안자</td><td>Select + 직원 검색</td><td>전체</td><td>Multi-select 지원</td></tr>
+      <tr><td>문서 종류</td><td>Select(단일)</td><td>전체</td><td>비용정산/구매계약/기획보고/IT인프라…</td></tr>
+      <tr><td>상태</td><td>Select(단일)</td><td>전체</td><td>결재대기/진행중/승인/반려/회수</td></tr>
+      <tr><td>문서 제목</td><td>Input(search)</td><td>—</td><td>실시간 필터 X · 검색 버튼 클릭 시 적용</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">행 상태 표시</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>상태</th><th>시각 처리</th></tr></thead>
+    <tbody>
+      <tr><td>미열람(안읽음)</td><td>문서 제목 font-weight: 700 + Accent Blue 소형 dot 표시</td></tr>
+      <tr><td>결재 대기(내 차례)</td><td>액션 열에 Primary Blue "처리" 버튼 활성화</td></tr>
+      <tr><td>진행중/완료/반려</td><td>액션 열에 Ghost "상세" 버튼</td></tr>
+      <tr><td>hover</td><td>background #FAFBFC · cursor pointer</td></tr>
+      <tr><td>선택(체크)</td><td>background rgba(5,83,154,.04)</td></tr>
+    </tbody>
+  </table>
+  <div class="warn">액션 버튼은 상태에 따라 반드시 다르게 표시. 대기 상태에만 Primary Blue 채색 버튼 사용 — 시선을 즉시 처리 필요 항목으로 유도.</div>
+</div>
+
+<div id="sec-write" class="sec">
+  <div class="lbl">기안 작성 레이아웃 — 2열 분할</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>영역</th><th>너비</th><th>포함 컴포넌트</th></tr></thead>
+    <tbody>
+      <tr><td>좌측 (메인)</td><td>1fr (최소 560px)</td><td>문서 기본 정보 · 서식 에디터 · 첨부파일</td></tr>
+      <tr><td>우측 (패널)</td><td>280px (fixed)</td><td>결재선 지정 · 합의자 · 수신자 · 결재 방식</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">양식 선택 모달 스펙</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>속성</th><th>값</th></tr></thead>
+    <tbody>
+      <tr><td>모달 크기</td><td>width 640px · height max 520px</td></tr>
+      <tr><td>카테고리 탭</td><td>전체 / 비용정산 / 구매계약 / 기획보고 / 근태인사 / IT</td></tr>
+      <tr><td>양식 카드</td><td>3열 그리드 · 아이콘 + 양식명 + 설명 2줄</td></tr>
+      <tr><td>선택 상태</td><td>카드 border 2px Primary Blue · 우상단 체크 아이콘</td></tr>
+      <tr><td>확인 버튼</td><td>Primary 버튼 · 선택 전 비활성</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">결재선 지정 컴포넌트</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>요소</th><th>스펙</th></tr></thead>
+    <tbody>
+      <tr><td>탭 (결재/합의/수신)</td><td>Tabs line 타입 · 3탭</td></tr>
+      <tr><td>결재자 스텝 카드</td><td>순번 원형(Primary/50) + 이름/부서 + 드래그 핸들 + 삭제</td></tr>
+      <tr><td>드래그 앤 드롭</td><td>grip-vertical 아이콘 · cursor: grab · 드래그 중 카드 opacity 0.5</td></tr>
+      <tr><td>결재자 추가 버튼</td><td>dashed border 버튼 · 클릭 시 직원 검색 모달 오픈</td></tr>
+      <tr><td>최대 결재자 수</td><td>10명 (초과 시 경고 Toast)</td></tr>
+      <tr><td>결재 방식 선택</td><td>Radio: 순차 결재 / 병렬 결재</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">에디터 툴바 버튼 그룹</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>그룹</th><th>버튼</th></tr></thead>
+    <tbody>
+      <tr><td>텍스트 서식</td><td>굵게 / 기울임 / 밑줄 / 취소선</td></tr>
+      <tr><td>정렬</td><td>왼쪽 / 가운데 / 오른쪽 / 양쪽</td></tr>
+      <tr><td>목록</td><td>순서없는 목록 / 순서있는 목록</td></tr>
+      <tr><td>삽입</td><td>표 / 이미지 / 링크</td></tr>
+      <tr><td>편집</td><td>실행취소 / 다시실행</td></tr>
+      <tr><td>보기</td><td>전체화면 편집 (Expand)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">하단 액션바 버튼 배치 (우→좌 중요도 순)</div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;padding:10px;background:var(--color-background-secondary);border-radius:6px;margin-bottom:10px">
+    <span style="padding:5px 10px;border:1px solid #E2E6EC;border-radius:4px;font-size:11px;color:#EF4444">삭제</span>
+    <span style="padding:5px 10px;border:1px solid #E2E6EC;border-radius:4px;font-size:11px;color:#6B7280">임시 저장</span>
+    <span style="padding:5px 10px;border:1px solid #E2E6EC;border-radius:4px;font-size:11px;color:#6B7280">미리보기</span>
+    <span style="padding:5px 10px;background:#05539A;border-radius:4px;font-size:11px;color:#fff;font-weight:700">상신</span>
+  </div>
+  <div class="warn">상신 버튼 클릭 시 확인 Dialog 필수 — "결재선을 확인하셨나요? 상신 후에는 내용을 수정할 수 없습니다." Danger 없이 Primary + Ghost 구성.</div>
+</div>
+
+<div id="sec-detail" class="sec">
+  <div class="lbl">결재 상세 레이아웃 — 2열</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>영역</th><th>너비</th><th>포함 요소</th></tr></thead>
+    <tbody>
+      <tr><td>좌측 (문서)</td><td>1fr (min 560px)</td><td>문서 메타 그리드 · 문서 내용 뷰어 · 첨부파일 · 결재 이력 타임라인</td></tr>
+      <tr><td>우측 (액션)</td><td>300px (fixed)</td><td>결재 액션 패널 · 결재선 · 의견 목록</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">결재 이력 타임라인 컴포넌트</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>요소</th><th>스펙</th></tr></thead>
+    <tbody>
+      <tr><td>세로 연결선</td><td>absolute · left -16px · 1px solid #E2E6EC · 마지막 항목 제외</td></tr>
+      <tr><td>상태 Dot</td><td>11×11px · 4가지 Variant(done/active/rejected/pending)</td></tr>
+      <tr><td>의견 버블</td><td>배경 #F8F9FA · 좌측 3px 보더 (승인=#10B981 / 반려=#EF4444 / 기본=#E2E6EC)</td></tr>
+      <tr><td>결재자 정보</td><td>이름(bold) + 역할(gray) 좌 / 상태 뱃지 + 시간 우</td></tr>
+      <tr><td>pending 스텝</td><td>Dot border만 표시 · 의견/시간 없음</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">결재 액션 패널 — 버튼 위계</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>버튼</th><th>스타일</th><th>조건</th></tr></thead>
+    <tbody>
+      <tr><td>승인</td><td>Primary Blue · full-width · 높이 44px</td><td>내 차례일 때만 활성</td></tr>
+      <tr><td>반려</td><td>Danger outline · full-width · 높이 40px</td><td>내 차례일 때만 활성 · 클릭 시 반려 사유 입력 필수</td></tr>
+      <tr><td>전결</td><td>Ghost · 1/3 너비</td><td>전결 권한 보유자만 노출</td></tr>
+      <tr><td>대결</td><td>Ghost · 1/3 너비</td><td>대결 권한 보유자만 노출</td></tr>
+      <tr><td>보류</td><td>Ghost · 1/3 너비</td><td>내 차례일 때 노출</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">결재 진행 단계 시각화 (Step Progress)</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>상태</th><th>Circle 스타일</th><th>Label 스타일</th></tr></thead>
+    <tbody>
+      <tr><td>완료 단계</td><td>bg #10B981 · 흰 체크 아이콘</td><td>12px · #065F46 · font-weight 600</td></tr>
+      <tr><td>현재 단계</td><td>bg #05539A · 흰 숫자</td><td>12px · #05539A · font-weight 700</td></tr>
+      <tr><td>미완료 단계</td><td>bg #fff · border #DDE2EA · gray 숫자</td><td>12px · #B3BCC9</td></tr>
+      <tr><td>연결선 (완료)</td><td>1px solid #10B981</td><td>—</td></tr>
+      <tr><td>연결선 (미완료)</td><td>1px solid #DDE2EA</td><td>—</td></tr>
+    </tbody>
+  </table>
+  <div class="note">반려 시 의견 입력 필수 처리: 반려 버튼 클릭 → 의견 textarea에 focus + 빨간 보더 + "반려 시 사유 입력 필수" 에러 메시지. 비어있으면 최종 반려 API 호출 차단.</div>
+</div>
+
+<div id="sec-figma" class="sec">
+  <div class="lbl">Figma 파일 내 Pages 구성</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>Page</th><th>Frame 목록</th></tr></thead>
+    <tbody>
+      <tr><td>전자결재/목록</td><td>결재대기함-기본 · 기안문서함 · 수신함 · 완료함 · 빈화면(EmptyState)</td></tr>
+      <tr><td>전자결재/기안작성</td><td>양식선택-모달 · 기안작성-기본 · 기안작성-결재선편집 · 상신확인-다이얼로그</td></tr>
+      <tr><td>전자결재/결재상세</td><td>상세-결재대기 · 상세-진행중 · 상세-승인완료 · 상세-반려 · 반려사유입력-모달</td></tr>
+      <tr><td>전자결재/M/M보고</td><td>본인입력 · 팀원확인 · 월간요약</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">전자결재 전용 컴포넌트 목록</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>컴포넌트명</th><th>Variants</th><th>계층</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip">Approval/StatusBadge</span></td><td>pending / in-progress / approved / rejected / recalled / draft</td><td>Atom</td></tr>
+      <tr><td><span class="chip">Approval/TableRow</span></td><td>unread / read · state: pending/active/done</td><td>Molecule</td></tr>
+      <tr><td><span class="chip">Approval/StepCircle</span></td><td>done / active / rejected / pending</td><td>Atom</td></tr>
+      <tr><td><span class="chip">Approval/Timeline</span></td><td>—</td><td>Organism (StepCircle 조합)</td></tr>
+      <tr><td><span class="chip">Approval/StepProgress</span></td><td>step count 2~5</td><td>Molecule</td></tr>
+      <tr><td><span class="chip">Approval/ApproverCard</span></td><td>default / drag-active / add-placeholder</td><td>Molecule</td></tr>
+      <tr><td><span class="chip">Approval/ActionPanel</span></td><td>my-turn / not-my-turn / completed / rejected</td><td>Organism</td></tr>
+      <tr><td><span class="chip">Approval/FilterBar</span></td><td>collapsed / expanded</td><td>Organism</td></tr>
+      <tr><td><span class="chip">Approval/FormModal</span></td><td>—</td><td>Organism</td></tr>
+      <tr><td><span class="chip">Approval/EditorToolbar</span></td><td>—</td><td>Organism</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">Auto Layout 주요 설정</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>Frame</th><th>Direction</th><th>Gap</th><th>Padding</th></tr></thead>
+    <tbody>
+      <tr><td>목록 화면 Root</td><td>Vertical</td><td>14px</td><td>24px 28px</td></tr>
+      <tr><td>FilterCard</td><td>Vertical</td><td>12px</td><td>16px 20px</td></tr>
+      <tr><td>TableRow</td><td>Horizontal</td><td>8px</td><td>0 16px · height 52px</td></tr>
+      <tr><td>기안작성 Root</td><td>Horizontal</td><td>16px</td><td>24px 28px</td></tr>
+      <tr><td>우측 패널</td><td>Vertical</td><td>14px</td><td>0 · width 280px fixed</td></tr>
+      <tr><td>ApproverCard (Step)</td><td>Horizontal</td><td>10px</td><td>8px 0 · height 52px</td></tr>
+      <tr><td>결재상세 Root</td><td>Horizontal</td><td>16px</td><td>24px 28px</td></tr>
+      <tr><td>ActionPanel</td><td>Vertical</td><td>0</td><td>0 · width 300px fixed</td></tr>
+      <tr><td>TimelineItem</td><td>Vertical</td><td>6px</td><td>0 0 20px 32px</td></tr>
+    </tbody>
+  </table>
+  <div class="note">TableRow는 컬럼 너비를 Figma 프레임에서 고정값과 Fill 조합으로 구성. 체크박스(36px fixed) · 문서제목(Fill 1fr) · 기안자(120px) · 번호(100px) · 날짜(90px) · 단계(90px) · 상태(90px) · 액션(80px). 이 값을 Variables에 spacing/table-col-xxx 로 등록하면 개발 핸드오프 시 일관성 유지.</div>
+</div>
+</div>
+
+<script>
+function sw(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('sec-'+id).classList.add('on');
+  el.classList.add('on');
+}
+</script>

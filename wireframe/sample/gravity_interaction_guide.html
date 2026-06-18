@@ -1,0 +1,590 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{padding:1.5rem 0;font-size:13px;color:var(--color-text-primary)}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.top-title{font-size:17px;font-weight:600}
+.top-sub{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.bdg{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+.bdg-blue{background:rgba(5,83,154,.1);color:#05539A}
+.bdg-gray{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.tab-bar{display:flex;gap:0;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:8px 16px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--color-text-secondary);border-radius:0;transition:color .12s}
+.tab.on{color:#05539A;border-bottom-color:#05539A}
+.sec{display:none}.sec.on{display:block}
+.lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:8px;margin-top:18px}
+.lbl:first-child{margin-top:0}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px;table-layout:fixed}
+.tbl th{text-align:left;padding:6px 10px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+.tbl td{padding:7px 10px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top;line-height:1.6;word-break:keep-all}
+.tbl tr:last-child td{border-bottom:none}
+.chip{display:inline-block;font-family:monospace;font-size:11px;padding:1px 6px;border-radius:3px;background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.note{border-left:3px solid #05539A;padding:8px 12px;background:rgba(5,83,154,.05);font-size:12px;line-height:1.6;margin-bottom:10px}
+.warn{border-left:3px solid #F59E0B;padding:8px 12px;background:rgba(245,158,11,.05);font-size:12px;line-height:1.6;margin-bottom:10px}
+.demo-area{background:var(--color-background-secondary);border-radius:10px;padding:16px 20px;margin-bottom:14px}
+.demo-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.demo-row:last-child{margin-bottom:0}
+.demo-label{font-size:11px;font-weight:600;color:var(--color-text-secondary);min-width:72px}
+.g-btn{display:inline-flex;align-items:center;gap:6px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;padding:7px 14px;border:none;line-height:1;transition:all 100ms cubic-bezier(0,0,.58,1)}
+.g-btn-p{background:#05539A;color:#fff}
+.g-btn-p:hover{background:#043E75}
+.g-btn-p:active{background:#022B52;transform:scale(0.97)}
+.g-btn-s{background:#fff;color:#05539A;border:1px solid #05539A}
+.g-btn-s:hover{background:#EDF3FA}
+.g-btn-s:active{background:#C8D9EF;transform:scale(0.97)}
+.g-btn-g{background:transparent;color:#242021;border:1px solid #DDE2EA}
+.g-btn-g:hover{background:#F4F6F9;border-color:#B3BCC9}
+.g-btn-g:active{background:#E2E6EC;transform:scale(0.97)}
+.g-btn-d{background:#EF4444;color:#fff}
+.g-btn-d:hover{background:#DC2626}
+.g-btn-d:active{background:#B91C1C;transform:scale(0.97)}
+.dur-bar-wrap{display:flex;flex-direction:column;gap:8px}
+.dur-row{display:flex;align-items:center;gap:10px}
+.dur-name{font-size:11px;font-weight:700;min-width:64px;color:var(--color-text-primary)}
+.dur-track{flex:1;height:6px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.dur-fill{height:6px;background:#05539A;border-radius:3px}
+.dur-ms{font-size:11px;color:var(--color-text-secondary);min-width:40px;text-align:right}
+.easing-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.ease-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:10px 12px;flex:1;min-width:130px}
+.ease-title{font-size:11px;font-weight:700;color:var(--color-text-primary);margin-bottom:3px}
+.ease-val{font-size:10px;font-family:monospace;color:var(--color-text-secondary);margin-bottom:6px}
+.ease-use{font-size:11px;color:var(--color-text-secondary);line-height:1.5}
+.demo-box{width:24px;height:24px;background:#05539A;border-radius:4px;cursor:pointer;transition:none}
+.dropdown-wrap{position:relative;display:inline-block}
+.dropdown-btn{display:flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid #DDE2EA;border-radius:6px;background:#fff;font-size:12px;cursor:pointer;min-width:140px;justify-content:space-between;color:var(--color-text-primary)}
+.dropdown-menu{background:#fff;border:1px solid #DDE2EA;border-radius:6px;margin-top:4px;overflow:hidden;font-size:12px;transform-origin:top center;animation:ddOpen 150ms cubic-bezier(0,0,.58,1) forwards}
+@keyframes ddOpen{from{opacity:0;transform:scaleY(.9) translateY(-4px)}to{opacity:1;transform:scaleY(1) translateY(0)}}
+.dd-item{padding:8px 12px;cursor:pointer;color:var(--color-text-primary)}
+.dd-item:hover{background:#F4F6F9}
+.toggle-wrap{display:flex;align-items:center;gap:10px}
+.toggle-track{width:40px;height:22px;border-radius:11px;background:#DDE2EA;cursor:pointer;transition:background 200ms cubic-bezier(.4,0,.2,1);position:relative}
+.toggle-track.on{background:#05539A}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform 200ms cubic-bezier(.4,0,.2,1)}
+.toggle-track.on .toggle-thumb{transform:translateX(18px)}
+.input-demo{border:1px solid #DDE2EA;border-radius:6px;padding:7px 10px;font-size:12px;outline:none;transition:border-color 150ms ease-out,box-shadow 150ms ease-out;background:#fff;color:var(--color-text-primary)}
+.input-demo:focus{border-color:#05539A;box-shadow:0 0 0 3px rgba(5,83,154,.1)}
+.skeleton-demo{border-radius:4px;overflow:hidden;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite linear}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.spinner{border-radius:50%;border-style:solid;border-color:#DDE2EA;animation:spin .8s linear infinite}
+.spinner.sm{width:16px;height:16px;border-width:2px;border-top-color:#05539A}
+.spinner.md{width:24px;height:24px;border-width:2.5px;border-top-color:#05539A}
+.spinner.lg{width:40px;height:40px;border-width:3px;border-top-color:#05539A}
+@keyframes spin{to{transform:rotate(360deg)}}
+.prog-wrap{width:100%;background:#E2E6EC;border-radius:3px;height:6px;overflow:hidden}
+.prog-fill{height:6px;background:#05539A;border-radius:3px;animation:progLoad 2s ease-in-out infinite}
+@keyframes progLoad{0%{width:0%}70%{width:85%}100%{width:85%}}
+.prog-fill.indeterminate{width:30%!important;animation:progIndeterminate 1.5s ease-in-out infinite}
+@keyframes progIndeterminate{0%{transform:translateX(-100%)}100%{transform:translateX(440%)}}
+.sidebar-demo{display:flex;height:120px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;overflow:hidden}
+.sb-panel{background:#F4F6F9;border-right:0.5px solid var(--color-border-tertiary);transition:width 200ms cubic-bezier(.4,0,.2,1);overflow:hidden;flex-shrink:0;display:flex;flex-direction:column;gap:4px;padding:8px 0}
+.sb-item-d{display:flex;align-items:center;gap:8px;padding:0 8px;height:32px;border-radius:4px;margin:0 4px;font-size:11px;color:#6B7280;white-space:nowrap;overflow:hidden}
+.sb-item-d i{font-size:15px;flex-shrink:0}
+.sb-content{flex:1;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-text-secondary)}
+.toast-demo{background:#fff;border:1px solid #DDE2EA;border-radius:8px;padding:10px 14px;display:flex;align-items:flex-start;gap:10px;font-size:12px;max-width:300px;transition:all 200ms ease-out}
+.figma-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:12px 14px;margin-bottom:8px}
+.figma-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.figma-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.figma-title{font-size:12px;font-weight:600;color:var(--color-text-primary)}
+.figma-body{font-size:12px;color:var(--color-text-secondary);line-height:1.6;padding-left:36px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+</style>
+
+<div class="w">
+<h2 class="sr-only">GRAVITY 그룹웨어 인터랙션 & 마이크로애니메이션 가이드</h2>
+
+<div class="top">
+  <div>
+    <div class="top-title">인터랙션 & 마이크로애니메이션 가이드</div>
+    <div class="top-sub">GRAVITY 그룹웨어 — "빠르고 반응성 좋은" 기업용 모션 시스템</div>
+  </div>
+  <div style="display:flex;gap:5px;align-items:center">
+    <span class="bdg bdg-blue">Motion v1.0</span>
+    <span class="bdg bdg-gray">CSS + Figma</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab on" onclick="sw('tokens',this)">Duration & Easing</button>
+  <button class="tab" onclick="sw('components',this)">컴포넌트 인터랙션</button>
+  <button class="tab" onclick="sw('loading',this)">로딩 상태</button>
+  <button class="tab" onclick="sw('page',this)">페이지 전환</button>
+  <button class="tab" onclick="sw('figma',this)">Figma 구현 가이드</button>
+</div>
+
+<div id="sec-tokens" class="sec on">
+  <div class="lbl">Duration 토큰 — 시각화</div>
+  <div class="demo-area">
+    <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:12px">각 바를 클릭하면 해당 duration의 실제 속도를 체감할 수 있습니다.</div>
+    <div class="dur-bar-wrap">
+      <div class="dur-row">
+        <span class="dur-name">instant</span>
+        <div class="dur-track" style="cursor:pointer" onclick="animDur(0,'#9AA1AF')" title="클릭해서 체감"><div class="dur-fill" style="width:2%"></div></div>
+        <span class="dur-ms">0ms</span>
+      </div>
+      <div class="dur-row">
+        <span class="dur-name">fast</span>
+        <div class="dur-track" style="cursor:pointer" onclick="animDur(100,'#06ADEC')" title="클릭해서 체감"><div class="dur-fill" style="width:10%;background:#06ADEC"></div></div>
+        <span class="dur-ms">100ms</span>
+      </div>
+      <div class="dur-row">
+        <span class="dur-name">base</span>
+        <div class="dur-track" style="cursor:pointer" onclick="animDur(200,'#05539A')" title="클릭해서 체감"><div class="dur-fill" style="width:20%"></div></div>
+        <span class="dur-ms">200ms</span>
+      </div>
+      <div class="dur-row">
+        <span class="dur-name">slow</span>
+        <div class="dur-track" style="cursor:pointer" onclick="animDur(300,'#3D80C5')" title="클릭해서 체감"><div class="dur-fill" style="width:30%;background:#3D80C5"></div></div>
+        <span class="dur-ms">300ms</span>
+      </div>
+      <div class="dur-row">
+        <span class="dur-name">slower</span>
+        <div class="dur-track" style="cursor:pointer" onclick="animDur(500,'#9AA1AF')" title="클릭해서 체감"><div class="dur-fill" style="width:50%;background:#B3BCC9"></div></div>
+        <span class="dur-ms">500ms</span>
+      </div>
+    </div>
+    <div id="dur-flash" style="margin-top:12px;height:12px;border-radius:6px;background:#E2E6EC;overflow:hidden;transition:background 0ms">
+      <div id="dur-fill-anim" style="height:12px;border-radius:6px;width:0%;transition:none"></div>
+    </div>
+    <div id="dur-hint" style="font-size:11px;color:var(--color-text-secondary);margin-top:6px;height:16px">← 바를 클릭해 duration을 체감해보세요</div>
+  </div>
+
+  <div class="lbl">Duration 토큰 사용 시나리오</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>토큰</th><th>값</th><th>CSS Variable</th><th>사용 시나리오</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip">instant</span></td><td>0ms</td><td><span class="chip">--dur-instant: 0ms</span></td><td>체크박스 체크, 라디오 선택, 포커스 링 — 인지보다 빠른 상태 변화</td></tr>
+      <tr><td><span class="chip">fast</span></td><td>100ms</td><td><span class="chip">--dur-fast: 100ms</span></td><td>버튼 hover 색상 변화, 아이콘 교체, 행 선택 배경 — 즉각 반응감</td></tr>
+      <tr><td><span class="chip">base</span></td><td>200ms</td><td><span class="chip">--dur-base: 200ms</span></td><td>드롭다운 열림, Input focus 링, 토글, 탭 전환, 툴팁 — 핵심 기본값</td></tr>
+      <tr><td><span class="chip">slow</span></td><td>300ms</td><td><span class="chip">--dur-slow: 300ms</span></td><td>Modal 진입, Drawer 슬라이드, Toast 진입, 사이드바 collapse</td></tr>
+      <tr><td><span class="chip">slower</span></td><td>500ms</td><td><span class="chip">--dur-slower: 500ms</span></td><td>페이지 전환 fade, Skeleton→콘텐츠 교체, Progress bar 완료 피드백</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">Easing 토큰</div>
+  <div class="easing-row">
+    <div class="ease-card">
+      <div class="ease-title">ease-out</div>
+      <div class="ease-val">cubic-bezier(0, 0, 0.58, 1)</div>
+      <div class="ease-use">UI 요소 진입 — 빠르게 시작해 자연스럽게 정착</div>
+    </div>
+    <div class="ease-card">
+      <div class="ease-title">ease-in</div>
+      <div class="ease-val">cubic-bezier(0.42, 0, 1, 1)</div>
+      <div class="ease-use">UI 요소 퇴장 — 자연스럽게 빠져나감</div>
+    </div>
+    <div class="ease-card">
+      <div class="ease-title">ease-in-out</div>
+      <div class="ease-val">cubic-bezier(0.4, 0, 0.2, 1)</div>
+      <div class="ease-use">상태 전환 — 토글, 사이드바, 색상 변화</div>
+    </div>
+    <div class="ease-card">
+      <div class="ease-title">spring</div>
+      <div class="ease-val">cubic-bezier(0.34, 1.56, 0.64, 1)</div>
+      <div class="ease-use">성공/완료 피드백 — 약한 탄성으로 완료감 표현. 남용 금지.</div>
+    </div>
+  </div>
+  <div class="note">기업용 UI의 원칙: ease-out이 기본. 진입은 ease-out, 퇴장은 ease-in으로 일관. spring은 결재 승인 완료, 파일 업로드 성공처럼 긍정적 완료 피드백에만 한정 사용. 중장년층 사용자를 위해 속도감 있게 유지 — 200ms가 "표준 느낌".</div>
+</div>
+
+<div id="sec-components" class="sec">
+  <div class="lbl">Button 인터랙션 — 직접 클릭해보세요</div>
+  <div class="demo-area">
+    <div class="demo-row">
+      <span class="demo-label">Primary</span>
+      <button class="g-btn g-btn-p">저장</button>
+      <button class="g-btn g-btn-s">취소</button>
+      <button class="g-btn g-btn-g">미리보기</button>
+      <button class="g-btn g-btn-d">삭제</button>
+    </div>
+    <div style="font-size:11px;color:var(--color-text-secondary)">hover: 100ms ease-out · active: scale(0.97) + darken · focus: outline 2px #05539A offset 2px</div>
+  </div>
+
+  <div class="lbl">Button 상태 전환 스펙</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>상태</th><th>속성 변화</th><th>Duration</th><th>Easing</th></tr></thead>
+    <tbody>
+      <tr><td>default → hover</td><td>background-color 어둡게 (Primary: #05539A→#043E75)</td><td>100ms</td><td>ease-out</td></tr>
+      <tr><td>hover → active (click)</td><td>transform: scale(0.97) + 더 어두운 bg</td><td>60ms</td><td>ease-in</td></tr>
+      <tr><td>active → release</td><td>transform: scale(1) 복귀</td><td>100ms</td><td>ease-out</td></tr>
+      <tr><td>any → focus</td><td>outline: 2px solid #05539A, offset: 2px</td><td>0ms (instant)</td><td>—</td></tr>
+      <tr><td>any → disabled</td><td>opacity: 0.38, pointer-events: none</td><td>100ms</td><td>ease-out</td></tr>
+      <tr><td>default → loading</td><td>spinner 교체 + label 숨김 (opacity 0)</td><td>100ms</td><td>ease-out</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">Dropdown/Select 열림·닫힘</div>
+  <div class="demo-area">
+    <div class="demo-row">
+      <span class="demo-label">Demo</span>
+      <div class="dropdown-wrap">
+        <div class="dropdown-btn" onclick="toggleDD()" id="dd-btn">
+          <span id="dd-selected">부서 선택</span>
+          <i class="ti ti-chevron-down" id="dd-chevron" style="font-size:14px;color:#9AA1AF;transition:transform 200ms cubic-bezier(.4,0,.2,1)" aria-hidden="true"></i>
+        </div>
+        <div id="dd-menu" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:10">
+          <div class="dropdown-menu">
+            <div class="dd-item" onclick="selectDD('개발팀')">개발팀</div>
+            <div class="dd-item" onclick="selectDD('디자인팀')">디자인팀</div>
+            <div class="dd-item" onclick="selectDD('인사팀')">인사팀</div>
+            <div class="dd-item" onclick="selectDD('기획팀')">기획팀</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--color-text-secondary)">열림: scaleY(0.9)+opacity(0) → (1)+opacity(1) 150ms ease-out · 화살표: rotate 0°→180°</div>
+  </div>
+
+  <div class="lbl">Toggle 인터랙션</div>
+  <div class="demo-area">
+    <div class="demo-row">
+      <span class="demo-label">Demo</span>
+      <div class="toggle-wrap">
+        <div class="toggle-track" id="tog1" onclick="toggleSwitch('tog1')" role="switch" aria-checked="false" aria-label="알림 설정">
+          <div class="toggle-thumb"></div>
+        </div>
+        <span style="font-size:12px;color:var(--color-text-primary)" id="tog1-lbl">알림 OFF</span>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--color-text-secondary)">thumb translate: 200ms ease-in-out · background: 200ms ease-in-out</div>
+  </div>
+
+  <div class="lbl">Input Focus 링</div>
+  <div class="demo-area">
+    <div class="demo-row">
+      <span class="demo-label">Demo</span>
+      <input class="input-demo" placeholder="클릭해서 포커스 확인" style="width:220px">
+    </div>
+    <div style="font-size:11px;color:var(--color-text-secondary)">border-color: 150ms ease-out · box-shadow(focus ring): 150ms ease-out · ring: 3px rgba(5,83,154,.1)</div>
+  </div>
+
+  <div class="lbl">컴포넌트 전체 인터랙션 명세</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>컴포넌트</th><th>트리거</th><th>속성</th><th>값</th><th>Dur</th><th>Easing</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="2">Dropdown</td><td>열림</td><td>scaleY + opacity + translateY</td><td>0.9/0→1/1, -4px→0</td><td>150ms</td><td>ease-out</td></tr>
+      <tr><td>닫힘</td><td>scaleY + opacity</td><td>1→0.95, 1→0</td><td>100ms</td><td>ease-in</td></tr>
+      <tr><td rowspan="2">Modal</td><td>진입</td><td>scale + opacity</td><td>0.95/0→1/1</td><td>250ms</td><td>ease-out</td></tr>
+      <tr><td>퇴장</td><td>scale + opacity</td><td>1→0.97, 1→0</td><td>150ms</td><td>ease-in</td></tr>
+      <tr><td>Modal Overlay</td><td>진입/퇴장</td><td>opacity</td><td>0→0.4 / 0.4→0</td><td>200ms</td><td>ease-in-out</td></tr>
+      <tr><td rowspan="2">Drawer (사이드)</td><td>열림</td><td>translateX</td><td>100%→0 (우측 기준)</td><td>300ms</td><td>ease-out</td></tr>
+      <tr><td>닫힘</td><td>translateX</td><td>0→100%</td><td>250ms</td><td>ease-in</td></tr>
+      <tr><td rowspan="2">Sidebar Collapse</td><td>접기</td><td>width</td><td>220px→64px</td><td>200ms</td><td>ease-in-out</td></tr>
+      <tr><td>펼치기</td><td>width</td><td>64px→220px</td><td>200ms</td><td>ease-in-out</td></tr>
+      <tr><td>Sidebar 레이블</td><td>접기 시 숨김</td><td>opacity</td><td>1→0 (width 전환과 동시)</td><td>100ms</td><td>ease-in</td></tr>
+      <tr><td rowspan="2">Toast (진입)</td><td>진입 (우상단)</td><td>translateX + opacity</td><td>100%/0→0/1</td><td>300ms</td><td>ease-out</td></tr>
+      <tr><td>퇴장</td><td>translateX + opacity + height</td><td>0→100%, 1→0, h→0</td><td>250ms</td><td>ease-in</td></tr>
+      <tr><td rowspan="2">Accordion</td><td>열림</td><td>height + opacity</td><td>0→auto, 0→1</td><td>200ms</td><td>ease-out</td></tr>
+      <tr><td>닫힘</td><td>height + opacity</td><td>auto→0, 1→0</td><td>150ms</td><td>ease-in</td></tr>
+      <tr><td>Tooltip</td><td>노출</td><td>opacity + translateY</td><td>0/4px→1/0</td><td>150ms</td><td>ease-out</td></tr>
+      <tr><td>Tabs 인디케이터</td><td>탭 전환</td><td>translateX (underline)</td><td>이전→현재 위치</td><td>200ms</td><td>ease-in-out</td></tr>
+      <tr><td>Checkbox</td><td>체크</td><td>scale (체크 아이콘)</td><td>0→1 spring</td><td>150ms</td><td>spring</td></tr>
+      <tr><td>Badge count</td><td>숫자 변화</td><td>scale pulse</td><td>1→1.3→1</td><td>200ms</td><td>ease-in-out</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">사이드바 Collapse 데모</div>
+  <div class="demo-area">
+    <div class="sidebar-demo">
+      <div class="sb-panel" id="sb-demo" style="width:200px">
+        <div class="sb-item-d"><i class="ti ti-home" aria-hidden="true"></i><span class="sb-label-d">홈</span></div>
+        <div class="sb-item-d"><i class="ti ti-file-check" aria-hidden="true"></i><span class="sb-label-d">전자결재</span></div>
+        <div class="sb-item-d"><i class="ti ti-message-dots" aria-hidden="true"></i><span class="sb-label-d">게시판</span></div>
+        <div class="sb-item-d"><i class="ti ti-settings" aria-hidden="true"></i><span class="sb-label-d">관리자</span></div>
+      </div>
+      <div class="sb-content">콘텐츠 영역</div>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <button onclick="collapseDemo(false)" style="padding:5px 12px;border:1px solid #DDE2EA;border-radius:4px;font-size:11px;cursor:pointer;background:#fff;color:var(--color-text-primary)">Expanded (220px)</button>
+      <button onclick="collapseDemo(true)" style="padding:5px 12px;border:1px solid #DDE2EA;border-radius:4px;font-size:11px;cursor:pointer;background:#fff;color:var(--color-text-primary)">Collapsed (64px)</button>
+    </div>
+  </div>
+</div>
+
+<div id="sec-loading" class="sec">
+  <div class="lbl">Skeleton Shimmer 애니메이션</div>
+  <div class="demo-area">
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:320px">
+      <div class="skeleton-demo" style="width:60%;height:14px"></div>
+      <div class="skeleton-demo" style="width:100%;height:14px"></div>
+      <div class="skeleton-demo" style="width:80%;height:14px"></div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <div class="skeleton-demo" style="width:40px;height:40px;border-radius:50%"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:6px;justify-content:center">
+          <div class="skeleton-demo" style="width:70%;height:12px"></div>
+          <div class="skeleton-demo" style="width:50%;height:12px"></div>
+        </div>
+      </div>
+      <div class="skeleton-demo" style="width:100%;height:64px;border-radius:6px;margin-top:4px"></div>
+    </div>
+  </div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>속성</th><th>값</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td>shimmer 방향</td><td>좌→우 (LTR)</td><td>배경 그라디언트 background-position 이동</td></tr>
+      <tr><td>shimmer 색상</td><td>#f0f0f0 → #e0e0e0 → #f0f0f0</td><td>배경색 대비 10% 차이로 절제</td></tr>
+      <tr><td>animation duration</td><td>1.5s linear infinite</td><td>너무 빠르면 불안감 유발</td></tr>
+      <tr><td>border-radius</td><td>텍스트 4px · 카드 8px · 아바타 50%</td><td>실제 콘텐츠 형태와 일치</td></tr>
+      <tr><td>표시 조건</td><td>로딩 300ms 초과 시</td><td>300ms 미만은 피드백 불필요</td></tr>
+      <tr><td>콘텐츠 교체</td><td>opacity 0→1, 500ms ease-out</td><td>Skeleton→실제 콘텐츠 크로스페이드</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">Spinner 사이즈 스펙 — 직접 확인</div>
+  <div class="demo-area">
+    <div style="display:flex;align-items:center;gap:32px;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div class="spinner sm"></div>
+        <div style="font-size:11px;color:var(--color-text-secondary);text-align:center">sm<br>16×16px<br>border 2px</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div class="spinner md"></div>
+        <div style="font-size:11px;color:var(--color-text-secondary);text-align:center">md<br>24×24px<br>border 2.5px</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div class="spinner lg"></div>
+        <div style="font-size:11px;color:var(--color-text-secondary);text-align:center">lg<br>40×40px<br>border 3px</div>
+      </div>
+    </div>
+  </div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>Size</th><th>크기</th><th>border-width</th><th>사용처</th><th>색상</th></tr></thead>
+    <tbody>
+      <tr><td>sm</td><td>16×16px</td><td>2px</td><td>버튼 내 로딩, 인라인 피드백</td><td>top #05539A / rest #DDE2EA</td></tr>
+      <tr><td>md</td><td>24×24px</td><td>2.5px</td><td>테이블 행 로딩, 작은 카드 영역</td><td>top #05539A / rest #DDE2EA</td></tr>
+      <tr><td>lg</td><td>40×40px</td><td>3px</td><td>페이지 전체 로딩, 모달 내 대기</td><td>top #05539A / rest #E2E6EC</td></tr>
+      <tr><td>white</td><td>md 동일</td><td>2.5px</td><td>파란 배경 위 (Primary 버튼 로딩)</td><td>top #fff / rest rgba(255,255,255,.3)</td></tr>
+    </tbody>
+  </table>
+  <div style="margin-bottom:4px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-secondary)">animation: spin 0.8s linear infinite</div>
+  <div class="note">Spinner 회전 방향은 항상 시계방향(clockwise). 속도는 0.8s 고정 — 너무 빠르면 불안감, 너무 느리면 답답함. 버튼 내 Spinner는 white variant를 사용하고 라벨 텍스트는 opacity 0으로 숨겨 크기 변화 없이 처리.</div>
+
+  <div class="lbl">Progress Bar 애니메이션</div>
+  <div class="demo-area">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">확정 진행률 (파일 업로드 등)</div>
+        <div class="prog-wrap"><div class="prog-fill"></div></div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">불확정 진행률 (서버 처리 대기)</div>
+        <div class="prog-wrap" style="overflow:hidden;position:relative"><div class="prog-fill indeterminate" style="position:absolute"></div></div>
+      </div>
+    </div>
+  </div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>타입</th><th>애니메이션</th><th>사용 시나리오</th></tr></thead>
+    <tbody>
+      <tr><td>Determinate</td><td>width 0%→N% · ease-in-out · 진행 중 업데이트</td><td>파일 업로드, 페이지 로드 (진행률 알 때)</td></tr>
+      <tr><td>Indeterminate</td><td>30% 블록이 translateX로 좌→우 반복</td><td>서버 처리, API 대기 (진행률 모를 때)</td></tr>
+      <tr><td>완료 피드백</td><td>100% 도달 후 0.5s 유지 → 사라짐 (opacity 0)</td><td>완료 후 잠시 보여주고 숨김</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div id="sec-page" class="sec">
+  <div class="lbl">페이지 전환 전략</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>전환 유형</th><th>애니메이션</th><th>Duration</th><th>시나리오</th></tr></thead>
+    <tbody>
+      <tr><td>메뉴 이동 (사이드바)</td><td>Fade: opacity 1→0→1</td><td>150ms out + 150ms in</td><td>홈→전자결재, 메뉴 간 이동</td></tr>
+      <tr><td>목록→상세</td><td>Fade + 미세 translateY (0→8px 퇴장 / -8px→0 진입)</td><td>150ms + 200ms</td><td>문서 목록 클릭 → 상세 열기</td></tr>
+      <tr><td>상세→목록 (뒤로)</td><td>반대 방향 translateY (퇴장 8px, 진입 -8px)</td><td>120ms + 180ms</td><td>뒤로가기, 목록으로 버튼</td></tr>
+      <tr><td>모달 내 스텝 전환</td><td>수평 Slide: translateX (-20px→0 진입, 0→20px 퇴장)</td><td>200ms</td><td>양식 선택 스텝, 설정 단계</td></tr>
+      <tr><td>탭 전환 (같은 페이지)</td><td>콘텐츠 Fade (인디케이터는 슬라이드)</td><td>150ms</td><td>문서함 탭, 생일 탭 전환</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">페이지 전환 기본 원칙</div>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+    <div style="background:var(--color-background-secondary);border-radius:6px;padding:10px 14px;display:flex;align-items:flex-start;gap:10px">
+      <div style="width:6px;height:6px;border-radius:50%;background:#05539A;flex-shrink:0;margin-top:5px"></div>
+      <div style="font-size:12px;color:var(--color-text-primary);line-height:1.6">Slide 방향 원칙: 계층이 깊어질수록(목록→상세) 우측 또는 아래로, 복귀 시 반대 방향. 수직 이동(translateY)은 ±8px 이하로 제한 — 그 이상은 현기증 유발.</div>
+    </div>
+    <div style="background:var(--color-background-secondary);border-radius:6px;padding:10px 14px;display:flex;align-items:flex-start;gap:10px">
+      <div style="width:6px;height:6px;border-radius:50%;background:#F59E0B;flex-shrink:0;margin-top:5px"></div>
+      <div style="font-size:12px;color:var(--color-text-primary);line-height:1.6">중장년층 사용자 고려: 빠른 슬라이드나 큰 이동 거리는 멀미감 유발 가능. 이동 거리 최소화 + Fade 병행이 가장 안전.</div>
+    </div>
+    <div style="background:var(--color-background-secondary);border-radius:6px;padding:10px 14px;display:flex;align-items:flex-start;gap:10px">
+      <div style="width:6px;height:6px;border-radius:50%;background:#10B981;flex-shrink:0;margin-top:5px"></div>
+      <div style="font-size:12px;color:var(--color-text-primary);line-height:1.6">prefers-reduced-motion 대응: @media (prefers-reduced-motion: reduce) 시 모든 transform 제거, duration을 1ms로 단축. 접근성 필수 대응.</div>
+    </div>
+  </div>
+
+  <div class="lbl">CSS 구현 예시</div>
+  <div style="background:#1e2330;border-radius:8px;padding:14px 16px;font-family:monospace;font-size:11px;line-height:1.8;color:#e0e4ef;margin-bottom:14px">
+    <div><span style="color:#7dd3fc">:root</span> {</div>
+    <div style="padding-left:16px"><span style="color:#a5f3fc">--dur-fast</span>: <span style="color:#fde68a">100ms</span>;</div>
+    <div style="padding-left:16px"><span style="color:#a5f3fc">--dur-base</span>: <span style="color:#fde68a">200ms</span>;</div>
+    <div style="padding-left:16px"><span style="color:#a5f3fc">--dur-slow</span>: <span style="color:#fde68a">300ms</span>;</div>
+    <div style="padding-left:16px"><span style="color:#a5f3fc">--ease-out</span>: <span style="color:#fde68a">cubic-bezier(0, 0, 0.58, 1)</span>;</div>
+    <div style="padding-left:16px"><span style="color:#a5f3fc">--ease-in-out</span>: <span style="color:#fde68a">cubic-bezier(0.4, 0, 0.2, 1)</span>;</div>
+    <div>}</div>
+    <div style="margin-top:8px"><span style="color:#7dd3fc">.page-enter</span> { <span style="color:#a5f3fc">opacity</span>: <span style="color:#fde68a">0</span>; <span style="color:#a5f3fc">transform</span>: <span style="color:#fde68a">translateY(-6px)</span>; }</div>
+    <div><span style="color:#7dd3fc">.page-enter-active</span> { <span style="color:#a5f3fc">opacity</span>: <span style="color:#fde68a">1</span>; <span style="color:#a5f3fc">transform</span>: <span style="color:#fde68a">translateY(0)</span>;</div>
+    <div style="padding-left:16px"><span style="color:#a5f3fc">transition</span>: <span style="color:#fde68a">opacity var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out)</span>; }</div>
+    <div style="margin-top:8px"><span style="color:#6ee7b7">@media</span> (<span style="color:#a5f3fc">prefers-reduced-motion</span>: <span style="color:#fde68a">reduce</span>) {</div>
+    <div style="padding-left:16px"><span style="color:#7dd3fc">*, *::before, *::after</span> { <span style="color:#a5f3fc">transition-duration</span>: <span style="color:#fde68a">1ms !important</span>; }</div>
+    <div>}</div>
+  </div>
+</div>
+
+<div id="sec-figma" class="sec">
+  <div class="lbl">Figma에서 구현할 것 vs 개발 명세로 전달할 것</div>
+  <div class="note" style="margin-bottom:14px">Figma Prototype은 "의사결정 검증"이 목적. 복잡한 타이밍 곡선은 구현 불완전하므로 핵심 상태 전환만 프로토타입하고, 나머지는 이 명세서를 개발팀에 전달.</div>
+
+  <div class="figma-card">
+    <div class="figma-head">
+      <div class="figma-icon" style="background:#ECFDF5"><i class="ti ti-circle-check" style="font-size:15px;color:#10B981" aria-hidden="true"></i></div>
+      <div class="figma-title">Figma Prototype으로 구현 — 상태 전환 검증용</div>
+    </div>
+    <div class="figma-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px">
+        <div style="background:#F0FDF4;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(16,185,129,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#065F46">버튼 상태 (Smart Animate)</div>
+          default→hover→active→disabled — Variant 4개 + Smart Animate으로 연결
+        </div>
+        <div style="background:#F0FDF4;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(16,185,129,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#065F46">드롭다운 열림/닫힘</div>
+          두 Frame 연결 (닫힘↔열림) + Smart Animate + Ease Out 200ms
+        </div>
+        <div style="background:#F0FDF4;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(16,185,129,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#065F46">Toggle ON/OFF</div>
+          Boolean property로 상태 전환 + Smart Animate 200ms
+        </div>
+        <div style="background:#F0FDF4;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(16,185,129,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#065F46">Modal 진입/퇴장</div>
+          Overlay 방식 + Dissolve (Figma 기본) 또는 Smart Animate 250ms
+        </div>
+        <div style="background:#F0FDF4;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(16,185,129,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#065F46">Accordion 열림/닫힘</div>
+          Variant(collapsed/expanded) + Smart Animate 200ms
+        </div>
+        <div style="background:#F0FDF4;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(16,185,129,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#065F46">Sidebar Collapse</div>
+          두 Frame + Navigate + Smart Animate 200ms
+        </div>
+        <div style="background:#F0FDF4;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(16,185,129,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#065F46">페이지 Fade 전환</div>
+          Frame 간 Navigate + Dissolve 150ms — 가장 빠른 설정
+        </div>
+        <div style="background:#F0FDF4;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(16,185,129,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#065F46">탭 인디케이터 이동</div>
+          Tabs Variant + Smart Animate 200ms — 선택 상태만 변경
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="figma-card">
+    <div class="figma-head">
+      <div class="figma-icon" style="background:#FEF2F2"><i class="ti ti-file-text" style="font-size:15px;color:#DC2626" aria-hidden="true"></i></div>
+      <div class="figma-title">개발 명세서로 전달 — Figma에서 구현 불가·불완전</div>
+    </div>
+    <div class="figma-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px">
+        <div style="background:#FEF2F2;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(239,68,68,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#991B1B">Skeleton shimmer</div>
+          CSS keyframe animation — Figma에서 재현 불가
+        </div>
+        <div style="background:#FEF2F2;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(239,68,68,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#991B1B">Spinner 회전</div>
+          무한 회전 animation — 정적 스크린샷만 전달
+        </div>
+        <div style="background:#FEF2F2;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(239,68,68,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#991B1B">Toast 쌓임 동작</div>
+          여러 Toast가 위로 밀리는 stacking — JS 동적 처리
+        </div>
+        <div style="background:#FEF2F2;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(239,68,68,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#991B1B">Progress bar 진행</div>
+          실시간 width 변화 — 정적 0%, 50%, 100% 3개 Frame만 전달
+        </div>
+        <div style="background:#FEF2F2;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(239,68,68,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#991B1B">Drag & Drop (결재선)</div>
+          드래그 중 상태 변화 — 드래그 전/후 정적 상태만 Figma 표현
+        </div>
+        <div style="background:#FEF2F2;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(239,68,68,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#991B1B">spring easing</div>
+          Figma 기본 easing에 없음 — cubic-bezier 값 명세서로 전달
+        </div>
+        <div style="background:#FEF2F2;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(239,68,68,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#991B1B">Form validation 피드백</div>
+          입력 중 실시간 에러 표시 — 빈/에러/정상 3상태 Frame만 제공
+        </div>
+        <div style="background:#FEF2F2;border-radius:5px;padding:8px 10px;border:0.5px solid rgba(239,68,68,.2)">
+          <div style="font-weight:600;margin-bottom:4px;color:#991B1B">prefers-reduced-motion</div>
+          OS 설정 감지 동작 — 개발팀 CSS 미디어쿼리로 처리
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lbl">Figma Smart Animate 사용 팁</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>팁</th><th>상세</th></tr></thead>
+    <tbody>
+      <tr><td>Layer 이름 일치 필수</td><td>Smart Animate는 동일한 레이어 이름을 추적. 버튼 label이 "Label"로 통일되어야 hover 시 텍스트 변화가 감지됨</td></tr>
+      <tr><td>Easing 근사값 사용</td><td>ease-out → "Ease Out", ease-in-out → "Ease In and Out" 선택. Custom은 미지원이므로 가장 유사한 Figma 기본값 선택</td></tr>
+      <tr><td>Spring 대안</td><td>spring 효과는 Figma에서 "Spring" easing 선택 후 Stiffness/Damping 조정 (Stiffness 500, Damping 30 권장)</td></tr>
+      <tr><td>Overlay 방식 Modal</td><td>Modal은 Prototype에서 "Open overlay" 사용. Position: Centered, Background: #242021 40% opacity</td></tr>
+      <tr><td>Sidebar Frame 분리</td><td>Expanded Frame과 Collapsed Frame을 별도로 만들고, 토글 버튼에 "Navigate to" + Smart Animate 연결</td></tr>
+      <tr><td>Duration 통일</td><td>Figma Prototype duration은 ms 단위 직접 입력 가능 (200, 300 등). 토큰값과 일치시킬 것</td></tr>
+    </tbody>
+  </table>
+</div>
+</div>
+
+<script>
+function sw(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('sec-'+id).classList.add('on');
+  el.classList.add('on');
+}
+
+function animDur(ms, color){
+  const fill=document.getElementById('dur-fill-anim');
+  const hint=document.getElementById('dur-hint');
+  fill.style.transition='none';
+  fill.style.width='0%';
+  fill.style.background=color;
+  hint.textContent=ms===0?'즉시 전환! (0ms)':''+ms+'ms — 실제 UI에서 이 속도로 전환됩니다';
+  requestAnimationFrame(()=>{
+    fill.style.transition='width '+ms+'ms cubic-bezier(0,0,.58,1)';
+    fill.style.width='100%';
+  });
+}
+
+let ddOpen=false;
+function toggleDD(){
+  ddOpen=!ddOpen;
+  const menu=document.getElementById('dd-menu');
+  const chevron=document.getElementById('dd-chevron');
+  menu.style.display=ddOpen?'block':'none';
+  chevron.style.transform=ddOpen?'rotate(180deg)':'rotate(0deg)';
+}
+function selectDD(val){
+  document.getElementById('dd-selected').textContent=val;
+  toggleDD();
+}
+
+function toggleSwitch(id){
+  const t=document.getElementById(id);
+  const lbl=document.getElementById(id+'-lbl');
+  t.classList.toggle('on');
+  if(lbl) lbl.textContent=t.classList.contains('on')?'알림 ON':'알림 OFF';
+  if(t.classList.contains('on')) t.setAttribute('aria-checked','true');
+  else t.setAttribute('aria-checked','false');
+}
+
+function collapseDemo(collapse){
+  const sb=document.getElementById('sb-demo');
+  const labels=sb.querySelectorAll('.sb-label-d');
+  if(collapse){
+    sb.style.width='52px';
+    labels.forEach(l=>{l.style.opacity='0';l.style.transition='opacity 80ms';});
+  } else {
+    sb.style.width='200px';
+    setTimeout(()=>labels.forEach(l=>{l.style.opacity='1';l.style.transition='opacity 100ms';}),120);
+  }
+}
+</script>

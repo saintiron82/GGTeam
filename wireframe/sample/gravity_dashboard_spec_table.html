@@ -1,0 +1,278 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{padding:1rem 0;font-size:13px;color:var(--color-text-primary)}
+.tab-bar{display:flex;gap:0;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:18px}
+.tab{padding:7px 16px;font-size:12px;font-weight:500;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--color-text-secondary);border-radius:0}
+.tab.on{color:#05539A;border-bottom-color:#05539A}
+.sec{display:none}.sec.on{display:block}
+.lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:8px;margin-top:16px}
+.lbl:first-child{margin-top:0}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px;table-layout:fixed}
+.tbl th{text-align:left;padding:6px 10px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+.tbl td{padding:7px 10px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top;line-height:1.55;word-break:keep-all}
+.tbl tr:last-child td{border-bottom:none}
+.chip{display:inline-block;font-family:monospace;font-size:11px;padding:1px 6px;border-radius:3px;background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.note{border-left:3px solid #05539A;padding:8px 12px;background:rgba(5,83,154,.05);font-size:12px;line-height:1.6;margin-bottom:10px}
+.warn{border-left:3px solid #F59E0B;padding:8px 12px;background:rgba(245,158,11,.05);font-size:12px;line-height:1.6;margin-bottom:10px}
+.improvement{display:flex;flex-direction:column;gap:10px}
+.imp-card{background:var(--color-background-secondary);border-radius:8px;padding:12px 14px}
+.imp-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.imp-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.imp-title{font-size:13px;font-weight:600;color:var(--color-text-primary)}
+.imp-body{font-size:12px;color:var(--color-text-secondary);line-height:1.65;padding-left:36px}
+.before-after{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding-left:36px}
+.ba-box{border-radius:6px;padding:8px 10px;font-size:11px;line-height:1.5}
+.ba-before{background:#FEF2F2;color:#991B1B;border:0.5px solid rgba(239,68,68,.2)}
+.ba-after{background:#ECFDF5;color:#065F46;border:0.5px solid rgba(16,185,129,.2)}
+.ba-label{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.grid-vis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.gv-cell{border-radius:5px;padding:8px 10px;font-size:11px;font-weight:600;text-align:center}
+</style>
+
+<div class="w">
+<h2 class="sr-only">GRAVITY 대시보드 리디자인 스펙 상세</h2>
+
+<div class="tab-bar">
+  <button class="tab on" onclick="sw('layout',this)">레이아웃 구조</button>
+  <button class="tab" onclick="sw('widgets',this)">위젯 스펙</button>
+  <button class="tab" onclick="sw('improve',this)">개선 포인트</button>
+  <button class="tab" onclick="sw('figma',this)">Figma 스펙</button>
+</div>
+
+<div id="sec-layout" class="sec on">
+  <div class="lbl">Row 구성 — 5개 행, 3컬럼 기반</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>Row</th><th>컬럼 배분</th><th>포함 위젯</th><th>역할</th></tr></thead>
+    <tbody>
+      <tr><td>Row 1</td><td>8col + 4col</td><td>프로필 카드 + 모바일 QR</td><td>개인 현황 — 로그인 직후 첫 확인</td></tr>
+      <tr><td>Row 2</td><td>4col + 4col + 4col</td><td>결재 현황 + 오늘의 회의 + 임직원 생일</td><td>업무 핵심 정보 — 시각적 최우선</td></tr>
+      <tr><td>Row 3</td><td>4col + 4col + 4col</td><td>빠른 실행 3버튼</td><td>액션 허브 — 자주 쓰는 기능 접근</td></tr>
+      <tr><td>Row 4</td><td>8col + 4col</td><td>휴가 현황 + (공지 + 복지몰/복리후생)</td><td>팀 현황 + 커뮤니케이션</td></tr>
+    </tbody>
+  </table>
+  <div class="note">결재·회의 위젯을 Row 2로 끌어올려 스크롤 없이 업무 핵심 정보를 한눈에 확인. 기존의 기안/회의실/연차 버튼(Row 상단)을 Row 3으로 내려 '실행 전 상황 파악 → 실행' 흐름을 자연스럽게 구성.</div>
+
+  <div class="lbl">전체 너비 기준 (사이드바 220px 제외)</div>
+  <div class="grid-vis">
+    <div class="gv-cell" style="background:rgba(5,83,154,.08);color:#05539A">프로필 카드<br><span style="font-weight:400;font-size:10px">8col (2/3)</span></div>
+    <div class="gv-cell" style="background:rgba(5,83,154,.08);color:#05539A;grid-column:span 1">모바일 QR<br><span style="font-weight:400;font-size:10px">4col (1/3)</span></div>
+    <div class="gv-cell" style="background:rgba(245,158,11,.1);color:#92400E">결재 현황<br><span style="font-weight:400;font-size:10px">4col</span></div>
+    <div class="gv-cell" style="background:rgba(245,158,11,.1);color:#92400E">오늘의 회의<br><span style="font-weight:400;font-size:10px">4col</span></div>
+    <div class="gv-cell" style="background:rgba(245,158,11,.1);color:#92400E">임직원 생일<br><span style="font-weight:400;font-size:10px">4col</span></div>
+    <div class="gv-cell" style="background:#F4F6F9;color:#6B7280">기안 작성<br><span style="font-weight:400;font-size:10px">4col</span></div>
+    <div class="gv-cell" style="background:#F4F6F9;color:#6B7280">회의실 예약<br><span style="font-weight:400;font-size:10px">4col</span></div>
+    <div class="gv-cell" style="background:#F4F6F9;color:#6B7280">연차 신청<br><span style="font-weight:400;font-size:10px">4col</span></div>
+    <div class="gv-cell" style="background:rgba(16,185,129,.08);color:#065F46">휴가 현황<br><span style="font-weight:400;font-size:10px">8col</span></div>
+    <div class="gv-cell" style="background:rgba(16,185,129,.08);color:#065F46">공지 + 복지<br><span style="font-weight:400;font-size:10px">4col</span></div>
+  </div>
+</div>
+
+<div id="sec-widgets" class="sec">
+  <div class="lbl">위젯별 Figma 컴포넌트 스펙</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th style="width:18%">위젯</th><th style="width:22%">컴포넌트명</th><th style="width:30%">Props / Variants</th><th>Figma 구성 방식</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>프로필 카드</td>
+        <td><span class="chip">Widget/ProfileCard</span></td>
+        <td><span class="chip">name</span> <span class="chip">dept</span> <span class="chip">status</span> <span class="chip">workHours</span> <span class="chip">leaveRemain</span></td>
+        <td>Auto Layout Horizontal · 내부 3영역(프로필 / 근무시간 / 연차) Auto Layout으로 구분 · Divider로 분리</td>
+      </tr>
+      <tr>
+        <td>결재 현황</td>
+        <td><span class="chip">Widget/ApprovalCard</span></td>
+        <td><span class="chip">count</span> <span class="chip">urgentBadge</span> <span class="chip">items[3]</span></td>
+        <td>count 숫자는 Text Style Heading/1 · 각 항목은 <span class="chip">ApprovalItem</span> 컴포넌트 3회 반복 · 상태 dot은 Variant(pending/approved)</td>
+      </tr>
+      <tr>
+        <td>오늘의 회의</td>
+        <td><span class="chip">Widget/MeetingCard</span></td>
+        <td><span class="chip">items[]</span> <span class="chip">item.status</span> active/past</td>
+        <td>각 행은 <span class="chip">MeetingItem</span>: 좌측 3px 컬러 바(Accent Sky) + 정보 Auto Layout · past 상태는 바·텍스트 gray 처리</td>
+      </tr>
+      <tr>
+        <td>임직원 생일</td>
+        <td><span class="chip">Widget/BirthdayCard</span></td>
+        <td><span class="chip">tab</span> 이번주/이번달 · <span class="chip">items[]</span></td>
+        <td>Tab 컴포넌트(pill 타입) 연결 · 오늘 생일 항목은 <span class="chip">today=true</span> Variant로 아바타 Primary Blue 배경</td>
+      </tr>
+      <tr>
+        <td>빠른 실행</td>
+        <td><span class="chip">Widget/QuickAction</span></td>
+        <td><span class="chip">icon</span> <span class="chip">title</span> <span class="chip">subtitle</span> <span class="chip">href</span></td>
+        <td>카드 컴포넌트 재사용 · state: default / hover (border-color → Primary Blue) · 아이콘 영역 Instance Swap</td>
+      </tr>
+      <tr>
+        <td>휴가 현황</td>
+        <td><span class="chip">Widget/LeaveCalendar</span></td>
+        <td><span class="chip">tab</span> 우리팀/전사 · <span class="chip">leaveData[]</span></td>
+        <td>캘린더 그리드는 Auto Layout Grid(7cols) · 각 날짜 셀은 <span class="chip">CalCell</span>(today / hasLeave / default Variant) · 하단 목록은 <span class="chip">LeaveItem</span> 반복</td>
+      </tr>
+      <tr>
+        <td>공지사항</td>
+        <td><span class="chip">Widget/NoticeCard</span></td>
+        <td><span class="chip">items[]</span> <span class="chip">item.isNew</span></td>
+        <td>각 행 <span class="chip">NoticeItem</span>: Badge(isNew=true 시 NEW 뱃지) + 제목 + 날짜 · 전체보기 링크는 카드 헤더 우측</td>
+      </tr>
+      <tr>
+        <td>복지몰/복리후생</td>
+        <td><span class="chip">Widget/UtilCard</span></td>
+        <td><span class="chip">icon</span> <span class="chip">title</span> <span class="chip">description</span> <span class="chip">linkText</span></td>
+        <td>2개 나란히 배치 (grid 1:1) · 아이콘 배경색 Variant(blue/green) · 링크 텍스트 + ti-arrow-right</td>
+      </tr>
+      <tr>
+        <td>모바일 QR</td>
+        <td><span class="chip">Widget/QRCard</span></td>
+        <td><span class="chip">qrImage</span> <span class="chip">url</span></td>
+        <td>Static 카드 · QR 이미지 Instance Swap 가능하게 구성 · 링크는 Text/Link 스타일</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">공통 카드 토큰</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>속성</th><th>값</th></tr></thead>
+    <tbody>
+      <tr><td>배경</td><td><span class="chip">#FFFFFF</span></td></tr>
+      <tr><td>보더</td><td><span class="chip">1px solid #E2E6EC</span></td></tr>
+      <tr><td>Border Radius</td><td><span class="chip">10px</span> (radius/lg)</td></tr>
+      <tr><td>내부 padding</td><td><span class="chip">16px</span> (전체 균일)</td></tr>
+      <tr><td>카드 헤더 margin-bottom</td><td><span class="chip">14px</span></td></tr>
+      <tr><td>카드 제목</td><td><span class="chip">12px / 700 / #242021</span> + 아이콘 15px gray</td></tr>
+      <tr><td>구분선(아이템 간)</td><td><span class="chip">1px solid #F1F3F6</span></td></tr>
+      <tr><td>hover 상태 (clickable)</td><td>border-color: <span class="chip">#05539A</span>, transition: 0.12s</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div id="sec-improve" class="sec">
+  <div class="improvement">
+    <div class="imp-card">
+      <div class="imp-head">
+        <div class="imp-icon" style="background:rgba(239,68,68,.1)"><i class="ti ti-arrows-sort" style="font-size:15px;color:#DC2626" aria-hidden="true"></i></div>
+        <div class="imp-title">정보 계층 재배치 — 업무 핵심 정보를 최상단으로</div>
+      </div>
+      <div class="imp-body">
+        기존에는 프로필 → 빠른버튼 → 결재/회의 순이어서 가장 중요한 결재 대기와 오늘 회의를 보려면 눈이 아래로 내려가야 했습니다. 리디자인에서는 Row 2에 결재·회의·생일 3위젯을 가로로 배치해 페이지 로드 즉시 업무 현황이 보이도록 개선했습니다. 빠른 실행 버튼은 Row 3으로 이동 — "상황 파악 후 실행"이라는 자연스러운 시선 흐름을 만듭니다.
+        <div class="before-after">
+          <div class="ba-box ba-before"><div class="ba-label">기존</div>프로필 → 빠른버튼(파란 블록 3개) → 결재 → 회의</div>
+          <div class="ba-box ba-after"><div class="ba-label">개선</div>프로필+지표 → 결재+회의+생일 → 빠른실행 → 휴가+공지</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="imp-card">
+      <div class="imp-head">
+        <div class="imp-icon" style="background:rgba(5,83,154,.1)"><i class="ti ti-hand-click" style="font-size:15px;color:#05539A" aria-hidden="true"></i></div>
+        <div class="imp-title">빠른 실행 버튼 — 파란 블록에서 기능 카드로</div>
+      </div>
+      <div class="imp-body">
+        기존 파란 배경 버튼 3개는 주목도는 높지만, 결재·회의 위젯과 동일한 시각적 무게를 가져 위계가 무너집니다. 리디자인에서는 흰 배경 카드에 아이콘 + 제목 + 부제 + 화살표 구조로 변경했습니다. 파란색을 아이콘 배경(EDF3FA)에만 사용해 Primary Blue의 신뢰감은 유지하되, 시각적 과부하를 줄였습니다.
+        <div class="before-after">
+          <div class="ba-box ba-before"><div class="ba-label">기존</div>파란 배경 + 흰 아이콘 + 텍스트 — 3개가 동등하게 강조</div>
+          <div class="ba-box ba-after"><div class="ba-label">개선</div>흰 카드 + blue 아이콘 배경 + hover 시 테두리 강조 — 세련된 기능 카드</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="imp-card">
+      <div class="imp-head">
+        <div class="imp-icon" style="background:rgba(6,173,236,.1)"><i class="ti ti-sparkles" style="font-size:15px;color:#06ADEC" aria-hidden="true"></i></div>
+        <div class="imp-title">AI-HUB 버튼 — Accent에서 Primary로 격상</div>
+      </div>
+      <div class="imp-body">
+        기존 AI-HUB 버튼은 Accent Sky(#06ADEC)로 채워져 있어 신뢰감이 떨어지고 '기능 버튼'처럼 보였습니다. 헤더 내 유일한 CTA인 AI-HUB는 Primary Blue(#05539A)로 변경해 브랜드 신뢰감과 버튼의 중요성을 동시에 부여합니다. Accent Sky는 내부 아이콘 강조나 뱃지 한정 사용 원칙을 유지합니다.
+        <div class="before-after">
+          <div class="ba-box ba-before"><div class="ba-label">기존</div>Sky Blue 배경 + 헤더 내 여러 버튼과 비슷한 무게</div>
+          <div class="ba-box ba-after"><div class="ba-label">개선</div>Primary Blue + sparkle 아이콘 — 헤더 유일 강조 CTA</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="imp-card">
+      <div class="imp-head">
+        <div class="imp-icon" style="background:rgba(107,114,128,.12)"><i class="ti ti-layout-cards" style="font-size:15px;color:#6B7280" aria-hidden="true"></i></div>
+        <div class="imp-title">카드 일관성 — 모든 위젯이 동일한 카드 토큰 사용</div>
+      </div>
+      <div class="imp-body">
+        기존에는 위젯별로 border-radius, 보더 두께, 패딩이 제각각이어서 통일감이 없었습니다. 리디자인에서는 모든 위젯 카드에 동일한 토큰(1px border #E2E6EC / 10px radius / 16px padding / 카드 헤더 구조 통일)을 적용합니다. 카드 헤더는 항상 아이콘 + 제목(좌) + 전체보기(우) 구조로 일관성을 유지합니다.
+      </div>
+    </div>
+
+    <div class="imp-card">
+      <div class="imp-head">
+        <div class="imp-icon" style="background:rgba(16,185,129,.1)"><i class="ti ti-user-circle" style="font-size:15px;color:#10B981" aria-hidden="true"></i></div>
+        <div class="imp-title">프로필 카드 — 분산된 지표를 가로 통합 레이아웃으로</div>
+      </div>
+      <div class="imp-body">
+        기존에는 프로필 카드(좌)와 주간근무/연차 패널(우)이 분리되어 있었고, 우측에 모바일 QR 카드가 별도로 있었습니다. 리디자인에서는 프로필 + 근무시간 + 연차를 하나의 가로 카드로 통합(8col)하고 QR을 4col 카드로 분리합니다. Divider로 세 영역을 구분해 관련 정보를 한 시선에서 스캔 가능하게 합니다.
+      </div>
+    </div>
+
+    <div class="imp-card">
+      <div class="imp-head">
+        <div class="imp-icon" style="background:rgba(245,158,11,.1)"><i class="ti ti-versions" style="font-size:15px;color:#D97706" aria-hidden="true"></i></div>
+        <div class="imp-title">사이드바 — 메뉴 그룹핑과 뱃지 계층 정비</div>
+      </div>
+      <div class="imp-body">
+        기존 사이드바는 모든 메뉴가 동등한 시각적 무게를 가져 계층 없이 나열되었습니다. 리디자인에서는 메인 / 업무 / 근태·인사 / 기타 그룹 헤더로 구분하고, 처리 대기 건수는 빨간 뱃지, 안읽음은 파란 N 뱃지로 의미를 달리 표현합니다. 접기 버튼은 하단에 고정하여 레이아웃 전환을 쉽게 접근 가능하게 합니다.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="sec-figma" class="sec">
+  <div class="lbl">Figma Auto Layout 설정 — 대시보드 Frame</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>Frame / 요소</th><th>Direction</th><th>Gap</th><th>Padding</th><th>기타</th></tr></thead>
+    <tbody>
+      <tr><td>Dashboard Root</td><td>Vertical</td><td>14px</td><td>24px 28px</td><td>background: #F4F6F9 · Fill width</td></tr>
+      <tr><td>Row 1 (프로필+QR)</td><td>Horizontal</td><td>14px</td><td>0</td><td>profile: 2fr / qr: 1fr</td></tr>
+      <tr><td>Row 2 (결재+회의+생일)</td><td>Horizontal</td><td>14px</td><td>0</td><td>각 1fr (3등분)</td></tr>
+      <tr><td>Row 3 (빠른실행)</td><td>Horizontal</td><td>14px</td><td>0</td><td>각 1fr (3등분)</td></tr>
+      <tr><td>Row 4 좌 (휴가)</td><td>Vertical</td><td>0</td><td>16px</td><td>2fr</td></tr>
+      <tr><td>Row 4 우 (공지+복지)</td><td>Vertical</td><td>14px</td><td>0</td><td>1fr · 공지 Hug / 복지 Hug</td></tr>
+      <tr><td>Card 공통</td><td>Vertical</td><td>0</td><td>16px</td><td>Fill width · Hug height</td></tr>
+      <tr><td>Card Header</td><td>Horizontal</td><td>Distribute (space-between)</td><td>0 0 14px</td><td>align: center</td></tr>
+      <tr><td>QuickAction Card</td><td>Horizontal</td><td>12px</td><td>14px 16px</td><td>align: center · hover border</td></tr>
+      <tr><td>Profile Card</td><td>Horizontal</td><td>0</td><td>16px 20px</td><td>Divider로 3영역 분리</td></tr>
+    </tbody>
+  </table>
+
+  <div class="lbl">Figma Component 연결 관계</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>위젯 컴포넌트</th><th>사용 Atomic 컴포넌트</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip">Widget/ProfileCard</span></td><td>Avatar, Badge(status), ProgressBar, DonutRing</td></tr>
+      <tr><td><span class="chip">Widget/ApprovalCard</span></td><td>Badge(warning), ApprovalItem(dot + text + meta)</td></tr>
+      <tr><td><span class="chip">Widget/MeetingCard</span></td><td>MeetingItem(colorbar + title + meta + location)</td></tr>
+      <tr><td><span class="chip">Widget/BirthdayCard</span></td><td>Tab(pill), Avatar, Badge(today)</td></tr>
+      <tr><td><span class="chip">Widget/QuickAction</span></td><td>IconBox(#EDF3FA bg), Card(clickable variant)</td></tr>
+      <tr><td><span class="chip">Widget/LeaveCalendar</span></td><td>Tab(pill), CalCell(today/default/hasLeave), LeaveItem(avatar + name + type-badge)</td></tr>
+      <tr><td><span class="chip">Widget/NoticeCard</span></td><td>Badge(NEW, accent), NoticeItem(badge + title + date)</td></tr>
+      <tr><td><span class="chip">Widget/UtilCard</span></td><td>IconBox(variant: blue/green), Link(arrow)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">위젯은 모두 <code>Widget/</code> 네임스페이스로 분리. Figma Components 페이지에서 Organism 계층에 배치. 각 위젯은 실제 데이터 변경이 필요한 Props를 Text/Boolean Property로 노출해 디자이너가 Playground에서 빠르게 조합 가능하게 구성.</div>
+
+  <div class="lbl">반응형 처리 방침</div>
+  <table class="tbl" style="table-layout:auto">
+    <thead><tr><th>화면</th><th>변경 사항</th></tr></thead>
+    <tbody>
+      <tr><td>태블릿 (1024px)</td><td>Row 2: 결재(full) → 회의·생일 2열. Row 3: 빠른실행 3열 유지. Row 4: 휴가 full → 공지 별도 행</td></tr>
+      <tr><td>모바일 (390px)</td><td>모든 Row 1열 세로 스택. 빠른실행은 2+1 배치. 하단 탭바 네비게이션으로 전환</td></tr>
+    </tbody>
+  </table>
+</div>
+</div>
+
+<script>
+function sw(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('sec-'+id).classList.add('on');
+  el.classList.add('on');
+}
+</script>
