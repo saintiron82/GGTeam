@@ -1,0 +1,26 @@
+# AI-DLC workflow generated docs (optional)
+# aidlc-docs/  # 문서는 버전관리 권장 — 주석 처리
+
+# macOS
+.DS_Store
+
+# Backend (Gradle/Java)
+backend/.gradle/
+backend/build/
+backend/bin/
+*.class
+
+# Frontend (Node)
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/*.tsbuildinfo
+
+# Env / secrets
+.env
+*.local
+
+# IDE
+.idea/
+.vscode/
+*.iml

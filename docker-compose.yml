@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: csagent
+      POSTGRES_USER: csagent
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-csagent}
+      TZ: Asia/Seoul
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - cs-agent-net
+
+  backend:
+    build: ./backend
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/csagent
+      DB_USERNAME: csagent
+      DB_PASSWORD: ${DB_PASSWORD:-csagent}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      BEDROCK_MODEL_ID: ${BEDROCK_MODEL_ID:-anthropic.claude-3-5-sonnet-20241022-v2:0}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      LLM_CLIENT: ${LLM_CLIENT:-bedrock}
+      TZ: Asia/Seoul
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - cs-agent-net
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - cs-agent-net
+
+volumes:
+  pgdata:
+
+networks:
+  cs-agent-net:
+    driver: bridge
