@@ -201,3 +201,28 @@
 **Context**: M0 공통 기반 코드화 완료. 각 담당자 병렬 구현 착수 가능.
 
 ---
+
+## CONSTRUCTION - 로컬 개발/테스트 허브 환경 구축
+**Timestamp**: 2026-06-18T15:56:00+09:00
+**User Input**: "이 로컬 머신이 테스트 서비스의 개발 중추이다 도커, 서비스 자체 출력등을 모두 책임져야 한다." + "그게 환경 구축과 다른 사람들이 테스트 할수 있게 하는 DB까지 설치되어야 한다"
+**AI Response**: 로컬 허브 환경 구축 완료 및 검증. 설치: JDK17(Temurin 17.0.19), Colima(Docker 29.5.3)+docker-compose 5.1.4, Gradle 9.5.1+wrapper8.10, PostgreSQL16(컨테이너 healthy, KST). 공유DB를 LAN(172.24.121.128:5432)에 노출하여 팀원 접속 가능. 백엔드 compileJava BUILD SUCCESSFUL. 07-local-dev-environment.md에 검증결과+팀원 접속정보 추가. docker-compose postgres 포트노출+healthcheck 추가, backend/gradlew 생성.
+**Context**: 머신이 개발·통합테스트·공유DB 허브로 준비 완료. 백엔드 B 착수 가능.
+
+---
+
+## CONSTRUCTION - 백엔드 B: AWS Bedrock 실제 연동 완료
+**Timestamp**: 2026-06-18T16:08:00+09:00
+**User Input**: "베드락부터 연결할거다" / "실제로 가능하면 연동하자" / (임시 STS 자격증명 제공)
+**AI Response**: AWS CLI 설치, 임시 자격증명으로 인증 확인(계정 694600711345 WSParticipantRole). Bedrock 모델 조회 - 최신 모델은 inference profile 필요. 실제 invoke 검증: claude-3-haiku(ON_DEMAND) + us.anthropic.claude-sonnet-4-6(inference profile) 한국어 응답 성공. 구현: MockLlmClient, BedrockClient(타임아웃점증 120/180/240+재시도3+timeout/api_error 구분), LlmTimeoutException/LlmApiException. application.yml model-id=us.anthropic.claude-sonnet-4-6. 통합테스트 BedrockClientIT BUILD SUCCESSFUL(실제 호출 검증).
+**보안**: 자격증명은 환경변수로만 사용, 코드/커밋 미포함. 임시 토큰 노출되어 회전 권장.
+**Context**: 백엔드 B external 레이어 완료. 다음: aipipeline 서비스(엔티티는 백엔드 A 의존).
+
+---
+
+## CONSTRUCTION - 백엔드 B: AI 파이프라인 순수 로직 구현
+**Timestamp**: 2026-06-18T16:13:00+09:00
+**User Input**: "A" (엔티티 없이 가능한 순수 로직부터)
+**AI Response**: aipipeline 순수 로직 구현(엔티티 무관): AnalysisResult/DiagnosisResult(값객체), PromptBuilder(분류/진단/초안, [CLASSIFY]/[DIAGNOSE]/[DRAFT] 마커, 반려사유 반영), LlmResponseParser(JSON 파싱+설명문혼입 처리+enum fallback+confidence 클램프), ResponseQualityValidator(빈응답/길이/금칙어 BR-30d~f). 단위테스트 AiPipelineLogicTest 6개 BUILD SUCCESSFUL(MockLlmClient 연동).
+**Context**: 백엔드 B external+aipipeline 순수로직 완료. 남은 엔티티 결합부(AIAnalysisServiceImpl/DiagnosisService/DraftResponseServiceImpl/PaymentQueryStrategy/SystemDataQueryService)는 백엔드 A 엔티티 의존.
+
+---

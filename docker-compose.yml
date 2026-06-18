@@ -6,10 +6,17 @@ services:
       POSTGRES_USER: csagent
       POSTGRES_PASSWORD: ${DB_PASSWORD:-csagent}
       TZ: Asia/Seoul
+    ports:
+      - "5432:5432"   # 팀원이 LAN에서 접속 가능 (공유 테스트 DB 허브)
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
       - cs-agent-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U csagent -d csagent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: ./backend
