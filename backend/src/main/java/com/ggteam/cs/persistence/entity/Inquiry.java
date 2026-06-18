@@ -59,4 +59,13 @@ public class Inquiry extends BaseEntity {
     /** 배정된 운영자 id. 미배정 시 null (FK→operator.id). */
     @Column(name = "assigned_operator_id")
     private UUID assignedOperatorId;
+
+    /** 문의 접수 팩토리 (id/createdAt 자동, status=RECEIVED). */
+    public static Inquiry of(Map<String, Object> customerInfo, InquiryType customerType, String content) {
+        Inquiry i = new Inquiry();
+        i.setCustomerInfo(customerInfo);
+        i.setCustomerType(customerType);
+        i.setContent(content);
+        return i;
+    }
 }

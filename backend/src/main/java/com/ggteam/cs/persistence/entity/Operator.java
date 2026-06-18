@@ -44,4 +44,13 @@ public class Operator extends BaseEntity {
     /** 계정 잠금 여부 (BR-32). */
     @Column(name = "locked", nullable = false)
     private boolean locked = false;
+
+    /** 운영자 생성 팩토리 (id 자동). passwordHash는 해시된 값이어야 함(BR-36). */
+    public static Operator of(String username, String passwordHash, OperatorRole role) {
+        Operator o = new Operator();
+        o.setUsername(username);
+        o.setPasswordHash(passwordHash);
+        o.setRole(role);
+        return o;
+    }
 }

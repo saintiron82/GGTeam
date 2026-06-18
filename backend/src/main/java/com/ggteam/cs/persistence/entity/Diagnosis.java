@@ -39,4 +39,14 @@ public class Diagnosis extends BaseEntity {
     /** 진단 신뢰도 0.0~1.0 (BR-05). */
     @Column(name = "confidence", nullable = false)
     private double confidence;
+
+    /** 진단 생성 팩토리 (id 자동). */
+    public static Diagnosis of(UUID inquiryId, String cause, String suggestedDirection, double confidence) {
+        Diagnosis d = new Diagnosis();
+        d.setInquiryId(inquiryId);
+        d.setCause(cause);
+        d.setSuggestedDirection(suggestedDirection);
+        d.setConfidence(confidence);
+        return d;
+    }
 }

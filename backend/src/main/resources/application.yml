@@ -40,6 +40,8 @@ app:
     llm-client: ${LLM_CLIENT:bedrock}   # bedrock | mock
   draft:
     max-regeneration: 3
+  notification:
+    max-retries: 3
 
 management:
   endpoints:

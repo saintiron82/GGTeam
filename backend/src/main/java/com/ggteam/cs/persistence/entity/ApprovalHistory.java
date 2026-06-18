@@ -49,4 +49,14 @@ public class ApprovalHistory extends BaseEntity {
     @CreationTimestamp
     @Column(name = "timestamp", nullable = false, updatable = false)
     private ZonedDateTime timestamp;
+
+    /** 이력 생성 팩토리 (id/timestamp 자동). 반려 시 reason 필수(BR-16)는 호출측에서 검증. */
+    public static ApprovalHistory record(UUID inquiryId, ApprovalAction action, UUID operatorId, String reason) {
+        ApprovalHistory h = new ApprovalHistory();
+        h.setInquiryId(inquiryId);
+        h.setAction(action);
+        h.setOperatorId(operatorId);
+        h.setReason(reason);
+        return h;
+    }
 }

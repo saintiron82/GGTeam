@@ -19,4 +19,7 @@ public interface DraftResponseRepository extends JpaRepository<DraftResponse, UU
 
     /** 활성(current) 초안 = 가장 최근 생성 1건. */
     Optional<DraftResponse> findFirstByInquiryIdOrderByCreatedAtDesc(UUID inquiryId);
+
+    /** 활성(current) 초안 = 가장 최근 생성 1건 (findFirst 동의어, 백엔드 C 사용). */
+    Optional<DraftResponse> findTopByInquiryIdOrderByCreatedAtDesc(UUID inquiryId);
 }

@@ -73,4 +73,29 @@ public class AIAnalysis extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "failure_type", length = 20)
     private FailureType failureType;
+
+    /** 정상 분석 결과 팩토리 (failureType=null, analyzedAt=now, BR-29). */
+    public static AIAnalysis success(UUID inquiryId, InquiryType aiType, String subCategory,
+                                     Urgency urgency, String summary, List<String> keywords,
+                                     Map<String, Object> systemQueryResult) {
+        AIAnalysis a = new AIAnalysis();
+        a.setInquiryId(inquiryId);
+        a.setAiType(aiType);
+        a.setSubCategory(subCategory);
+        a.setUrgency(urgency);
+        a.setSummary(summary);
+        a.setKeywords(keywords);
+        a.setSystemQueryResult(systemQueryResult);
+        a.setAnalyzedAt(ZonedDateTime.now());
+        return a;
+    }
+
+    /** 분석 실패 결과 팩토리 (failureType 기록, BR-28). */
+    public static AIAnalysis failed(UUID inquiryId, FailureType failureType) {
+        AIAnalysis a = new AIAnalysis();
+        a.setInquiryId(inquiryId);
+        a.setFailureType(failureType);
+        a.setAnalyzedAt(ZonedDateTime.now());
+        return a;
+    }
 }

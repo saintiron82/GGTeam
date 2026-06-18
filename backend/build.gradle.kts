@@ -26,6 +26,8 @@ dependencies {
     // Persistence
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     runtimeOnly("org.postgresql:postgresql")
+    // 로컬 검수용 인메모리 DB (local 프로파일)
+    runtimeOnly("com.h2database:h2")
     // Migration
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")

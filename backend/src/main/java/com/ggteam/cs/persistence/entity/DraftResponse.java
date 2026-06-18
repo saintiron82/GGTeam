@@ -49,4 +49,13 @@ public class DraftResponse extends BaseEntity {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private ZonedDateTime createdAt;
+
+    /** 초안 생성 팩토리 (id/createdAt 자동, status=GENERATED). */
+    public static DraftResponse of(UUID inquiryId, String content, int regenerationCount) {
+        DraftResponse d = new DraftResponse();
+        d.setInquiryId(inquiryId);
+        d.setContent(content);
+        d.setRegenerationCount(regenerationCount);
+        return d;
+    }
 }

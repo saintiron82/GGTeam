@@ -3,6 +3,7 @@ package com.ggteam.cs.persistence.repository;
 import com.ggteam.cs.persistence.entity.Operator;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,4 +18,7 @@ public interface OperatorRepository extends JpaRepository<Operator, UUID> {
     Optional<Operator> findByUsername(String username);
 
     boolean existsByUsername(String username);
+
+    /** 여러 운영자 일괄 조회 (이력 타임라인 표시명 해석용). */
+    List<Operator> findByIdIn(List<UUID> ids);
 }
