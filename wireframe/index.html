@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>와이어프레임 — AI CS 문의 처리 에이전트</title>
+    <!-- GRAVITY 디자인 가이드: 한국어 Pretendard / 영문·숫자 DM Sans -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* === GRAVITY Semantic Tokens (Light Mode) === */
+      :root {
+        --g-primary: #05539a;
+        --g-primary-hover: #043e75;
+        --g-primary-active: #022b52;
+        --g-primary-50: #edf3fa;
+        --g-accent: #06adec;
+        --g-text: #242021;
+        --g-text-muted: #6b7280;
+        --g-border: #dde2ea;
+        --g-border-input: #c8cdd7;
+        --g-bg-page: #f8f9fa;
+        --g-bg-surface: #ffffff;
+        --g-bg-sidebar: #f1f3f6;
+        --g-success: #10b981;
+        --g-warning: #f59e0b;
+        --g-error: #ef4444;
+        --g-radius-sm: 4px;
+        --g-radius-lg: 8px;
+        --g-elev-1: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+        --g-elev-2: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+        --g-font: "Pretendard Variable", Pretendard, "DM Sans", -apple-system,
+          BlinkMacSystemFont, system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: var(--g-font);
+        color: var(--g-text);
+        background: var(--g-bg-page);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* === 인터랙션 상태 (인라인 스타일로 불가한 hover/focus/active) === */
+      .g-btn {
+        transition: background 0.12s ease, box-shadow 0.12s ease,
+          transform 0.06s ease;
+      }
+      .g-btn--primary:hover {
+        background: var(--g-primary-hover) !important;
+      }
+      .g-btn--primary:active {
+        background: var(--g-primary-active) !important;
+        transform: scale(0.98);
+      }
+      .g-btn--secondary:hover {
+        background: var(--g-primary-50) !important;
+      }
+      .g-btn--ghost:hover {
+        background: var(--g-bg-page) !important;
+      }
+      .g-btn--danger:hover {
+        background: #dc2626 !important;
+      }
+      .g-btn:focus-visible {
+        outline: 2px solid var(--g-primary);
+        outline-offset: 2px;
+      }
+
+      .g-field {
+        transition: border-color 0.12s ease, box-shadow 0.12s ease;
+      }
+      .g-field:focus,
+      .g-field:focus-within {
+        border-color: var(--g-primary) !important;
+        box-shadow: 0 0 0 3px rgba(5, 83, 154, 0.12);
+      }
+
+      .g-row--clickable {
+        transition: background 0.1s ease;
+        cursor: pointer;
+      }
+      .g-row--clickable:hover {
+        background: var(--g-primary-50) !important;
+      }
+
+      .g-card {
+        transition: box-shadow 0.15s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
