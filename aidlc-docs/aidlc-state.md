@@ -31,7 +31,11 @@
 - [x] CONSTRUCTION - NFR Design (EXECUTE)
 - [x] CONSTRUCTION - Infrastructure Design (EXECUTE)
 - [x] CONSTRUCTION - Work Breakdown (팀 작업 분장 - Code Generation 대체)
-- [ ] CONSTRUCTION - Build and Test (EXECUTE - 팀 구현 후)
+- [~] CONSTRUCTION - Build and Test (EXECUTE - 팀 구현 후) — 진행 중
+  - [x] Frontend: 구현 완료 (라우팅 통합 + `npm run build` 통과). 상세: `construction/plans/frontend-code-generation-plan.md`
+  - [ ] Frontend: 컴포넌트 테스트 (React Testing Library) — 후속
+  - [ ] Backend: 구현/빌드 (팀 진행)
+  - [ ] 통합 (M4): 프론트 `/api` 프록시 ↔ 백엔드 연결
 
 ## Extension Configuration
 | Extension | Enabled | Decided At |
