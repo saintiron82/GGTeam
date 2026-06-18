@@ -1,5 +1,6 @@
 package com.ggteam.cs.workflow.api;
 
+import com.ggteam.cs.auth.AuthPrincipal;
 import com.ggteam.cs.common.BusinessException;
 import com.ggteam.cs.common.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,10 +38,15 @@ public class CurrentOperatorProvider {
 
     private UUID fromSecurityContext() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || auth.getName() == null) {
+        if (auth == null || !auth.isAuthenticated()) {
             return null;
         }
-        return tryParse(auth.getName());
+        // 정식 경로: A의 JWT 필터가 채운 principal(AuthPrincipal)에서 operatorId 추출
+        if (auth.getPrincipal() instanceof AuthPrincipal principal) {
+            return principal.operatorId();
+        }
+        // 폴백: principal name이 UUID 문자열인 경우
+        return auth.getName() == null ? null : tryParse(auth.getName());
     }
 
     private UUID fromStubHeader() {
