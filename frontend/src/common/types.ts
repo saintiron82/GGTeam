@@ -73,6 +73,7 @@ export interface InquiryCard {
   status: InquiryStatus;
   assignedOperator?: string;
   createdAt: string;
+  completedAt?: string | null; // 발송완료(SENT) 시각, 그 외 null (§4-C L5)
 }
 
 export interface InquiryDetail {
@@ -84,6 +85,7 @@ export interface InquiryDetail {
     status: InquiryStatus;
     createdAt: string;
     assignedOperator?: string;
+    completedAt?: string | null;
   };
   analysis: {
     aiType: InquiryType;

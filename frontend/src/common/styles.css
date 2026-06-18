@@ -1,19 +1,62 @@
+/* =====================================================================
+   GRAVITY 디자인 시스템 — frontend 전역 스타일
+   토큰 출처: wireframe/sample/gravity_*.html, wireframe/src/wireframe-kit.tsx
+   - 컬러: Primary #05539A, Accent #06ADEC(강조 한정), Neutral Gray
+   - 타이포: Pretendard(국문) / DM Sans(영문·숫자)
+   - Radius: sm 4px(버튼/입력/뱃지), lg 8px(카드)
+   - Elevation: Level1(카드), Level2(드롭다운)
+   ===================================================================== */
+
 :root {
-  --color-bg: #f4f5f7;
+  /* 브랜드 */
+  --color-primary: #05539a;
+  --color-primary-hover: #043e75;
+  --color-primary-active: #022b52;
+  --color-primary-50: #edf3fa;
+  --color-accent: #06adec;
+
+  /* 텍스트 */
+  --color-text: #242021;
+  --color-muted: #6b7280;
+  --color-inverse: #ffffff;
+
+  /* 보더 / 배경 */
+  --color-border: #dde2ea;
+  --color-border-input: #c8cdd7;
+  --color-bg: #f8f9fa;
   --color-surface: #ffffff;
-  --color-border: #dfe1e6;
-  --color-primary: #0052cc;
-  --color-primary-hover: #0747a6;
-  --color-text: #172b4d;
-  --color-muted: #6b778c;
-  --color-danger: #de350b;
-  --color-success: #00875a;
-  --color-warning: #ff8b00;
-  --urgent-bg: #ffebe6;
-  --urgent-border: #de350b;
+  --color-box: #f1f3f6;
+  --color-box-alt: #e2e6ec;
+
+  /* 상태 (semantic) */
+  --color-success: #10b981;
+  --color-success-bg: #ecfdf5;
+  --color-success-text: #065f46;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fffbeb;
+  --color-warning-text: #92400e;
+  --color-danger: #ef4444;
+  --color-danger-bg: #fef2f2;
+  --color-danger-text: #991b1b;
+
+  /* 긴급 강조(카드 left-border 등) */
+  --urgent-bg: #fef2f2;
+  --urgent-border: #ef4444;
+
+  /* Radius / Elevation */
+  --radius-sm: 4px;
   --radius: 6px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --radius-lg: 8px;
+  --elev-1: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+  --elev-2: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+
+  /* 타이포 */
+  --font-sans: "Pretendard Variable", Pretendard, "DM Sans", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo",
+    "Malgun Gothic", sans-serif;
+  --font-mono: "DM Sans", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  font-family: var(--font-sans);
 }
 
 * {
@@ -25,119 +68,264 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   font-size: 14px;
+  -webkit-font-smoothing: antialiased;
 }
 
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* ============================ 버튼 ============================ */
 button {
   font-family: inherit;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   border: 1px solid var(--color-border);
   background: var(--color-surface);
-  border-radius: var(--radius);
-  padding: 8px 14px;
-  font-size: 14px;
-  transition: background 0.15s, border-color 0.15s;
+  color: var(--color-text);
+  border-radius: var(--radius-sm);
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  transition: background 0.12s ease, border-color 0.12s ease,
+    box-shadow 0.12s ease, transform 0.06s ease;
 }
 button:hover:not(:disabled) {
-  background: #f4f5f7;
+  background: var(--color-bg);
+}
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 button:disabled {
-  opacity: 0.5;
+  opacity: 0.38;
   cursor: not-allowed;
 }
+
+/* primary */
 button.primary {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: #fff;
+  color: var(--color-inverse);
 }
 button.primary:hover:not(:disabled) {
   background: var(--color-primary-hover);
 }
+button.primary:active:not(:disabled) {
+  background: var(--color-primary-active);
+}
+
+/* secondary (아웃라인 Primary) */
+button.secondary {
+  background: var(--color-surface);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+button.secondary:hover:not(:disabled) {
+  background: var(--color-primary-50);
+}
+
+/* danger */
 button.danger {
   background: var(--color-danger);
   border-color: var(--color-danger);
-  color: #fff;
+  color: var(--color-inverse);
 }
 button.danger:hover:not(:disabled) {
-  background: #bf2600;
+  background: #dc2626;
 }
 
+/* ghost (텍스트 버튼) */
+button.ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-text);
+}
+button.ghost:hover:not(:disabled) {
+  background: var(--color-bg);
+}
+
+/* 링크형 버튼 */
+.linklike {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-underline-offset: 2px;
+}
+
+/* ============================ 입력 ============================ */
 input,
 textarea,
 select {
   font-family: inherit;
-  font-size: 14px;
-  padding: 8px 10px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  font-size: 13px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-sm);
   background: var(--color-surface);
   color: var(--color-text);
   width: 100%;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+textarea {
+  line-height: 1.6;
 }
 input:focus,
 textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.2);
+  box-shadow: 0 0 0 3px rgba(5, 83, 154, 0.12);
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-muted);
+}
+
+/* 가이드 Select: chevron 표기 */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M1 3l4 4 4-4' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+  cursor: pointer;
 }
 
 label {
   display: block;
   font-weight: 600;
-  margin-bottom: 6px;
-  font-size: 13px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: var(--color-text);
 }
 
 .field {
   margin-bottom: 16px;
 }
 
+.helper {
+  font-size: 11px;
+  color: var(--color-muted);
+  margin-top: 4px;
+}
+
+/* ============================ 카드 / 레이아웃 ============================ */
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-1);
   padding: 16px;
 }
 
+/* 카드 라벨 (섹션 제목 uppercase) */
+.card-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 10px;
+}
+
 .error-msg {
-  color: var(--color-danger);
+  color: var(--color-danger-text);
   font-size: 13px;
   margin-top: 6px;
 }
 
-.badge {
-  display: inline-block;
+/* ============================ 뱃지 / 칩 ============================ */
+.g-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 9999px;
   padding: 2px 8px;
-  border-radius: 10px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.6;
+  white-space: nowrap;
 }
-.badge-urgent {
-  background: var(--urgent-bg);
-  color: var(--urgent-border);
+.g-badge--default {
+  background: var(--color-box);
+  color: var(--color-muted);
+  border: 0.5px solid var(--color-border);
 }
-.badge-normal {
-  background: #deebff;
+.g-badge--info {
+  background: rgba(5, 83, 154, 0.1);
   color: var(--color-primary);
 }
-.badge-low {
-  background: #e3fcef;
-  color: var(--color-success);
+.g-badge--accent {
+  background: rgba(6, 173, 236, 0.12);
+  color: #0588bf;
+}
+.g-badge--success {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+.g-badge--warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+.g-badge--error {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
 }
 
-/* App layout */
+/* ============================ App layout / 헤더 ============================ */
 .app-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16px;
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
-  padding: 12px 24px;
+  box-shadow: var(--elev-1);
+  padding: 0 24px;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
-.app-header h1 {
-  font-size: 18px;
-  margin: 0;
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.app-logo {
+  width: 28px;
+  height: 28px;
+  background: var(--color-primary);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.app-brand-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: 0.02em;
+}
+.app-title {
+  font-size: 13px;
+  color: var(--color-muted);
 }
 .app-header nav {
   display: flex;
@@ -145,17 +333,22 @@ label {
   align-items: center;
 }
 .app-header a {
-  color: var(--color-text);
+  color: var(--color-muted);
   text-decoration: none;
   font-weight: 600;
+  font-size: 13px;
 }
 .app-header a.active {
   color: var(--color-primary);
 }
+.app-user {
+  font-size: 13px;
+  color: var(--color-muted);
+}
 
 .page {
-  padding: 24px;
-  max-width: 1400px;
+  padding: 24px 32px;
+  max-width: 1280px;
   margin: 0 auto;
 }
 
@@ -164,4 +357,142 @@ label {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 24px;
+}
+
+/* ============================ 뷰 토글 (세그먼트) ============================ */
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.seg button {
+  border: none;
+  border-radius: 0;
+  background: var(--color-surface);
+  color: var(--color-muted);
+  font-size: 12px;
+  padding: 6px 14px;
+}
+.seg button:hover:not(:disabled) {
+  background: var(--color-bg);
+}
+.seg button.active {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* ============================ 필터 바 ============================ */
+.filter-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.filter-bar .filter-item {
+  display: flex;
+  flex-direction: column;
+}
+.filter-bar label {
+  font-size: 11px;
+  color: var(--color-muted);
+}
+.filter-bar select,
+.filter-bar input {
+  width: auto;
+  min-width: 120px;
+  font-size: 12px;
+  padding: 6px 10px;
+}
+
+/* ============================ 칸반 ============================ */
+.kanban {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+}
+.kanban-col {
+  flex: 1 0 200px;
+  min-width: 200px;
+}
+.kanban-col-head {
+  background: var(--color-box-alt);
+  padding: 8px 12px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text);
+  display: flex;
+  justify-content: space-between;
+}
+.kanban-col-body {
+  background: var(--color-box);
+  padding: 8px;
+  min-height: 320px;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* ============================ 테이블 (리스트 뷰) ============================ */
+.g-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.g-table th {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 2px solid var(--color-border);
+  font-size: 12px;
+  color: var(--color-text);
+  background: var(--color-box-alt);
+  white-space: nowrap;
+}
+.g-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 12px;
+}
+.g-row--clickable {
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+.g-row--clickable:hover {
+  background: var(--color-primary-50);
+}
+
+/* ============================ 페이지네이션 ============================ */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+.pagination .pages {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.pagination .pg {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  border: 0.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-muted);
+  padding: 0;
+}
+.pagination .pg.current {
+  background: var(--color-primary);
+  color: var(--color-inverse);
+  border-color: var(--color-primary);
+}
+.pagination .summary {
+  font-size: 12px;
+  color: var(--color-muted);
 }

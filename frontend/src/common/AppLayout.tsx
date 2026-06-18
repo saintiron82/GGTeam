@@ -20,15 +20,21 @@ export function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div>
       <header className="app-header">
-        <h1>AI CS 문의 처리</h1>
+        <div className="app-brand">
+          <span className="app-logo">G</span>
+          <span className="app-brand-name">GRAVITY</span>
+        </div>
+        <span className="app-title">AI CS 문의 처리 에이전트</span>
+        <div style={{ flex: 1 }} />
         <nav>
-          <NavLink to="/board" className={({ isActive }) => (isActive ? "active" : "")}>
+          <NavLink
+            to="/board"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
             칸반 보드
           </NavLink>
-          <span style={{ color: "var(--color-muted)" }}>
-            {operator?.username ?? "운영자"}
-          </span>
-          <button onClick={handleLogout} data-testid="logout-btn">
+          <span className="app-user">{operator?.username ?? "운영자"}</span>
+          <button className="ghost" onClick={handleLogout} data-testid="logout-btn">
             로그아웃
           </button>
         </nav>

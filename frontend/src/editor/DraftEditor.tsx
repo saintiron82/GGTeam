@@ -11,6 +11,8 @@ interface Props {
   editable: boolean;
   // 액션 성공 후 상세 새로고침
   onChanged: () => void;
+  // 재분석 (상세에서 주입) — AI_ANALYZING으로 되돌림
+  onReanalyze?: () => void;
 }
 
 // 간단한 단어 단위 diff — 원문 대비 추가/변경된 토큰을 강조
@@ -24,7 +26,7 @@ function renderDiff(original: string, edited: string) {
       <mark
         key={i}
         data-testid="draft-diff-changed"
-        style={{ background: "#fff0b3", padding: "0 1px" }}
+        style={{ background: "var(--color-warning-bg)", color: "var(--color-warning-text)", padding: "0 1px" }}
       >
         {tok}
       </mark>
@@ -34,7 +36,7 @@ function renderDiff(original: string, edited: string) {
   });
 }
 
-export function DraftEditor({ inquiryId, draft, editable, onChanged }: Props) {
+export function DraftEditor({ inquiryId, draft, editable, onChanged, onReanalyze }: Props) {
   const [content, setContent] = useState(draft.content);
   const [editing, setEditing] = useState(false);
   const [showReject, setShowReject] = useState(false);
@@ -68,7 +70,6 @@ export function DraftEditor({ inquiryId, draft, editable, onChanged }: Props) {
   }
 
   async function handleApprove() {
-    // 수정한 내용이 있으면 수정 후 승인
     await run(
       () => approve(inquiryId, isDirty ? content : undefined),
       "승인에 실패했습니다.",
@@ -95,7 +96,9 @@ export function DraftEditor({ inquiryId, draft, editable, onChanged }: Props) {
           marginBottom: 12,
         }}
       >
-        <h3 style={{ margin: 0, fontSize: 15 }}>답변 초안</h3>
+        <div className="card-label" style={{ marginBottom: 0 }}>
+          AI 답변 초안
+        </div>
         <span style={{ fontSize: 12, color: "var(--color-muted)" }} data-testid="draft-status">
           상태: {draft.status} · 재생성 {regenCount}/{REGENERATION_LIMIT}
         </span>
@@ -114,12 +117,13 @@ export function DraftEditor({ inquiryId, draft, editable, onChanged }: Props) {
           data-testid="draft-content"
           style={{
             whiteSpace: "pre-wrap",
-            lineHeight: 1.6,
-            background: "#fafbfc",
-            border: "1px solid var(--color-border)",
-            borderRadius: "var(--radius)",
+            lineHeight: 1.7,
+            background: "var(--color-surface)",
+            border: "1px solid var(--color-border-input)",
+            borderRadius: "var(--radius-sm)",
             padding: 12,
             minHeight: 120,
+            fontSize: 13,
           }}
         >
           {isDirty ? diffView : content}
@@ -133,7 +137,7 @@ export function DraftEditor({ inquiryId, draft, editable, onChanged }: Props) {
       )}
 
       {!editable && (
-        <p style={{ color: "var(--color-muted)", fontSize: 13 }} data-testid="draft-readonly">
+        <p className="helper" data-testid="draft-readonly">
           현재 상태에서는 편집/승인할 수 없습니다. (담당자 확인중 상태에서만 가능)
         </p>
       )}
@@ -142,15 +146,11 @@ export function DraftEditor({ inquiryId, draft, editable, onChanged }: Props) {
         <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
           {editing ? (
             <>
-              <button
-                className="primary"
-                onClick={handleSave}
-                disabled={busy}
-                data-testid="draft-save"
-              >
+              <button className="primary" onClick={handleSave} disabled={busy} data-testid="draft-save">
                 저장
               </button>
               <button
+                className="ghost"
                 onClick={() => {
                   setContent(original);
                   setEditing(false);
@@ -162,17 +162,17 @@ export function DraftEditor({ inquiryId, draft, editable, onChanged }: Props) {
               </button>
             </>
           ) : (
-            <button onClick={() => setEditing(true)} disabled={busy} data-testid="draft-edit">
+            <button
+              className="secondary"
+              onClick={() => setEditing(true)}
+              disabled={busy}
+              data-testid="draft-edit"
+            >
               수정
             </button>
           )}
 
-          <button
-            className="primary"
-            onClick={handleApprove}
-            disabled={busy}
-            data-testid="draft-approve"
-          >
+          <button className="primary" onClick={handleApprove} disabled={busy} data-testid="draft-approve">
             {isDirty ? "수정 후 승인" : "승인"}
           </button>
 
@@ -183,8 +183,14 @@ export function DraftEditor({ inquiryId, draft, editable, onChanged }: Props) {
             data-testid="draft-reject-toggle"
             title={regenExhausted ? "재생성 한도(3회)를 초과했습니다." : undefined}
           >
-            반려 (재생성)
+            반려 및 재생성
           </button>
+
+          {onReanalyze && (
+            <button className="ghost" onClick={onReanalyze} disabled={busy} data-testid="draft-reanalyze">
+              재분석
+            </button>
+          )}
         </div>
       )}
 
@@ -195,22 +201,21 @@ export function DraftEditor({ inquiryId, draft, editable, onChanged }: Props) {
             id="reject-reason"
             data-testid="draft-reject-reason"
             rows={3}
+            placeholder="예: 보상 금액 안내가 빠졌습니다. 지급 아이템 수량을 명시해 주세요."
             value={rejectReason}
             onChange={(e) => setRejectReason(e.target.value)}
             disabled={busy}
           />
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-            <button
-              className="danger"
-              onClick={handleReject}
-              disabled={busy}
-              data-testid="draft-reject-submit"
-            >
+            <button className="danger" onClick={handleReject} disabled={busy} data-testid="draft-reject-submit">
               반려 후 재생성
             </button>
-            <button onClick={() => setShowReject(false)} disabled={busy}>
+            <button className="ghost" onClick={() => setShowReject(false)} disabled={busy}>
               취소
             </button>
+          </div>
+          <div className="helper" style={{ color: "var(--color-danger-text)" }}>
+            * 사유 없이 반려 불가 (REASON_REQUIRED)
           </div>
         </div>
       )}

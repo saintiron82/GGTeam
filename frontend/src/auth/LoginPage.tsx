@@ -87,6 +87,27 @@ export function LoginPage() {
         >
           {submitting ? "로그인 중..." : "로그인"}
         </button>
+
+        <div style={{ marginTop: 12, textAlign: "right" }}>
+          <button
+            type="button"
+            className="linklike"
+            data-testid="login-forgot"
+            onClick={() =>
+              setError("비밀번호 찾기는 관리자에게 문의하세요. (재설정 플로우 협의 중)")
+            }
+          >
+            비밀번호 찾기
+          </button>
+        </div>
+
+        <div
+          className="helper"
+          style={{ marginTop: 12, lineHeight: 1.6 }}
+          data-testid="login-lock-notice"
+        >
+          * 실패 시 "아이디 또는 비밀번호가 올바르지 않습니다" · 5회 실패 시 계정 잠금
+        </div>
       </form>
     </div>
   );

@@ -29,6 +29,7 @@ function toCard(s: StoredInquiry) {
     status: s.inquiry.status,
     assignedOperator: s.inquiry.assignedOperator,
     createdAt: s.inquiry.createdAt,
+    completedAt: s.inquiry.status === "SENT" ? s.inquiry.completedAt ?? null : null,
   };
 }
 
@@ -222,10 +223,15 @@ export const handlers = [
     const urgency = url.searchParams.get("urgency");
     const keyword = url.searchParams.get("keyword");
     const status = url.searchParams.get("status");
+    const assignee = url.searchParams.get("assignee");
     let cards = Object.values(inquiries).map(toCard);
     if (type) cards = cards.filter((c) => c.customerType === type || c.aiType === type);
     if (urgency) cards = cards.filter((c) => c.urgency === urgency);
     if (status) cards = cards.filter((c) => c.status === status);
+    if (assignee)
+      cards = cards.filter((c) =>
+        (c.assignedOperator ?? "").toLowerCase().includes(assignee.toLowerCase()),
+      );
     if (keyword)
       cards = cards.filter(
         (c) =>

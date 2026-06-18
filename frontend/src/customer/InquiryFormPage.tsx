@@ -6,9 +6,12 @@ import { TYPE_LABEL } from "../common/types";
 const TYPE_OPTIONS: InquiryType[] = ["PAYMENT", "ITEM_DELIVERY", "ACCOUNT", "ETC"];
 const MIN_CONTENT_LENGTH = 10;
 
+// F1 / §4-D: 고객은 게임 로그인 상태에서 문의 페이지로 진입하므로 유저 ID·닉네임은
+// 입력이 아니라 자동 입력(읽기 전용)이다. 실제 연동 시 게임 클라이언트 컨텍스트(토큰/세션)에서
+// 받아야 하나 전달 방식 미확정 → 데모에서는 고정 샘플 사용.
+const AUTH_CUSTOMER = { userId: "user12345", nickname: "홍길동", channel: "WEB" };
+
 export function InquiryFormPage() {
-  const [userId, setUserId] = useState("");
-  const [nickname, setNickname] = useState("");
   const [customerType, setCustomerType] = useState<InquiryType | "">("");
   const [content, setContent] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +19,6 @@ export function InquiryFormPage() {
   const [submittedId, setSubmittedId] = useState<string | null>(null);
 
   function validate(): string | null {
-    if (!userId.trim()) return "사용자 ID를 입력하세요.";
     if (!customerType) return "문의 유형을 선택하세요.";
     if (content.trim().length < MIN_CONTENT_LENGTH)
       return `문의 내용은 최소 ${MIN_CONTENT_LENGTH}자 이상 입력하세요.`;
@@ -34,11 +36,7 @@ export function InquiryFormPage() {
     setSubmitting(true);
     try {
       const res = await createInquiry({
-        customerInfo: {
-          userId: userId.trim(),
-          nickname: nickname.trim() || "고객",
-          channel: "WEB",
-        },
+        customerInfo: { ...AUTH_CUSTOMER },
         customerType: customerType as InquiryType,
         content: content.trim(),
       });
@@ -51,8 +49,6 @@ export function InquiryFormPage() {
   }
 
   function resetForm() {
-    setUserId("");
-    setNickname("");
     setCustomerType("");
     setContent("");
     setSubmittedId(null);
@@ -62,14 +58,22 @@ export function InquiryFormPage() {
   if (submittedId) {
     return (
       <div className="center-screen">
-        <div className="card" style={{ width: 420 }} data-testid="inquiry-success">
+        <div className="card" style={{ width: 440 }} data-testid="inquiry-success">
           <h1 style={{ fontSize: 20, marginTop: 0 }}>문의가 접수되었습니다</h1>
           <p style={{ color: "var(--color-muted)" }}>
             아래 문의 번호로 처리 상태를 확인할 수 있습니다.
           </p>
           <div
-            className="card"
-            style={{ background: "#f4f5f7", fontWeight: 700, fontSize: 16 }}
+            className="mono"
+            style={{
+              background: "var(--color-box)",
+              border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-sm)",
+              padding: 12,
+              fontWeight: 700,
+              fontSize: 16,
+              color: "var(--color-primary)",
+            }}
             data-testid="inquiry-id"
           >
             {submittedId}
@@ -95,35 +99,53 @@ export function InquiryFormPage() {
         onSubmit={handleSubmit}
         data-testid="inquiry-form"
       >
-        <h1 style={{ fontSize: 20, marginTop: 0, marginBottom: 4 }}>고객 문의 접수</h1>
+        <h1 style={{ fontSize: 20, marginTop: 0, marginBottom: 4 }}>문의하기</h1>
         <p style={{ color: "var(--color-muted)", marginTop: 0, marginBottom: 20 }}>
           문의 유형과 내용을 입력해 주세요.
         </p>
 
-        <div className="field">
-          <label htmlFor="userId">사용자 ID *</label>
-          <input
-            id="userId"
-            data-testid="inquiry-userId"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            disabled={submitting}
-          />
+        {/* 게임 로그인 상태에서 진입 → 유저 정보 자동 입력(읽기 전용) */}
+        <div
+          data-testid="inquiry-customer-info"
+          style={{
+            display: "flex",
+            gap: 16,
+            alignItems: "center",
+            padding: "10px 12px",
+            background: "var(--color-box)",
+            border: "1px solid var(--color-border)",
+            borderRadius: "var(--radius-sm)",
+            marginBottom: 16,
+            fontSize: 13,
+          }}
+        >
+          <div>
+            <div style={{ fontSize: 11, color: "var(--color-muted)", marginBottom: 2 }}>
+              유저 ID
+            </div>
+            <div style={{ fontWeight: 600 }} data-testid="inquiry-userId">
+              {AUTH_CUSTOMER.userId}
+            </div>
+          </div>
+          <div style={{ width: 1, alignSelf: "stretch", background: "var(--color-border)" }} />
+          <div>
+            <div style={{ fontSize: 11, color: "var(--color-muted)", marginBottom: 2 }}>
+              닉네임
+            </div>
+            <div style={{ fontWeight: 600 }} data-testid="inquiry-nickname">
+              {AUTH_CUSTOMER.nickname}
+            </div>
+          </div>
+          <div style={{ flex: 1 }} />
+          <span style={{ fontSize: 11, color: "var(--color-muted)" }}>
+            🔒 로그인 정보 자동 입력
+          </span>
         </div>
 
         <div className="field">
-          <label htmlFor="nickname">닉네임 (선택)</label>
-          <input
-            id="nickname"
-            data-testid="inquiry-nickname"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            disabled={submitting}
-          />
-        </div>
-
-        <div className="field">
-          <label htmlFor="customerType">문의 유형 *</label>
+          <label htmlFor="customerType">
+            문의 유형 <span style={{ color: "var(--color-danger)" }}>*</span>
+          </label>
           <select
             id="customerType"
             data-testid="inquiry-type"
@@ -141,17 +163,20 @@ export function InquiryFormPage() {
         </div>
 
         <div className="field">
-          <label htmlFor="content">문의 내용 * (최소 {MIN_CONTENT_LENGTH}자)</label>
+          <label htmlFor="content">
+            문의 내용 <span style={{ color: "var(--color-danger)" }}>*</span>
+          </label>
           <textarea
             id="content"
             data-testid="inquiry-content"
             rows={6}
+            placeholder="결제했는데 아이템이 지급되지 않았습니다..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
             disabled={submitting}
           />
-          <div style={{ color: "var(--color-muted)", fontSize: 12, marginTop: 4 }}>
-            {content.trim().length} / {MIN_CONTENT_LENGTH}자
+          <div className="helper">
+            {content.trim().length} / 최소 {MIN_CONTENT_LENGTH}자
           </div>
         </div>
 
@@ -168,7 +193,7 @@ export function InquiryFormPage() {
           disabled={submitting}
           data-testid="inquiry-submit"
         >
-          {submitting ? "접수 중..." : "문의 접수"}
+          {submitting ? "접수 중..." : "문의 제출"}
         </button>
       </form>
     </div>

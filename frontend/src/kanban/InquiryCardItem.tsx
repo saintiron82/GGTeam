@@ -1,6 +1,5 @@
 import type { InquiryCard } from "../common/types";
-import { TYPE_LABEL } from "../common/types";
-import { UrgencyBadge } from "../common/UrgencyBadge";
+import { TypeBadge, UrgencyBadge } from "../common/badges";
 
 interface Props {
   card: InquiryCard;
@@ -25,15 +24,18 @@ export function InquiryCardItem({ card, onClick }: Props) {
   const isUrgent = card.urgency === "HIGH";
   return (
     <div
-      className="card"
+      className="g-row--clickable"
       data-testid={`inquiry-card-${card.inquiryId}`}
       onClick={() => onClick(card.inquiryId)}
       style={{
-        marginBottom: 10,
-        cursor: "pointer",
-        borderLeft: isUrgent ? "4px solid var(--urgent-border)" : undefined,
-        background: isUrgent ? "var(--urgent-bg)" : undefined,
-        padding: 12,
+        background: "var(--color-surface)",
+        border: `1px solid ${isUrgent ? "var(--urgent-border)" : "var(--color-border)"}`,
+        borderLeft: isUrgent ? "3px solid var(--urgent-border)" : "1px solid var(--color-border)",
+        borderRadius: "var(--radius)",
+        boxShadow: "0 1px 2px rgba(0,0,0,.05)",
+        padding: 10,
+        marginBottom: 8,
+        fontSize: 12,
       }}
     >
       <div
@@ -44,12 +46,15 @@ export function InquiryCardItem({ card, onClick }: Props) {
           marginBottom: 6,
         }}
       >
-        <span style={{ fontWeight: 700, fontSize: 12, color: "var(--color-muted)" }}>
+        <span className="mono" style={{ color: "var(--color-muted)", fontSize: 11 }}>
           {card.inquiryId}
         </span>
         <UrgencyBadge urgency={card.urgency} />
       </div>
-      <div style={{ fontSize: 13, marginBottom: 8, lineHeight: 1.4 }}>
+      <div style={{ marginBottom: 6 }}>
+        <TypeBadge type={card.aiType ?? card.customerType} />
+      </div>
+      <div style={{ color: "var(--color-text)", lineHeight: 1.5, marginBottom: 6 }}>
         {card.summary ?? "(요약 없음)"}
       </div>
       <div
@@ -60,11 +65,8 @@ export function InquiryCardItem({ card, onClick }: Props) {
           color: "var(--color-muted)",
         }}
       >
-        <span>
-          {TYPE_LABEL[card.aiType ?? card.customerType]}
-          {card.assignedOperator ? ` · ${card.assignedOperator}` : ""}
-        </span>
-        <span>{formatTime(card.createdAt)}</span>
+        <span>{card.assignedOperator ? `담당: ${card.assignedOperator}` : "미배정"}</span>
+        <span className="mono">{formatTime(card.createdAt)}</span>
       </div>
     </div>
   );

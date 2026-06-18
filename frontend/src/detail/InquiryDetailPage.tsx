@@ -7,9 +7,8 @@ import {
   extractErrorMessage,
 } from "../common/api";
 import type { InquiryDetail } from "../common/apiTypes";
-import { STATUS_LABEL, TYPE_LABEL } from "../common/types";
 import { AppLayout } from "../common/AppLayout";
-import { UrgencyBadge } from "../common/UrgencyBadge";
+import { Badge, TypeBadge, StatusBadge, UrgencyBadge } from "../common/badges";
 import { DraftEditor } from "../editor/DraftEditor";
 
 function formatTime(iso: string): string {
@@ -20,10 +19,20 @@ function formatTime(iso: string): string {
   }
 }
 
-function Section({ title, children, testid }: { title: string; children: React.ReactNode; testid?: string }) {
+function Card({
+  label,
+  children,
+  testid,
+  style,
+}: {
+  label: string;
+  children: React.ReactNode;
+  testid?: string;
+  style?: React.CSSProperties;
+}) {
   return (
-    <div className="card" style={{ marginBottom: 16 }} data-testid={testid}>
-      <h3 style={{ marginTop: 0, fontSize: 15 }}>{title}</h3>
+    <div className="card" style={{ marginBottom: 12, ...style }} data-testid={testid}>
+      <div className="card-label">{label}</div>
       {children}
     </div>
   );
@@ -63,7 +72,6 @@ export function InquiryDetailPage() {
         setActionMsg("배정 가능한 미배정 문의가 없습니다.");
         return;
       }
-      // pull은 미배정 1건을 자동 배정 → 해당 문의 상세로 이동
       navigate(`/inquiry/${pulled.inquiry.inquiryId}`);
       setDetail(pulled);
     } catch (err) {
@@ -71,7 +79,7 @@ export function InquiryDetailPage() {
     }
   }
 
-  async function handleReanalyze() {
+  const handleReanalyze = useCallback(async () => {
     if (!id) return;
     setError(null);
     try {
@@ -80,12 +88,17 @@ export function InquiryDetailPage() {
     } catch (err) {
       setError(extractErrorMessage(err, "재분석 요청에 실패했습니다."));
     }
-  }
+  }, [id, load]);
+
+  const ci = (detail?.inquiry.customerInfo ?? {}) as {
+    userId?: string;
+    nickname?: string;
+  };
 
   return (
     <AppLayout>
-      <div className="page" style={{ maxWidth: 1000 }}>
-        <button onClick={() => navigate("/board")} data-testid="detail-back">
+      <div className="page" style={{ maxWidth: 1100 }}>
+        <button className="ghost" onClick={() => navigate("/board")} data-testid="detail-back">
           ← 보드로
         </button>
 
@@ -106,134 +119,208 @@ export function InquiryDetailPage() {
             {/* 헤더 */}
             <div
               className="card"
-              style={{ marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}
+              style={{
+                marginBottom: 12,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
             >
               <div>
-                <div style={{ fontWeight: 700, fontSize: 18 }} data-testid="detail-id">
+                <div className="mono" style={{ fontWeight: 700, fontSize: 18 }} data-testid="detail-id">
                   {detail.inquiry.inquiryId}
                 </div>
                 <div style={{ color: "var(--color-muted)", fontSize: 13, marginTop: 4 }}>
                   접수: {formatTime(detail.inquiry.createdAt)}
-                  {detail.inquiry.assignedOperator ? ` · 담당: ${detail.inquiry.assignedOperator}` : " · 미배정"}
+                  {detail.inquiry.assignedOperator
+                    ? ` · 담당: ${detail.inquiry.assignedOperator}`
+                    : " · 미배정"}
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }} data-testid="detail-status">
                 {detail.analysis && <UrgencyBadge urgency={detail.analysis.urgency} />}
-                <span className="badge badge-normal" data-testid="detail-status">
-                  {STATUS_LABEL[detail.inquiry.status]}
-                </span>
+                <StatusBadge status={detail.inquiry.status} />
               </div>
             </div>
 
-            {/* 액션: 담당하기 / 재분석 */}
-            <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-              {detail.inquiry.status === "PENDING_ASSIGNMENT" && (
-                <button className="primary" onClick={handleClaim} data-testid="detail-claim">
-                  담당하기 (Pull)
-                </button>
-              )}
-              {(detail.inquiry.status === "OPERATOR_REVIEWING" ||
-                detail.inquiry.status === "MANUAL_CLASSIFICATION_PENDING") && (
-                <button onClick={handleReanalyze} data-testid="detail-reanalyze">
-                  재분석 요청
-                </button>
-              )}
+            {/* 2단 레이아웃 */}
+            <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+              {/* 좌측: 본문 + 분석 + 진단 */}
+              <div style={{ flex: 2, minWidth: 0 }}>
+                <Card label="원본 문의" testid="detail-original">
+                  <div
+                    style={{
+                      fontSize: 12,
+                      color: "var(--color-muted)",
+                      marginBottom: 8,
+                      display: "flex",
+                      gap: 6,
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <span>고객선택:</span>
+                    <TypeBadge type={detail.inquiry.customerType} />
+                    {ci.userId && <span>· {ci.userId}</span>}
+                    {ci.nickname && <span>({ci.nickname})</span>}
+                  </div>
+                  <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6, fontSize: 13 }}>
+                    {detail.inquiry.content}
+                  </div>
+                </Card>
+
+                <Card label="AI 분석 결과" testid="detail-analysis">
+                  {detail.analysis ? (
+                    <div style={{ display: "grid", gap: 8, fontSize: 13 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                        <span>AI 유형:</span>
+                        <TypeBadge type={detail.analysis.aiType} />
+                        {detail.analysis.subCategory && (
+                          <span style={{ color: "var(--color-muted)" }}>
+                            / {detail.analysis.subCategory}
+                          </span>
+                        )}
+                        <UrgencyBadge urgency={detail.analysis.urgency} />
+                      </div>
+                      <div>요약: {detail.analysis.summary ?? "-"}</div>
+                      {detail.analysis.keywords && detail.analysis.keywords.length > 0 && (
+                        <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+                          <span>키워드:</span>
+                          {detail.analysis.keywords.map((k) => (
+                            <Badge key={k} color="default">
+                              {k}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                      {detail.analysis.failureType && (
+                        <div className="error-msg">분석 실패: {detail.analysis.failureType}</div>
+                      )}
+                      {detail.analysis.systemQueryResult && (
+                        <pre
+                          className="mono"
+                          style={{
+                            background: "var(--color-box)",
+                            padding: 10,
+                            borderRadius: "var(--radius-sm)",
+                            fontSize: 12,
+                            overflowX: "auto",
+                          }}
+                        >
+                          {JSON.stringify(detail.analysis.systemQueryResult, null, 2)}
+                        </pre>
+                      )}
+                    </div>
+                  ) : (
+                    <div style={{ color: "var(--color-muted)" }}>아직 분석 결과가 없습니다.</div>
+                  )}
+                </Card>
+
+                {detail.diagnosis && (
+                  <Card label="AI 진단" testid="detail-diagnosis">
+                    <div style={{ display: "grid", gap: 6, fontSize: 13, lineHeight: 1.7 }}>
+                      <div>원인: {detail.diagnosis.cause}</div>
+                      <div>처리 방향: {detail.diagnosis.suggestedDirection}</div>
+                      <div>신뢰도: {(detail.diagnosis.confidence * 100).toFixed(0)}%</div>
+                    </div>
+                  </Card>
+                )}
+              </div>
+
+              {/* 우측: 처리 이력 타임라인 + 액션 */}
+              <div style={{ flex: 1, minWidth: 260 }}>
+                <Card label="처리 이력 (타임라인)" testid="detail-history">
+                  {detail.history.length === 0 ? (
+                    <div style={{ color: "var(--color-muted)" }}>이력이 없습니다.</div>
+                  ) : (
+                    <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                      {detail.history.map((h, i) => (
+                        <li
+                          key={i}
+                          data-testid={`history-item-${i}`}
+                          style={{
+                            borderLeft: "2px solid var(--color-border)",
+                            paddingLeft: 12,
+                            paddingBottom: 12,
+                          }}
+                        >
+                          <div style={{ fontWeight: 600, fontSize: 13 }}>
+                            {h.action}{" "}
+                            <span style={{ color: "var(--color-muted)", fontWeight: 400 }}>
+                              · {h.operator}
+                            </span>
+                          </div>
+                          <div className="mono" style={{ fontSize: 11, color: "var(--color-muted)" }}>
+                            {formatTime(h.timestamp)}
+                          </div>
+                          {h.reason && (
+                            <div style={{ fontSize: 12, marginTop: 2 }}>사유: {h.reason}</div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </Card>
+
+                {detail.inquiry.status === "PENDING_ASSIGNMENT" && (
+                  <button
+                    className="primary"
+                    style={{ width: "100%" }}
+                    onClick={handleClaim}
+                    data-testid="detail-claim"
+                  >
+                    담당하기 (Pull)
+                  </button>
+                )}
+                {detail.inquiry.status === "MANUAL_CLASSIFICATION_PENDING" && (
+                  <button
+                    className="secondary"
+                    style={{ width: "100%" }}
+                    onClick={handleReanalyze}
+                    data-testid="detail-reanalyze"
+                  >
+                    재분석 요청
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* 원본 문의 */}
-            <Section title="원본 문의" testid="detail-original">
-              <div style={{ marginBottom: 8 }}>
-                <span className="badge badge-normal">{TYPE_LABEL[detail.inquiry.customerType]}</span>
-              </div>
-              <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
-                {detail.inquiry.content}
-              </div>
-              {Object.keys(detail.inquiry.customerInfo ?? {}).length > 0 && (
-                <pre
-                  style={{ background: "#f4f5f7", padding: 10, borderRadius: 6, marginTop: 10, fontSize: 12 }}
-                >
-                  {JSON.stringify(detail.inquiry.customerInfo, null, 2)}
-                </pre>
-              )}
-            </Section>
-
-            {/* AI 분석 */}
-            <Section title="AI 분석" testid="detail-analysis">
-              {detail.analysis ? (
-                <div style={{ display: "grid", gap: 6 }}>
-                  <div>유형: {TYPE_LABEL[detail.analysis.aiType]}{detail.analysis.subCategory ? ` / ${detail.analysis.subCategory}` : ""}</div>
-                  <div>요약: {detail.analysis.summary ?? "-"}</div>
-                  {detail.analysis.keywords && detail.analysis.keywords.length > 0 && (
-                    <div>키워드: {detail.analysis.keywords.join(", ")}</div>
-                  )}
-                  {detail.analysis.failureType && (
-                    <div className="error-msg">분석 실패: {detail.analysis.failureType}</div>
-                  )}
-                  {detail.analysis.systemQueryResult && (
-                    <pre style={{ background: "#f4f5f7", padding: 10, borderRadius: 6, fontSize: 12 }}>
-                      {JSON.stringify(detail.analysis.systemQueryResult, null, 2)}
-                    </pre>
-                  )}
-                </div>
-              ) : (
-                <div style={{ color: "var(--color-muted)" }}>아직 분석 결과가 없습니다.</div>
-              )}
-            </Section>
-
-            {/* 진단 */}
-            {detail.diagnosis && (
-              <Section title="진단" testid="detail-diagnosis">
-                <div style={{ display: "grid", gap: 6 }}>
-                  <div>원인: {detail.diagnosis.cause}</div>
-                  <div>제안 방향: {detail.diagnosis.suggestedDirection}</div>
-                  <div>신뢰도: {(detail.diagnosis.confidence * 100).toFixed(0)}%</div>
-                </div>
-              </Section>
-            )}
-
-            {/* 답변 초안 (DraftEditor) */}
-            {detail.currentDraft ? (
-              <div style={{ marginBottom: 16 }}>
+            {/* 하단: 답변 편집기 영역 (담당하기 후 펼쳐짐) */}
+            <div style={{ marginTop: 8 }}>
+              {detail.currentDraft ? (
                 <DraftEditor
                   inquiryId={detail.inquiry.inquiryId}
                   draft={detail.currentDraft}
                   editable={detail.inquiry.status === "OPERATOR_REVIEWING"}
                   onChanged={load}
+                  onReanalyze={
+                    detail.inquiry.status === "OPERATOR_REVIEWING" ? handleReanalyze : undefined
+                  }
                 />
-              </div>
-            ) : (
-              <Section title="답변 초안" testid="detail-no-draft">
-                <div style={{ color: "var(--color-muted)" }}>아직 생성된 초안이 없습니다.</div>
-              </Section>
-            )}
-
-            {/* 처리 이력 타임라인 */}
-            <Section title="처리 이력" testid="detail-history">
-              {detail.history.length === 0 ? (
-                <div style={{ color: "var(--color-muted)" }}>이력이 없습니다.</div>
+              ) : detail.inquiry.status === "PENDING_ASSIGNMENT" ? (
+                <div
+                  data-testid="detail-editor-hint"
+                  style={{
+                    border: "1px dashed var(--color-border-input)",
+                    borderRadius: "var(--radius-lg)",
+                    padding: 20,
+                    textAlign: "center",
+                    color: "var(--color-muted)",
+                    background: "var(--color-box)",
+                    fontSize: 13,
+                    lineHeight: 1.7,
+                  }}
+                >
+                  ⬇ <b style={{ color: "var(--color-text)" }}>담당하기(Pull)</b> 클릭 시 상태가{" "}
+                  <b style={{ color: "var(--color-primary)" }}>운영자확인중</b>으로 바뀌고, 이 영역에{" "}
+                  <b style={{ color: "var(--color-text)" }}>답변 편집기</b>가 펼쳐집니다.
+                </div>
               ) : (
-                <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                  {detail.history.map((h, i) => (
-                    <li
-                      key={i}
-                      data-testid={`history-item-${i}`}
-                      style={{
-                        borderLeft: "2px solid var(--color-border)",
-                        paddingLeft: 12,
-                        paddingBottom: 12,
-                        position: "relative",
-                      }}
-                    >
-                      <div style={{ fontWeight: 600 }}>
-                        {h.action} <span style={{ color: "var(--color-muted)", fontWeight: 400 }}>· {h.operator}</span>
-                      </div>
-                      <div style={{ fontSize: 12, color: "var(--color-muted)" }}>{formatTime(h.timestamp)}</div>
-                      {h.reason && <div style={{ fontSize: 13, marginTop: 2 }}>사유: {h.reason}</div>}
-                    </li>
-                  ))}
-                </ul>
+                <Card label="답변 초안" testid="detail-no-draft">
+                  <div style={{ color: "var(--color-muted)" }}>아직 생성된 초안이 없습니다.</div>
+                </Card>
               )}
-            </Section>
+            </div>
           </div>
         )}
       </div>

@@ -89,6 +89,7 @@ export const inquiries: Record<string, StoredInquiry> = {
       status: "SENT",
       createdAt: nowKst(120),
       assignedOperator: "operator2",
+      completedAt: nowKst(90),
     },
     analysis: {
       aiType: "ITEM_DELIVERY",
