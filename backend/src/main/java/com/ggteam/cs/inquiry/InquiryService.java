@@ -107,7 +107,18 @@ public class InquiryService {
             log.warn("AIAnalysisService 미등록 — 문의 {} 접수만 저장(분석 미트리거). 백엔드 B 통합 시 자동 연동.", inquiryId);
             return;
         }
-        aiAnalysisService.analyze(inquiryId);
+        // 트랜잭션 커밋 후 비동기 분석 트리거 (커밋 전 @Async 실행 시 findById 레이스 방지)
+        if (org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive()) {
+            org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+                    new org.springframework.transaction.support.TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                            aiAnalysisService.analyze(inquiryId);
+                        }
+                    });
+        } else {
+            aiAnalysisService.analyze(inquiryId);
+        }
     }
 
     /** 문의 상세 조회 조립 (US-23). 미완료 단계 섹션은 null. */

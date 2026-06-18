@@ -90,10 +90,12 @@ public class AIAnalysis extends BaseEntity {
         return a;
     }
 
-    /** 분석 실패 결과 팩토리 (failureType 기록, BR-28). */
+    /** 분석 실패 결과 팩토리 (failureType 기록, BR-28). ai_type/urgency는 NOT NULL이라 fallback 설정. */
     public static AIAnalysis failed(UUID inquiryId, FailureType failureType) {
         AIAnalysis a = new AIAnalysis();
         a.setInquiryId(inquiryId);
+        a.setAiType(InquiryType.ETC);
+        a.setUrgency(Urgency.NORMAL);
         a.setFailureType(failureType);
         a.setAnalyzedAt(ZonedDateTime.now());
         return a;
