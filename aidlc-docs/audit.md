@@ -233,4 +233,47 @@
 **AI Response**: prompt-design.md 작성(분류/진단/답변 3단계 시스템역할+컨텍스트+JSON스키마+few-shot+제약). 실제 Bedrock(us.anthropic.claude-sonnet-4-6)으로 결제 데모 3단계 검증 성공: 분류(ITEM_DELIVERY/HIGH), 진단(confidence 0.97, 조회결과 근거), 답변(정중 한국어 초안). 인사이트: ①system 역할분리 효과적→LlmRequest에 system 필드 추가 권장 ②JSON 코드펜스는 기존 parser가 처리 ③분류기준 명시 필요.
 **Context**: 프롬프트 설계 실증 완료. PromptBuilder 고도화(system 분리/분류기준) 후보.
 
+## Session Continuity - Backend A Developer Returns
+**Timestamp**: 2026-06-18T16:15:54+09:00
+**User Input**: "나는 ai dlc 개발론으로 개발을 진행할거야"
+**User Input (Steering)**: "나는 백엔드 개발자 a야"
+**AI Response**: Session resumed. Identified user as Backend Developer A. Current state: CONSTRUCTION phase, Work Breakdown complete, Code Generation pending. Backend A scope: persistence (entities/repos), auth (JWT/Security), inquiry (core API), workflow/state (state machine). Presenting resumption guidance.
+**Context**: Project in CONSTRUCTION phase. All inception and design stages completed. Code scaffolding (M0) done. Backend A needs to implement: entities/migration → auth → inquiry → state machine.
+
+---
+
+
+## Session Continuity - Correction: Backend B Developer
+**Timestamp**: 2026-06-18T16:16:30+09:00
+**User Input (Steering)**: "kiro ide로 개발하다가 자꾸 말을 잘 이해 못하길래 지금 cli 환경으로 다시 돌아온거야. 개발 요건에 맞게 백엔드 개발자b의 업무를 진행하고 싶어."
+**AI Response**: Corrected identification. User is Backend Developer B (AI Pipeline). Scope: external (BedrockClient/MockLlmClient), aipipeline (AIAnalysisService, DiagnosisService, DraftResponseService), aipipeline/query (QueryStrategy implementations). Presenting Backend B resumption guidance.
+**Context**: User migrated from Kiro IDE to CLI due to comprehension issues. Wants to proceed with Backend B implementation tasks.
+
+---
+
+
+## Session Continuity - Confirmed: Backend A Developer
+**Timestamp**: 2026-06-18T16:17:30+09:00
+**User Input**: "백엔드개발자A야. 나 a야"
+**AI Response**: Confirmed user is Backend Developer A. Scope: persistence (entities/repos/migration), auth (JWT/Security/BCrypt/계정잠금), inquiry (접수/조회 API), workflow/state (InquiryStateMachine 구현). Proceeding with Backend A guidance.
+**Context**: Final confirmation after role confusion. User is Backend A, migrated from Kiro IDE to CLI.
+
+---
+
+
+## CONSTRUCTION - Backend A Code Generation (persistence + auth)
+**Timestamp**: 2026-06-18T16:43:10+09:00
+**User Input**: "권장 순서대로 진행하자" / "C:\Gradle 여기에 다운로드 받고있어. 일단 다음 단계로 넘어가" / "jdk 내가 그냥 직접 설치함" / "내 로컬에서는 일단 mock으로 진행할거야. 생성된 DB 스키마를 가지고 개발자 B 자리에서 DB를 직접 생성할거야."
+**AI Response**: 백엔드 A 권장 순서대로 구현. (1) persistence: BaseEntity + 엔티티 9개(Operator, Inquiry, AIAnalysis, Diagnosis, DraftResponse, ApprovalHistory, Payment, ItemDelivery, Account) + Repository 9개. (2) Flyway V1__init_schema.sql (전 테이블 DDL, timestamptz/jsonb/varchar enum, UNIQUE/FK/인덱스). (3) auth: JwtTokenProvider(jjwt 0.12.6), AuthService(BR-31~38 계정잠금), JwtAuthenticationFilter, JwtAuthenticationEntryPoint, SecurityConfig(stateless JWT, /auth/login·POST /inquiries permitAll), AuthController(login/logout), DTO 4개. Gradle Wrapper 8.11 생성(백엔드 A 책임). JDK 17(C:\Java\jdk-17.0.0.1)로 `gradlew compileJava` → BUILD SUCCESSFUL.
+**Context**: 컴파일 검증 통과. JPA validate(엔티티-DDL 정합) 풀부팅 검증은 PostgreSQL 필요 → 개발자 B 자리 DB 생성 시점으로 보류. 다음 단계: inquiry(접수/조회 API) + InquiryStateMachine 구현.
+
+---
+
+
+## CONSTRUCTION - Backend A Code Generation (state machine + inquiry)
+**Timestamp**: 2026-06-18T16:52:17+09:00
+**User Input**: "남은 작업 계속 진행."
+**AI Response**: 백엔드 A 잔여 구현 완료. (1) workflow/state: DefaultInquiryStateMachine — BR-07~10 전이 테이블(EnumMap), 잘못된 전이 시 INVALID_STATE_TRANSITION(409), SENT 종료. 전이 검증+적용만 담당(ApprovalHistory 기록은 C/B 책임). (2) inquiry: CreateInquiryRequest(content≥10자 BR-01)/CreateInquiryResponse/InquiryDetail(조립 DTO, 미완료 섹션 null), InquiryService(접수 RECEIVED + AIAnalysisService ObjectProvider 느슨주입으로 A 단독부팅 가능, BR-03 userId 검증, 상세 조립 N+1 방지 캐시), InquiryController(POST 201 비인증 / GET 인증). `gradlew compileJava` → BUILD SUCCESSFUL(24s).
+**Context**: 백엔드 A 담당 모듈(common/persistence/auth/inquiry/workflow.state) 코드 구현 완료. 미검증: JPA validate 풀부팅(PostgreSQL 필요, B 자리 보류), 단위 테스트 미작성. 다음 권장: 단위 테스트 작성 또는 B/C 통합.
+
 ---
