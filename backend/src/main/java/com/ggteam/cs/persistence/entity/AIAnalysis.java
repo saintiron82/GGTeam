@@ -47,11 +47,11 @@ public class AIAnalysis {
     private String summary;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
+    @Column
     private List<String> keywords;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "system_query_result", columnDefinition = "jsonb")
+    @Column(name = "system_query_result")
     private Map<String, Object> systemQueryResult;
 
     @Column(name = "analyzed_at")
@@ -62,6 +62,24 @@ public class AIAnalysis {
     private FailureType failureType;
 
     protected AIAnalysis() {}
+
+    /** 로컬/시딩용 성공 분석 생성 팩토리. */
+    public static AIAnalysis success(UUID inquiryId, InquiryType aiType, String subCategory,
+                                     Urgency urgency, String summary, List<String> keywords,
+                                     Map<String, Object> systemQueryResult) {
+        AIAnalysis a = new AIAnalysis();
+        a.id = UUID.randomUUID();
+        a.inquiryId = inquiryId;
+        a.aiType = aiType;
+        a.subCategory = subCategory;
+        a.urgency = urgency;
+        a.summary = summary;
+        a.keywords = keywords;
+        a.systemQueryResult = systemQueryResult;
+        a.analyzedAt = ZonedDateTime.now();
+        a.failureType = null;
+        return a;
+    }
 
     public UUID getId() {
         return id;

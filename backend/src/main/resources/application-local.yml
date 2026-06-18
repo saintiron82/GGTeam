@@ -1,0 +1,35 @@
+# 로컬 단독 검수용 프로파일 (백엔드 C). PostgreSQL/AWS/백엔드 A·B 없이 단독 기동.
+#   실행: gradlew.bat bootRun --args='--spring.profiles.active=local'
+#   - H2 인메모리(PostgreSQL 호환 모드), 스키마는 Hibernate가 엔티티로 자동 생성
+#   - Flyway/Spring Security 비활성(엔드포인트 개방) → 운영자 식별은 X-Operator-Id 헤더로 대체
+#   - 기동 시 LocalDummyDataSeeder가 더미 문의/분석/초안/운영자를 시딩
+spring:
+  config:
+    activate:
+      on-profile: local
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  datasource:
+    url: jdbc:h2:mem:csagent;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Seoul
+  flyway:
+    enabled: false
+  h2:
+    console:
+      enabled: true           # http://localhost:8080/h2-console 로 DB 확인 가능
+      path: /h2-console
+
+app:
+  ai:
+    llm-client: mock          # 백엔드 B 미연동 — stub 사용

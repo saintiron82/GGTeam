@@ -29,7 +29,7 @@ public class Inquiry {
     private UUID id;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "customer_info", nullable = false, columnDefinition = "jsonb")
+    @Column(name = "customer_info", nullable = false)
     private Map<String, String> customerInfo;
 
     @Enumerated(EnumType.STRING)

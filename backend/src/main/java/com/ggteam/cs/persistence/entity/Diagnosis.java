@@ -35,6 +35,17 @@ public class Diagnosis {
 
     protected Diagnosis() {}
 
+    /** 로컬/시딩용 진단 생성 팩토리. */
+    public static Diagnosis of(UUID inquiryId, String cause, String suggestedDirection, BigDecimal confidence) {
+        Diagnosis d = new Diagnosis();
+        d.id = UUID.randomUUID();
+        d.inquiryId = inquiryId;
+        d.cause = cause;
+        d.suggestedDirection = suggestedDirection;
+        d.confidence = confidence;
+        return d;
+    }
+
     public UUID getId() {
         return id;
     }
