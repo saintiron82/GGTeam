@@ -226,3 +226,11 @@
 **Context**: 백엔드 B external+aipipeline 순수로직 완료. 남은 엔티티 결합부(AIAnalysisServiceImpl/DiagnosisService/DraftResponseServiceImpl/PaymentQueryStrategy/SystemDataQueryService)는 백엔드 A 엔티티 의존.
 
 ---
+
+## CONSTRUCTION - 백엔드 B: 프롬프트 설계 명세 + 실제 파이프라인 검증
+**Timestamp**: 2026-06-18T16:30:00+09:00
+**User Input**: "우리 계획중에 질문을 하고 답을 얻기 위해선 컨텍스트 및 프롬포트 작성이 되어 있어야 한다. 이걸 먼저 해볼순 없나?"
+**AI Response**: prompt-design.md 작성(분류/진단/답변 3단계 시스템역할+컨텍스트+JSON스키마+few-shot+제약). 실제 Bedrock(us.anthropic.claude-sonnet-4-6)으로 결제 데모 3단계 검증 성공: 분류(ITEM_DELIVERY/HIGH), 진단(confidence 0.97, 조회결과 근거), 답변(정중 한국어 초안). 인사이트: ①system 역할분리 효과적→LlmRequest에 system 필드 추가 권장 ②JSON 코드펜스는 기존 parser가 처리 ③분류기준 명시 필요.
+**Context**: 프롬프트 설계 실증 완료. PromptBuilder 고도화(system 분리/분류기준) 후보.
+
+---

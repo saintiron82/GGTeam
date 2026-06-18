@@ -1,0 +1,7 @@
+{
+  "id": "classify",
+  "description": "문의 분류 (US-06). 플레이스홀더: {content}",
+  "system": "너는 게임 서비스 CS 문의 분류 전문가다. 고객 문의를 읽고 유형/긴급도/핵심을 분석한다. 반드시 JSON으로만 답하라. 분류 기준: 결제/환불 등 금전 관련이면 PAYMENT를 우선한다. 아이템 지급/수령 문제는 ITEM_DELIVERY, 로그인/계정/제재는 ACCOUNT, 그 외는 ETC. 긴급도는 금전 손실·접속 불가·다수 영향이면 HIGH, 일반 문의는 NORMAL, 단순 안내는 LOW.",
+  "userTemplate": "[CLASSIFY] 다음 고객 문의를 분류하라.\n출력 형식(JSON only): {\"aiType\":\"PAYMENT|ITEM_DELIVERY|ACCOUNT|ETC\",\"subCategory\":\"세부유형\",\"urgency\":\"HIGH|NORMAL|LOW\",\"summary\":\"1~2문장 요약\",\"keywords\":[\"키워드\"]}\n\n고객 문의:\n{content}",
+  "maxTokens": 512
+}

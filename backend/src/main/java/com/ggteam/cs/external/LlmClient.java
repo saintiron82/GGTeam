@@ -10,10 +10,19 @@ public interface LlmClient {
 
     LlmResponse complete(LlmRequest request);
 
-    /** LLM 요청. prompt는 시스템 지시 + 사용자 컨텍스트를 합성한 최종 입력. */
-    record LlmRequest(String prompt, int maxTokens) {
+    /**
+     * LLM 요청.
+     * @param system 시스템 역할/지침 (없으면 null)
+     * @param prompt 사용자 메시지 (컨텍스트 포함)
+     * @param maxTokens 최대 출력 토큰
+     */
+    record LlmRequest(String system, String prompt, int maxTokens) {
         public static LlmRequest of(String prompt) {
-            return new LlmRequest(prompt, 2048);
+            return new LlmRequest(null, prompt, 2048);
+        }
+
+        public static LlmRequest of(String system, String prompt, int maxTokens) {
+            return new LlmRequest(system, prompt, maxTokens);
         }
     }
 

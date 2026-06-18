@@ -4,6 +4,7 @@ import com.ggteam.cs.aipipeline.model.AnalysisResult;
 import com.ggteam.cs.aipipeline.model.DiagnosisResult;
 import com.ggteam.cs.aipipeline.parse.LlmResponseParser;
 import com.ggteam.cs.aipipeline.prompt.PromptBuilder;
+import com.ggteam.cs.aipipeline.prompt.PromptLoader;
 import com.ggteam.cs.aipipeline.quality.ResponseQualityValidator;
 import com.ggteam.cs.common.enums.InquiryType;
 import com.ggteam.cs.common.enums.Urgency;
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class AiPipelineLogicTest {
 
-    private final PromptBuilder promptBuilder = new PromptBuilder();
+    private final PromptBuilder promptBuilder = new PromptBuilder(new PromptLoader(""));
     private final LlmResponseParser parser = new LlmResponseParser();
     private final ResponseQualityValidator validator = new ResponseQualityValidator();
     private final LlmClient mockLlm = new MockLlmClient();
@@ -29,10 +30,11 @@ class AiPipelineLogicTest {
     @Test
     void 분류_프롬프트_생성_및_Mock응답_파싱() {
         // US-06: 프롬프트 생성 → Mock LLM → 파싱
-        String prompt = promptBuilder.classify("결제했는데 아이템이 안 들어왔어요");
-        assertTrue(prompt.contains("[CLASSIFY]"));
+        LlmClient.LlmRequest req = promptBuilder.classify("결제했는데 아이템이 안 들어왔어요");
+        assertTrue(req.prompt().contains("[CLASSIFY]"));
+        assertNotNull(req.system());
 
-        LlmClient.LlmResponse res = mockLlm.complete(LlmClient.LlmRequest.of(prompt));
+        LlmClient.LlmResponse res = mockLlm.complete(req);
         AnalysisResult result = parser.parseAnalysis(res.content());
 
         assertEquals(InquiryType.PAYMENT, result.aiType());
@@ -44,10 +46,10 @@ class AiPipelineLogicTest {
     @Test
     void 진단_프롬프트_생성_및_Mock응답_파싱() {
         // US-11
-        String prompt = promptBuilder.diagnose("아이템 미지급", Map.of("payment", "SUCCESS", "delivery", "NOT_DELIVERED"));
-        assertTrue(prompt.contains("[DIAGNOSE]"));
+        LlmClient.LlmRequest req = promptBuilder.diagnose("아이템 미지급", Map.of("payment", "SUCCESS", "delivery", "NOT_DELIVERED"));
+        assertTrue(req.prompt().contains("[DIAGNOSE]"));
 
-        LlmClient.LlmResponse res = mockLlm.complete(LlmClient.LlmRequest.of(prompt));
+        LlmClient.LlmResponse res = mockLlm.complete(req);
         DiagnosisResult result = parser.parseDiagnosis(res.content());
 
         assertNotNull(result.cause());
@@ -58,10 +60,10 @@ class AiPipelineLogicTest {
     @Test
     void 초안_프롬프트_생성_및_품질검증_통과() {
         // US-13, BR-30d
-        String prompt = promptBuilder.draft("시스템 오류로 지급 누락", "재지급 안내", null);
-        assertTrue(prompt.contains("[DRAFT]"));
+        LlmClient.LlmRequest req = promptBuilder.draft("시스템 오류로 지급 누락", "재지급 안내", null);
+        assertTrue(req.prompt().contains("[DRAFT]"));
 
-        LlmClient.LlmResponse res = mockLlm.complete(LlmClient.LlmRequest.of(prompt));
+        LlmClient.LlmResponse res = mockLlm.complete(req);
         ResponseQualityValidator.QualityResult quality = validator.validate(res.content());
 
         assertTrue(quality.valid(), "정상 초안은 품질 검증 통과해야 함");
@@ -70,9 +72,9 @@ class AiPipelineLogicTest {
     @Test
     void 반려사유_재생성_프롬프트에_반영() {
         // US-17: 반려 사유가 프롬프트에 포함되어야 함
-        String prompt = promptBuilder.draft("원인", "방향", "너무 형식적임");
-        assertTrue(prompt.contains("너무 형식적임"));
-        assertTrue(prompt.contains("반려"));
+        LlmClient.LlmRequest req = promptBuilder.draft("원인", "방향", "너무 형식적임");
+        assertTrue(req.prompt().contains("너무 형식적임"));
+        assertTrue(req.prompt().contains("반려"));
     }
 
     @Test

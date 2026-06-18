@@ -117,6 +117,9 @@ public class BedrockClient implements LlmClient {
             ObjectNode root = mapper.createObjectNode();
             root.put("anthropic_version", ANTHROPIC_VERSION);
             root.put("max_tokens", request.maxTokens());
+            if (request.system() != null && !request.system().isBlank()) {
+                root.put("system", request.system());
+            }
             ArrayNode messages = root.putArray("messages");
             ObjectNode userMsg = messages.addObject();
             userMsg.put("role", "user");
