@@ -40,12 +40,24 @@ export function LoginPage() {
         onSubmit={handleSubmit}
         data-testid="login-form"
       >
-        <h1 style={{ fontSize: 20, marginTop: 0, marginBottom: 4 }}>
-          CS 운영자 로그인
-        </h1>
-        <p style={{ color: "var(--color-muted)", marginTop: 0, marginBottom: 20 }}>
-          AI 문의 처리 에이전트
-        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+          <span
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+              boxShadow: "0 4px 12px rgba(79,70,229,0.4)",
+              display: "inline-block",
+            }}
+          />
+          <div>
+            <h1 style={{ fontSize: 19, margin: 0 }}>CS 운영자 로그인</h1>
+            <p style={{ color: "var(--color-muted)", margin: "2px 0 0", fontSize: 13 }}>
+              AI 문의 처리 에이전트
+            </p>
+          </div>
+        </div>
 
         <div className="field">
           <label htmlFor="username">아이디</label>

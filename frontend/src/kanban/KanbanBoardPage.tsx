@@ -209,24 +209,11 @@ export function KanbanBoardPage() {
                 <div
                   key={status}
                   data-testid={`column-${status}`}
-                  style={{
-                    background: "#ebecf0",
-                    borderRadius: "var(--radius)",
-                    padding: 10,
-                    minHeight: 200,
-                  }}
+                  className="kanban-column"
                 >
-                  <div
-                    style={{
-                      fontWeight: 700,
-                      fontSize: 13,
-                      marginBottom: 10,
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
+                  <div className="kanban-column-head">
                     <span>{STATUS_LABEL[status]}</span>
-                    <span style={{ color: "var(--color-muted)" }}>{cards.length}</span>
+                    <span className="kanban-column-count">{cards.length}</span>
                   </div>
                   {cards.map((card) => (
                     <InquiryCardItem
@@ -243,16 +230,16 @@ export function KanbanBoardPage() {
 
         {/* 리스트 뷰 */}
         {!loading && view === "list" && list && (
-          <div className="card" data-testid="list-view" style={{ padding: 0 }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <div className="card" data-testid="list-view" style={{ padding: 0, overflow: "hidden" }}>
+            <table className="data-table">
               <thead>
-                <tr style={{ textAlign: "left", borderBottom: "1px solid var(--color-border)" }}>
-                  <th style={{ padding: 12 }}>문의번호</th>
-                  <th style={{ padding: 12 }}>유형</th>
-                  <th style={{ padding: 12 }}>긴급도</th>
-                  <th style={{ padding: 12 }}>상태</th>
-                  <th style={{ padding: 12 }}>담당자</th>
-                  <th style={{ padding: 12 }}>요약</th>
+                <tr>
+                  <th>문의번호</th>
+                  <th>유형</th>
+                  <th>긴급도</th>
+                  <th>상태</th>
+                  <th>담당자</th>
+                  <th>요약</th>
                 </tr>
               </thead>
               <tbody>
@@ -263,28 +250,27 @@ export function KanbanBoardPage() {
                     onClick={() => onCardClick(card.inquiryId)}
                     style={{
                       cursor: "pointer",
-                      borderBottom: "1px solid var(--color-border)",
                       background:
                         card.urgency === "HIGH" ? "var(--urgent-bg)" : undefined,
                     }}
                   >
-                    <td style={{ padding: 12, fontWeight: 600 }}>{card.inquiryId}</td>
-                    <td style={{ padding: 12 }}>
-                      {TYPE_LABEL[card.aiType ?? card.customerType]}
+                    <td style={{ fontWeight: 600, fontFamily: "ui-monospace, monospace", fontSize: 12 }}>
+                      {card.inquiryId.slice(0, 8)}
                     </td>
-                    <td style={{ padding: 12 }}>
+                    <td>{TYPE_LABEL[card.aiType ?? card.customerType]}</td>
+                    <td>
                       <UrgencyBadge urgency={card.urgency} />
                     </td>
-                    <td style={{ padding: 12 }}>{STATUS_LABEL[card.status]}</td>
-                    <td style={{ padding: 12 }}>{card.assignedOperator ?? "-"}</td>
-                    <td style={{ padding: 12, color: "var(--color-muted)" }}>
+                    <td>{STATUS_LABEL[card.status]}</td>
+                    <td>{card.assignedOperator ?? "-"}</td>
+                    <td style={{ color: "var(--color-muted)" }}>
                       {card.summary ?? "-"}
                     </td>
                   </tr>
                 ))}
                 {list.data.length === 0 && (
                   <tr>
-                    <td colSpan={6} style={{ padding: 24, textAlign: "center" }}>
+                    <td colSpan={6} style={{ padding: 32, textAlign: "center", color: "var(--color-muted)" }}>
                       조건에 맞는 문의가 없습니다.
                     </td>
                   </tr>

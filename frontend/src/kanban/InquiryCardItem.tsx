@@ -25,15 +25,12 @@ export function InquiryCardItem({ card, onClick }: Props) {
   const isUrgent = card.urgency === "HIGH";
   return (
     <div
-      className="card"
+      className="card kanban-card"
       data-testid={`inquiry-card-${card.inquiryId}`}
       onClick={() => onClick(card.inquiryId)}
       style={{
-        marginBottom: 10,
-        cursor: "pointer",
-        borderLeft: isUrgent ? "4px solid var(--urgent-border)" : undefined,
+        borderLeft: isUrgent ? "3px solid var(--urgent-border)" : undefined,
         background: isUrgent ? "var(--urgent-bg)" : undefined,
-        padding: 12,
       }}
     >
       <div
@@ -44,12 +41,12 @@ export function InquiryCardItem({ card, onClick }: Props) {
           marginBottom: 6,
         }}
       >
-        <span style={{ fontWeight: 700, fontSize: 12, color: "var(--color-muted)" }}>
-          {card.inquiryId}
+        <span style={{ fontWeight: 700, fontSize: 11, color: "var(--color-muted)", fontFamily: "ui-monospace, monospace" }}>
+          {card.inquiryId.slice(0, 8)}
         </span>
         <UrgencyBadge urgency={card.urgency} />
       </div>
-      <div style={{ fontSize: 13, marginBottom: 8, lineHeight: 1.4 }}>
+      <div style={{ fontSize: 13, marginBottom: 10, lineHeight: 1.45, color: "var(--color-text)" }}>
         {card.summary ?? "(요약 없음)"}
       </div>
       <div
