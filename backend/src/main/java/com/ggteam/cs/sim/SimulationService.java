@@ -73,7 +73,16 @@ public class SimulationService {
             long delay = jitter ? Math.max(0, base + ((i * 9301L + 49297L) % interval) - interval / 2) : base;
             exec.schedule(() -> dispatch(inq), delay, TimeUnit.MILLISECONDS);
         }
-        exec.schedule(() -> { running = false; exec.shutdown(); }, (long) total * interval + 50, TimeUnit.MILLISECONDS);
+        // 자연 완료 표시 + executor 종료. 단, 그 사이 stop()/start()로 새 실행이 시작됐다면(this.scheduler != exec)
+        // 이 stale 완료 태스크가 새 실행의 running을 끄지 않도록 가드한다(교차 실행 플립 방지).
+        exec.schedule(() -> {
+            synchronized (this) {
+                if (this.scheduler == exec) {
+                    running = false;
+                }
+            }
+            exec.shutdown();
+        }, (long) total * interval + 50, TimeUnit.MILLISECONDS);
 
         log.info("[SIM] 드립 시작 total={} interval={}ms jitter={}", total, interval, jitter);
         return status();
