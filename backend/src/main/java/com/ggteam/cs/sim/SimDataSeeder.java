@@ -58,7 +58,18 @@ public class SimDataSeeder implements CommandLineRunner {
         log.info("=====================================");
     }
 
-    /** 시드 핵심 로직 (테스트 대상). counters[0]=payments, counters[1]=items. */
+    /**
+     * 시드 핵심 로직 (테스트 대상).
+     *
+     * <p>총 지급건수를 {@code itemTarget}까지 정상지급(DELIVERED) 이력으로 채운다.
+     * {@code itemTarget}가 시나리오로 이미 시드된 지급 건수보다 작으면 패딩하지 않으며,
+     * 그 경우 {@link SeedSummary#items()}는 시드된 실제 건수(&gt;{@code itemTarget})가 된다
+     * (절단하지 않음).
+     *
+     * @param assignments 시나리오 배정 목록 ({@link ScenarioAssigner#assign(int)}의 반환값)
+     * @param itemTarget  목표 지급건수. 이미 시드된 건수보다 크면 DELIVERED 패딩으로 채운다.
+     * @return 계정·결제·지급건수 요약 ({@link SeedSummary})
+     */
     public SeedSummary seed(List<SimAssignment> assignments, int itemTarget) {
         int[] c = {0, 0};
         for (SimAssignment a : assignments) {
