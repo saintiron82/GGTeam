@@ -14,7 +14,7 @@ class SimulationControllerTest {
     private final SimulationController controller = new SimulationController(service);
 
     private SimulationStatus sample() {
-        return new SimulationStatus(true, 100, 0, 0, 123L, 0, 0, 0.0, "agentcli");
+        return new SimulationStatus(true, 100, 0, 0, 123L, 0, 0, 0.0, "agentcli", false);
     }
 
     @Test
@@ -44,5 +44,25 @@ class SimulationControllerTest {
 
         assertThat(resp.getStatusCode().value()).isEqualTo(200);
         verify(service).status();
+    }
+
+    @Test
+    void pause_위임() {
+        when(service.pause()).thenReturn(sample());
+
+        var resp = controller.pause();
+
+        assertThat(resp.getStatusCode().value()).isEqualTo(200);
+        verify(service).pause();
+    }
+
+    @Test
+    void resume_위임() {
+        when(service.resume()).thenReturn(sample());
+
+        var resp = controller.resume();
+
+        assertThat(resp.getStatusCode().value()).isEqualTo(200);
+        verify(service).resume();
     }
 }

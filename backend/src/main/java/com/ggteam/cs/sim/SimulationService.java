@@ -12,8 +12,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
- * 드립 엔진. duration/count로 간격을 계산해 ScheduledExecutorService로 한 건씩 전송한다.
- * 진행 상태(running/total/sent/errors)를 보유하고 start/stop/reset/status를 제공한다.
+ * 드립 엔진. duration/count로 간격을 계산해 한 건씩(단일 틱 재스케줄) 전송한다.
+ * 진행 상태(running/paused/total/sent/errors)를 보유하고 start/pause/resume/stop/reset/status를 제공한다.
+ *
+ * <p>일시정지(pause)는 현재 스케줄러를 취소하고 nextIndex를 보존하며, 재개(resume) 시 남은 건부터
+ * 다시 드립한다. 일시정지 동안의 경과는 rate/eta 계산에서 제외한다.
  */
 @Service
 @Profile("sim")
@@ -29,8 +32,15 @@ public class SimulationService {
     private final AtomicInteger sent = new AtomicInteger();
     private final AtomicInteger errors = new AtomicInteger();
     private volatile int total = 0;
+    private volatile int nextIndex = 0;
     private volatile boolean running = false;
+    private volatile boolean paused = false;
     private volatile Long startedAtMs = null;
+    private volatile long pausedAccumMs = 0;
+    private volatile long pauseStartedMs = 0;
+    private volatile long intervalMs = 1;
+    private volatile boolean jitter = false;
+    private List<PlannedInquiry> plan;
     private ScheduledExecutorService scheduler;
 
     public SimulationService(InquiryScenarioCatalog catalog, InquirySender sender, SimProperties props,
@@ -52,40 +62,106 @@ public class SimulationService {
         if (running) {
             return status();
         }
-        List<PlannedInquiry> plan = catalog.build(count);
-        total = plan.size();
+        this.plan = catalog.build(count);
+        this.total = plan.size();
+        this.jitter = jitter;
+        this.intervalMs = total > 0 ? Math.max(1, durationMs / total) : Math.max(1, durationMs);
         sent.set(0);
         errors.set(0);
-        running = true;
+        nextIndex = 0;
+        pausedAccumMs = 0;
+        paused = false;
+        running = total > 0;
         startedAtMs = System.currentTimeMillis();
-
-        long interval = total > 0 ? Math.max(1, durationMs / total) : durationMs;
-        final ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "sim-drip");
-            t.setDaemon(true);
-            return t;
-        });
-        this.scheduler = exec;
-
-        for (int i = 0; i < total; i++) {
-            final PlannedInquiry inq = plan.get(i);
-            long base = i * interval;
-            long delay = jitter ? Math.max(0, base + ((i * 9301L + 49297L) % interval) - interval / 2) : base;
-            exec.schedule(() -> dispatch(inq), delay, TimeUnit.MILLISECONDS);
+        if (running) {
+            scheduler = newScheduler();
+            armTick(0);
         }
-        // 자연 완료 표시 + executor 종료. 단, 그 사이 stop()/start()로 새 실행이 시작됐다면(this.scheduler != exec)
-        // 이 stale 완료 태스크가 새 실행의 running을 끄지 않도록 가드한다(교차 실행 플립 방지).
-        exec.schedule(() -> {
-            synchronized (this) {
-                if (this.scheduler == exec) {
-                    running = false;
-                }
-            }
-            exec.shutdown();
-        }, (long) total * interval + 50, TimeUnit.MILLISECONDS);
-
-        log.info("[SIM] 드립 시작 total={} interval={}ms jitter={}", total, interval, jitter);
+        log.info("[SIM] 드립 시작 total={} interval={}ms jitter={}", total, intervalMs, jitter);
         return status();
+    }
+
+    /** 일시정지: 다음 전송을 취소하고 진행 위치(nextIndex)를 보존한다. */
+    public synchronized SimulationStatus pause() {
+        if (running && !paused) {
+            paused = true;
+            pauseStartedMs = System.currentTimeMillis();
+            shutdownScheduler();
+            log.info("[SIM] 일시정지 (sent={}/{})", sent.get(), total);
+        }
+        return status();
+    }
+
+    /** 재개: 남은 건부터 드립을 다시 시작한다. */
+    public synchronized SimulationStatus resume() {
+        if (running && paused) {
+            pausedAccumMs += System.currentTimeMillis() - pauseStartedMs;
+            paused = false;
+            scheduler = newScheduler();
+            armTick(0);
+            log.info("[SIM] 재개 (sent={}/{})", sent.get(), total);
+        }
+        return status();
+    }
+
+    public synchronized SimulationStatus stop() {
+        running = false;
+        paused = false;
+        shutdownScheduler();
+        return status();
+    }
+
+    public synchronized SimulationStatus reset() {
+        stop();
+        sent.set(0);
+        errors.set(0);
+        total = 0;
+        nextIndex = 0;
+        startedAtMs = null;
+        pausedAccumMs = 0;
+        plan = null;
+        return status();
+    }
+
+    public synchronized SimulationStatus status() {
+        long elapsedMs;
+        if (startedAtMs == null) {
+            elapsedMs = 0;
+        } else {
+            long end = paused ? pauseStartedMs : System.currentTimeMillis();
+            elapsedMs = Math.max(0, end - startedAtMs - pausedAccumMs);
+        }
+        int done = sent.get();
+        double ratePerMin = elapsedMs > 0 ? done * 60_000.0 / elapsedMs : 0.0;
+        long eta = ratePerMin > 0 ? (long) ((total - done) / (ratePerMin / 60.0)) : 0;
+        return new SimulationStatus(running, total, done, errors.get(),
+                startedAtMs, elapsedMs / 1000, Math.max(0, eta), ratePerMin, llmClient, paused);
+    }
+
+    /** 단일 틱: 한 건 전송 후 다음 틱을 예약(체인). 정지/일시정지/완료 시 체인을 종료한다. */
+    private void tick() {
+        PlannedInquiry inq;
+        boolean last;
+        synchronized (this) {
+            if (!running || paused || plan == null || nextIndex >= total) {
+                return;
+            }
+            inq = plan.get(nextIndex);
+            nextIndex++;
+            last = nextIndex >= total;
+        }
+        dispatch(inq); // HTTP — 락 밖에서 수행
+        synchronized (this) {
+            if (!running || paused) {
+                return;
+            }
+            if (last) {
+                running = false;
+                shutdownScheduler();
+            } else {
+                armTick(nextTickDelay());
+            }
+        }
     }
 
     private void dispatch(PlannedInquiry inq) {
@@ -98,30 +174,32 @@ public class SimulationService {
         }
     }
 
-    public synchronized SimulationStatus stop() {
-        running = false;
+    private void armTick(long delayMs) {
+        ScheduledExecutorService exec = scheduler;
+        if (exec != null) {
+            exec.schedule(this::tick, delayMs, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private long nextTickDelay() {
+        if (!jitter) {
+            return intervalMs;
+        }
+        return Math.max(1, intervalMs + ((nextIndex * 9301L + 49297L) % intervalMs) - intervalMs / 2);
+    }
+
+    private ScheduledExecutorService newScheduler() {
+        return Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "sim-drip");
+            t.setDaemon(true);
+            return t;
+        });
+    }
+
+    private void shutdownScheduler() {
         if (scheduler != null) {
             scheduler.shutdownNow();
             scheduler = null;
         }
-        return status();
-    }
-
-    public synchronized SimulationStatus reset() {
-        stop();
-        sent.set(0);
-        errors.set(0);
-        total = 0;
-        startedAtMs = null;
-        return status();
-    }
-
-    public synchronized SimulationStatus status() {
-        long elapsed = startedAtMs == null ? 0 : Math.max(0, (System.currentTimeMillis() - startedAtMs) / 1000);
-        int done = sent.get();
-        double ratePerMin = elapsed > 0 ? done * 60.0 / elapsed : 0.0;
-        long eta = ratePerMin > 0 ? (long) ((total - done) / (ratePerMin / 60.0)) : 0;
-        return new SimulationStatus(running, total, done, errors.get(),
-                startedAtMs, elapsed, Math.max(0, eta), ratePerMin, llmClient);
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 시뮬레이션 제어 API (sim 프로파일 전용).
- * POST start/stop/reset, GET status.
+ * POST start/pause/resume/stop/reset, GET status.
  */
 @RestController
 @RequestMapping("/api/v1/dev/simulation")
@@ -29,6 +29,16 @@ public class SimulationController {
             @RequestBody(required = false) StartRequest req) {
         StartRequest r = req != null ? req : new StartRequest(null, null, null);
         return ResponseEntity.ok(ApiResponse.of(service.start(r.count(), r.durationMinutes(), r.jitter())));
+    }
+
+    @PostMapping("/pause")
+    public ResponseEntity<ApiResponse<SimulationStatus>> pause() {
+        return ResponseEntity.ok(ApiResponse.of(service.pause()));
+    }
+
+    @PostMapping("/resume")
+    public ResponseEntity<ApiResponse<SimulationStatus>> resume() {
+        return ResponseEntity.ok(ApiResponse.of(service.resume()));
     }
 
     @PostMapping("/stop")

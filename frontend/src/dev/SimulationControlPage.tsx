@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import {
   startSimulation,
+  pauseSimulation,
+  resumeSimulation,
   stopSimulation,
   resetSimulation,
   fetchSimulationStatus,
@@ -59,6 +61,8 @@ export function SimulationControlPage() {
 
   const handleStart = () =>
     handleAction(() => startSimulation({ count, durationMinutes, jitter }));
+  const handlePause = () => handleAction(pauseSimulation);
+  const handleResume = () => handleAction(resumeSimulation);
   const handleStop = () => handleAction(stopSimulation);
   const handleReset = () => handleAction(resetSimulation);
 
@@ -66,6 +70,7 @@ export function SimulationControlPage() {
   const total = status?.total ?? 0;
   const errors = status?.errors ?? 0;
   const running = status?.running ?? false;
+  const paused = status?.paused ?? false;
   const elapsedSeconds = status?.elapsedSeconds ?? 0;
   const etaSeconds = status?.etaSeconds ?? 0;
   const ratePerMin = status?.ratePerMin ?? 0;
@@ -124,7 +129,7 @@ export function SimulationControlPage() {
         }}
       >
         <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
-          <Stat label="running" value={running ? "실행 중" : "정지"} />
+          <Stat label="running" value={paused ? "일시정지" : running ? "실행 중" : "정지"} />
           <Stat label="전송" value={`${sent} / ${total}`} />
           <Stat label="errors" value={String(errors)} />
           <Stat label="경과(s)" value={String(elapsedSeconds)} />
@@ -144,7 +149,7 @@ export function SimulationControlPage() {
         >
           <div
             style={{
-              background: running ? "#4caf50" : "#90caf9",
+              background: paused ? "#ff9800" : running ? "#4caf50" : "#90caf9",
               width: `${Math.min(progressRate * 100, 100)}%`,
               height: "100%",
               borderRadius: 4,
@@ -162,6 +167,13 @@ export function SimulationControlPage() {
           style={btnStyle("#4caf50", loading || running)}
         >
           시작
+        </button>
+        <button
+          onClick={paused ? handleResume : handlePause}
+          disabled={loading || !running}
+          style={btnStyle(paused ? "#ff9800" : "#ffb300", loading || !running)}
+        >
+          {paused ? "재개" : "일시정지"}
         </button>
         <button
           onClick={handleStop}

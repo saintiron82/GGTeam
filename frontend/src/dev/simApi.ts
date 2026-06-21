@@ -29,6 +29,7 @@ export interface SimulationStatus {
   etaSeconds: number;
   ratePerMin: number;
   llmClient: string;
+  paused: boolean;
 }
 
 export interface StartParams {
@@ -41,6 +42,16 @@ export interface StartParams {
 
 export async function startSimulation(params?: StartParams): Promise<SimulationStatus> {
   const res = await simClient.post<{ data: SimulationStatus }>("/dev/simulation/start", params ?? {});
+  return res.data.data;
+}
+
+export async function pauseSimulation(): Promise<SimulationStatus> {
+  const res = await simClient.post<{ data: SimulationStatus }>("/dev/simulation/pause");
+  return res.data.data;
+}
+
+export async function resumeSimulation(): Promise<SimulationStatus> {
+  const res = await simClient.post<{ data: SimulationStatus }>("/dev/simulation/resume");
   return res.data.data;
 }
 

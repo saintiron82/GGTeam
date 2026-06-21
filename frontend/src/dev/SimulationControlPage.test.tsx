@@ -6,6 +6,8 @@ import type { SimulationStatus } from "./simApi";
 // simApi 전체를 목 처리
 vi.mock("./simApi", () => ({
   startSimulation: vi.fn(),
+  pauseSimulation: vi.fn(),
+  resumeSimulation: vi.fn(),
   stopSimulation: vi.fn(),
   resetSimulation: vi.fn(),
   fetchSimulationStatus: vi.fn(),
@@ -24,6 +26,7 @@ function makeStatus(overrides: Partial<SimulationStatus> = {}): SimulationStatus
     etaSeconds: 0,
     ratePerMin: 0,
     llmClient: "agentcli",
+    paused: false,
     ...overrides,
   };
 }
@@ -33,6 +36,8 @@ describe("SimulationControlPage", () => {
     vi.clearAllMocks();
     vi.mocked(simApi.fetchSimulationStatus).mockResolvedValue(makeStatus());
     vi.mocked(simApi.startSimulation).mockResolvedValue(makeStatus({ running: true }));
+    vi.mocked(simApi.pauseSimulation).mockResolvedValue(makeStatus({ running: true, paused: true }));
+    vi.mocked(simApi.resumeSimulation).mockResolvedValue(makeStatus({ running: true, paused: false }));
     vi.mocked(simApi.stopSimulation).mockResolvedValue(makeStatus());
     vi.mocked(simApi.resetSimulation).mockResolvedValue(makeStatus());
   });
@@ -53,6 +58,32 @@ describe("SimulationControlPage", () => {
 
     await waitFor(() => {
       expect(screen.getByText(/42\s*\/\s*100/)).toBeInTheDocument();
+    });
+  });
+
+  it("실행 중 일시정지 버튼 클릭 시 pauseSimulation 이 호출된다", async () => {
+    vi.mocked(simApi.fetchSimulationStatus).mockResolvedValue(makeStatus({ running: true }));
+    render(<SimulationControlPage />);
+
+    const pauseBtn = await screen.findByRole("button", { name: /일시정지/i });
+    fireEvent.click(pauseBtn);
+
+    await waitFor(() => {
+      expect(simApi.pauseSimulation).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("일시정지 상태에서 재개 버튼 클릭 시 resumeSimulation 이 호출된다", async () => {
+    vi.mocked(simApi.fetchSimulationStatus).mockResolvedValue(
+      makeStatus({ running: true, paused: true }),
+    );
+    render(<SimulationControlPage />);
+
+    const resumeBtn = await screen.findByRole("button", { name: /재개/i });
+    fireEvent.click(resumeBtn);
+
+    await waitFor(() => {
+      expect(simApi.resumeSimulation).toHaveBeenCalledTimes(1);
     });
   });
 });

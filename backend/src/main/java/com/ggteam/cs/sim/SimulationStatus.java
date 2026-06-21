@@ -10,4 +10,5 @@ public record SimulationStatus(
         long elapsedSeconds,
         long etaSeconds,
         double ratePerMin,
-        String llmClient) {}
+        String llmClient,
+        boolean paused) {}
