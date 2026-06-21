@@ -38,7 +38,8 @@ class SimulationServiceTest {
     void stop_후_running은_false() throws InterruptedException {
         SimulationService svc = newService(p -> { });
 
-        svc.startInternal(50, 60_000, false); // 긴 간격
+        SimulationStatus before = svc.startInternal(50, 60_000, false); // 긴 간격
+        assertThat(before.running()).isTrue();
         SimulationStatus after = svc.stop();
 
         assertThat(after.running()).isFalse();

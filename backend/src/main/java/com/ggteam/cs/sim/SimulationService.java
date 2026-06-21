@@ -60,19 +60,20 @@ public class SimulationService {
         startedAtMs = System.currentTimeMillis();
 
         long interval = total > 0 ? Math.max(1, durationMs / total) : durationMs;
-        scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+        final ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "sim-drip");
             t.setDaemon(true);
             return t;
         });
+        this.scheduler = exec;
 
         for (int i = 0; i < total; i++) {
             final PlannedInquiry inq = plan.get(i);
             long base = i * interval;
             long delay = jitter ? Math.max(0, base + ((i * 9301L + 49297L) % interval) - interval / 2) : base;
-            scheduler.schedule(() -> dispatch(inq), delay, TimeUnit.MILLISECONDS);
+            exec.schedule(() -> dispatch(inq), delay, TimeUnit.MILLISECONDS);
         }
-        scheduler.schedule(() -> running = false, (long) total * interval + 50, TimeUnit.MILLISECONDS);
+        exec.schedule(() -> { running = false; exec.shutdown(); }, (long) total * interval + 50, TimeUnit.MILLISECONDS);
 
         log.info("[SIM] 드립 시작 total={} interval={}ms jitter={}", total, interval, jitter);
         return status();
@@ -106,7 +107,7 @@ public class SimulationService {
         return status();
     }
 
-    public SimulationStatus status() {
+    public synchronized SimulationStatus status() {
         long elapsed = startedAtMs == null ? 0 : Math.max(0, (System.currentTimeMillis() - startedAtMs) / 1000);
         int done = sent.get();
         double ratePerMin = elapsed > 0 ? done * 60.0 / elapsed : 0.0;
