@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { SimulationControlPage } from "./SimulationControlPage";
+import type { SimulationStatus } from "./simApi";
 
 // simApi 전체를 목 처리
 vi.mock("./simApi", () => ({
@@ -12,25 +13,28 @@ vi.mock("./simApi", () => ({
 
 import * as simApi from "./simApi";
 
-const mockStatus = {
-  running: false,
-  totalCount: 50,
-  sentCount: 20,
-  failedCount: 2,
-  startedAt: null,
-  elapsedSeconds: 0,
-  remainingSeconds: 0,
-  progressRate: 0,
-  mode: "manual",
-};
+function makeStatus(overrides: Partial<SimulationStatus> = {}): SimulationStatus {
+  return {
+    running: false,
+    total: 100,
+    sent: 42,
+    errors: 2,
+    startedAtEpochMs: null,
+    elapsedSeconds: 0,
+    etaSeconds: 0,
+    ratePerMin: 0,
+    llmClient: "agentcli",
+    ...overrides,
+  };
+}
 
 describe("SimulationControlPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(simApi.fetchSimulationStatus).mockResolvedValue(mockStatus);
-    vi.mocked(simApi.startSimulation).mockResolvedValue({ ...mockStatus, running: true });
-    vi.mocked(simApi.stopSimulation).mockResolvedValue(mockStatus);
-    vi.mocked(simApi.resetSimulation).mockResolvedValue(mockStatus);
+    vi.mocked(simApi.fetchSimulationStatus).mockResolvedValue(makeStatus());
+    vi.mocked(simApi.startSimulation).mockResolvedValue(makeStatus({ running: true }));
+    vi.mocked(simApi.stopSimulation).mockResolvedValue(makeStatus());
+    vi.mocked(simApi.resetSimulation).mockResolvedValue(makeStatus());
   });
 
   it("시작 버튼 클릭 시 startSimulation 이 호출된다", async () => {
@@ -44,12 +48,11 @@ describe("SimulationControlPage", () => {
     });
   });
 
-  it("sent/total 수치를 렌더링한다", async () => {
+  it("sent/total 수치(42 / 100)를 렌더링한다", async () => {
     render(<SimulationControlPage />);
 
     await waitFor(() => {
-      expect(screen.getByText(/20/)).toBeInTheDocument();
-      expect(screen.getByText(/50/)).toBeInTheDocument();
+      expect(screen.getByText(/42\s*\/\s*100/)).toBeInTheDocument();
     });
   });
 });

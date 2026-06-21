@@ -2,6 +2,9 @@
  * 시뮬레이션 제어 API 클라이언트.
  * 절대 URL(http://localhost:8080/api/v1)을 사용하여 MSW를 우회하고
  * 실제 백엔드에 직접 연결합니다.
+ *
+ * SimulationStatus 필드명은 백엔드 record(com.ggteam.cs.sim.SimulationStatus)와
+ * 1:1 일치해야 합니다.
  */
 import axios from "axios";
 
@@ -14,18 +17,18 @@ const simClient = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// ---- 타입 정의 ----
+// ---- 타입 정의 (백엔드 SimulationStatus record와 동일) ----
 
 export interface SimulationStatus {
   running: boolean;
-  totalCount: number;
-  sentCount: number;
-  failedCount: number;
-  startedAt: number | null;
+  total: number;
+  sent: number;
+  errors: number;
+  startedAtEpochMs: number | null;
   elapsedSeconds: number;
-  remainingSeconds: number;
-  progressRate: number;
-  mode: string;
+  etaSeconds: number;
+  ratePerMin: number;
+  llmClient: string;
 }
 
 export interface StartParams {
