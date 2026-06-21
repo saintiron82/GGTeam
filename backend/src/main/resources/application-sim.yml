@@ -1,0 +1,48 @@
+# 트래픽 시뮬레이터 프로파일. local과 동일하게 자급(H2/보안제외)하되 agentcli + 시드/드립 활성.
+#   실행: ./gradlew bootRun --args='--spring.profiles.active=sim'
+spring:
+  config:
+    activate:
+      on-profile: sim
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  datasource:
+    url: jdbc:h2:mem:csagent-sim;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Seoul
+  flyway:
+    enabled: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  task:
+    execution:
+      pool:
+        core-size: 3
+        max-size: 4
+        queue-capacity: 200
+
+app:
+  ai:
+    llm-client: agentcli          # mock 으로 바꾸면 즉시·무료 데모
+    agentcli:
+      command: "claude -p"
+      system-flag: "--append-system-prompt"
+      timeout-seconds: 120
+  sim:
+    count: 100
+    item-target: 500
+    duration-minutes: 20
+    jitter: false
+    auto-start: false
