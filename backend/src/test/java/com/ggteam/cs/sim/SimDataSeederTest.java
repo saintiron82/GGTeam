@@ -7,11 +7,13 @@ import static org.mockito.Mockito.when;
 
 import com.ggteam.cs.persistence.repository.AccountRepository;
 import com.ggteam.cs.persistence.repository.ItemDeliveryRepository;
+import com.ggteam.cs.persistence.repository.OperatorRepository;
 import com.ggteam.cs.persistence.repository.PaymentRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class SimDataSeederTest {
@@ -19,6 +21,12 @@ class SimDataSeederTest {
     @Mock AccountRepository accountRepo;
     @Mock PaymentRepository paymentRepo;
     @Mock ItemDeliveryRepository itemRepo;
+    @Mock OperatorRepository operatorRepo;
+
+    private SimDataSeeder newSeeder() {
+        return new SimDataSeeder(new ScenarioAssigner(), new SimProperties(),
+                accountRepo, paymentRepo, itemRepo, operatorRepo, new BCryptPasswordEncoder());
+    }
 
     @Test
     void itemTarget가_시나리오_시드보다_작으면_절단없이_시드건수를_반환한다() {
@@ -26,8 +34,7 @@ class SimDataSeederTest {
         when(paymentRepo.save(any())).then(returnsFirstArg());
         when(itemRepo.save(any())).then(returnsFirstArg());
 
-        SimDataSeeder seeder = new SimDataSeeder(
-                new ScenarioAssigner(), new SimProperties(), accountRepo, paymentRepo, itemRepo);
+        SimDataSeeder seeder = newSeeder();
 
         // count=100 시나리오는 63건의 지급을 생성 → itemTarget=10은 패딩을 트리거하지 않음
         SimDataSeeder.SeedSummary s = seeder.seed(new ScenarioAssigner().assign(100), 10);
@@ -42,8 +49,7 @@ class SimDataSeederTest {
         when(paymentRepo.save(any())).then(returnsFirstArg());
         when(itemRepo.save(any())).then(returnsFirstArg());
 
-        SimDataSeeder seeder = new SimDataSeeder(
-                new ScenarioAssigner(), new SimProperties(), accountRepo, paymentRepo, itemRepo);
+        SimDataSeeder seeder = newSeeder();
 
         SimDataSeeder.SeedSummary s = seeder.seed(new ScenarioAssigner().assign(100), 500);
 

@@ -15,8 +15,12 @@ export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+// 기본은 상대경로(/api/v1, dev에선 MSW/프록시). VITE_API_BASE 지정 시 실 백엔드에 직접 연결.
+const API_BASE =
+  (import.meta.env as Record<string, string | undefined>).VITE_API_BASE ?? "/api/v1";
+
 export const apiClient: AxiosInstance = axios.create({
-  baseURL: "/api/v1",
+  baseURL: API_BASE,
   headers: { "Content-Type": "application/json" },
 });
 

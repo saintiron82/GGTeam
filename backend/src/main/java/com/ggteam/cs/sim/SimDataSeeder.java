@@ -3,11 +3,14 @@ package com.ggteam.cs.sim;
 import com.ggteam.cs.common.enums.DemoEnums.AccountStatus;
 import com.ggteam.cs.common.enums.DemoEnums.DeliveryStatus;
 import com.ggteam.cs.common.enums.DemoEnums.PaymentStatus;
+import com.ggteam.cs.common.enums.OperatorRole;
 import com.ggteam.cs.persistence.entity.Account;
 import com.ggteam.cs.persistence.entity.ItemDelivery;
+import com.ggteam.cs.persistence.entity.Operator;
 import com.ggteam.cs.persistence.entity.Payment;
 import com.ggteam.cs.persistence.repository.AccountRepository;
 import com.ggteam.cs.persistence.repository.ItemDeliveryRepository;
+import com.ggteam.cs.persistence.repository.OperatorRepository;
 import com.ggteam.cs.persistence.repository.PaymentRepository;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -18,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,30 +36,50 @@ public class SimDataSeeder implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(SimDataSeeder.class);
 
+    /** 데모 운영자 로그인 계정 (대시보드 접근용). */
+    private static final String DEMO_OPERATOR_USERNAME = "operator";
+    private static final String DEMO_OPERATOR_PASSWORD = "demo1234";
+
     private final ScenarioAssigner assigner;
     private final SimProperties props;
     private final AccountRepository accountRepo;
     private final PaymentRepository paymentRepo;
     private final ItemDeliveryRepository itemRepo;
+    private final OperatorRepository operatorRepo;
+    private final PasswordEncoder passwordEncoder;
 
     public SimDataSeeder(ScenarioAssigner assigner, SimProperties props,
                          AccountRepository accountRepo, PaymentRepository paymentRepo,
-                         ItemDeliveryRepository itemRepo) {
+                         ItemDeliveryRepository itemRepo, OperatorRepository operatorRepo,
+                         PasswordEncoder passwordEncoder) {
         this.assigner = assigner;
         this.props = props;
         this.accountRepo = accountRepo;
         this.paymentRepo = paymentRepo;
         this.itemRepo = itemRepo;
+        this.operatorRepo = operatorRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     @Transactional
     public void run(String... args) {
+        seedOperator();
         SeedSummary s = seed(assigner.assign(props.getCount()), props.getItemTarget());
         log.info("========== [SIM] 시드 완료 ==========");
         log.info("[SIM] accounts={} payments={} items={}", s.accounts(), s.payments(), s.items());
+        log.info("[SIM] 데모 운영자 로그인: {} / {}", DEMO_OPERATOR_USERNAME, DEMO_OPERATOR_PASSWORD);
         log.info("[SIM] 제어판: http://localhost:5173/dev/sim  (드립 시작은 제어판에서)");
         log.info("=====================================");
+    }
+
+    /** 대시보드 로그인용 데모 운영자 1명을 시드한다(이미 있으면 건너뜀). */
+    private void seedOperator() {
+        if (operatorRepo.findByUsername(DEMO_OPERATOR_USERNAME).isPresent()) {
+            return;
+        }
+        operatorRepo.save(Operator.of(DEMO_OPERATOR_USERNAME,
+                passwordEncoder.encode(DEMO_OPERATOR_PASSWORD), OperatorRole.OPERATOR));
     }
 
     /**
