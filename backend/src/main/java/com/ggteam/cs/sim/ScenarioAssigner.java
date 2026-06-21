@@ -6,7 +6,18 @@ import org.springframework.stereotype.Component;
 
 /**
  * 가중치 기반 시나리오 분배기. 결정적(난수 없음)으로 userId↔시나리오를 배정한다.
- * weight 합 100을 count로 스케일하고 반올림 오차는 PAID_NOT_DELIVERED로 보정한다.
+ *
+ * <p>동작 방식:
+ * <ol>
+ *   <li>각 {@link SimScenario}의 weight(합 100)를 {@code count}로 스케일한 뒤
+ *       {@link Math#round}로 정수화하여 덱(deck)에 추가한다.</li>
+ *   <li>반올림 결과 덱 크기가 {@code count}보다 <em>작으면</em>
+ *       {@link SimScenario#PAID_NOT_DELIVERED}로 부족분을 채운다(padding).</li>
+ *   <li>반올림 결과 덱 크기가 {@code count}보다 <em>크면</em>
+ *       덱의 말미(ETC 쪽)를 초과분만큼 잘라낸다(trim).</li>
+ * </ol>
+ * {@code assign(count)}는 항상 정확히 {@code count}개의 결정적 배정을 반환한다.
+ * </p>
  */
 @Component
 public class ScenarioAssigner {

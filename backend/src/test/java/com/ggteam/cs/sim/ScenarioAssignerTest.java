@@ -21,6 +21,14 @@ class ScenarioAssignerTest {
     }
 
     @Test
+    void 임의_count에_대해_정확히_count개를_결정적으로_반환한다() {
+        for (int n : new int[]{0, 1, 5, 7, 250}) {
+            assertThat(assigner.assign(n)).hasSize(n);
+            assertThat(assigner.assign(n)).isEqualTo(assigner.assign(n)); // 결정적
+        }
+    }
+
+    @Test
     void 가중치대로_분포한다() {
         var counts = assigner.assign(100).stream()
                 .collect(Collectors.groupingBy(SimAssignment::scenario, Collectors.counting()));
