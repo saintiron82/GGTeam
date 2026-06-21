@@ -8,6 +8,7 @@ import { LoginPage } from "./auth/LoginPage";
 import { InquiryFormPage } from "./customer/InquiryFormPage";
 import { KanbanBoardPage } from "./kanban/KanbanBoardPage";
 import { InquiryDetailPage } from "./detail/InquiryDetailPage";
+import { SimulationControlPage } from "./dev/SimulationControlPage";
 import "./common/styles.css";
 
 function App() {
@@ -21,6 +22,9 @@ function App() {
           {/* 공개: 운영자 로그인 / 고객 문의 접수 */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/submit" element={<InquiryFormPage />} />
+
+          {/* 개발용: 트래픽 시뮬레이터 제어판 (sim 프로파일 백엔드 필요) */}
+          <Route path="/dev/sim" element={<SimulationControlPage />} />
 
           {/* 운영자 전용 (인증 필요) */}
           <Route
