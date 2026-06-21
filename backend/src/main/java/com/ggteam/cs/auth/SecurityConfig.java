@@ -2,6 +2,7 @@ package com.ggteam.cs.auth;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -31,7 +32,10 @@ public class SecurityConfig {
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
+    // sim 프로파일은 SecurityAutoConfiguration을 제외(HttpSecurity 빈 없음)하고 엔드포인트를 개방하므로
+    // 이 필터체인을 로드하지 않는다. 기본/운영 프로파일에는 영향 없음. passwordEncoder는 유지(AuthService 의존).
     @Bean
+    @Profile("!sim")
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 // 무상태 REST API: CSRF/세션/폼로그인/HTTP Basic 미사용

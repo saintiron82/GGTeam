@@ -8,6 +8,7 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
       - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+      - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
   datasource:
     url: jdbc:h2:mem:csagent-sim;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
     driver-class-name: org.h2.Driver
@@ -35,7 +36,7 @@ spring:
 
 app:
   ai:
-    llm-client: agentcli          # mock 으로 바꾸면 즉시·무료 데모
+    llm-client: ${LLM_CLIENT:agentcli}   # 기본 agentcli, LLM_CLIENT=mock 으로 즉시·무료 데모 전환
     agentcli:
       command: "claude -p"
       system-flag: "--append-system-prompt"
