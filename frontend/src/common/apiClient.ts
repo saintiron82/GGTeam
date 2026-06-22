@@ -2,6 +2,7 @@
 import axios, { AxiosInstance } from "axios";
 
 const TOKEN_KEY = "cs_agent_token";
+const OPERATOR_KEY = "cs_agent_operator";
 
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
@@ -24,11 +25,24 @@ export const apiClient: AxiosInstance = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// 요청: JWT 자동 첨부
+// 요청: JWT 자동 첨부 + 운영자 식별 폴백(X-Operator-Id)
 apiClient.interceptors.request.use((config) => {
   const token = getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+  // 보안필터가 없는 환경(sim/local)에서 운영자 액션(배정/승인 등)을 위해 운영자 id를 헤더로 전달.
+  // 운영(보안 ON)에서는 서버가 SecurityContext principal을 우선 사용하므로 이 헤더는 무시된다.
+  try {
+    const opRaw = localStorage.getItem(OPERATOR_KEY);
+    if (opRaw) {
+      const op = JSON.parse(opRaw) as { id?: string };
+      if (op?.id) {
+        config.headers["X-Operator-Id"] = op.id;
+      }
+    }
+  } catch {
+    // 운영자 정보 파싱 실패는 무시
   }
   return config;
 });
