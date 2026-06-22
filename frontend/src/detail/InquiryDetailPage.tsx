@@ -20,6 +20,20 @@ function formatTime(iso: string): string {
   }
 }
 
+/**
+ * 운영자 값 표시. 백엔드가 운영자를 객체({id,username,role})로 줄 수도, 문자열로 줄 수도 있어
+ * 어느 쪽이든 안전하게 표시명을 반환한다(객체를 그대로 렌더하면 React 에러 #31 발생).
+ */
+function opLabel(op: unknown): string {
+  if (op == null) return "";
+  if (typeof op === "string") return op;
+  if (typeof op === "object") {
+    const o = op as { username?: string; id?: string };
+    return o.username ?? o.id ?? "";
+  }
+  return String(op);
+}
+
 function Section({ title, children, testid }: { title: string; children: React.ReactNode; testid?: string }) {
   return (
     <div className="card" style={{ marginBottom: 16 }} data-testid={testid}>
@@ -114,7 +128,7 @@ export function InquiryDetailPage() {
                 </div>
                 <div style={{ color: "var(--color-muted)", fontSize: 13, marginTop: 4 }}>
                   접수: {formatTime(detail.inquiry.createdAt)}
-                  {detail.inquiry.assignedOperator ? ` · 담당: ${detail.inquiry.assignedOperator}` : " · 미배정"}
+                  {detail.inquiry.assignedOperator ? ` · 담당: ${opLabel(detail.inquiry.assignedOperator)}` : " · 미배정"}
                 </div>
               </div>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -225,7 +239,7 @@ export function InquiryDetailPage() {
                       }}
                     >
                       <div style={{ fontWeight: 600 }}>
-                        {h.action} <span style={{ color: "var(--color-muted)", fontWeight: 400 }}>· {h.operator}</span>
+                        {h.action} <span style={{ color: "var(--color-muted)", fontWeight: 400 }}>· {opLabel(h.operator)}</span>
                       </div>
                       <div style={{ fontSize: 12, color: "var(--color-muted)" }}>{formatTime(h.timestamp)}</div>
                       {h.reason && <div style={{ fontSize: 13, marginTop: 2 }}>사유: {h.reason}</div>}
