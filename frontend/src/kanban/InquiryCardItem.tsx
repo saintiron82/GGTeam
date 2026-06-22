@@ -23,6 +23,10 @@ function formatTime(iso: string): string {
 
 export function InquiryCardItem({ card, onClick }: Props) {
   const isUrgent = card.urgency === "HIGH";
+  const title =
+    card.summary?.trim() ||
+    (card.content ? card.content.trim().slice(0, 60) : "");
+  const isPending = !title;
   return (
     <div
       className="card kanban-card"
@@ -46,8 +50,16 @@ export function InquiryCardItem({ card, onClick }: Props) {
         </span>
         <UrgencyBadge urgency={card.urgency} />
       </div>
-      <div style={{ fontSize: 13, marginBottom: 10, lineHeight: 1.45, color: "var(--color-text)" }}>
-        {card.summary ?? "(요약 없음)"}
+      <div
+        style={{
+          fontSize: 13,
+          marginBottom: 10,
+          lineHeight: 1.45,
+          color: isPending ? "var(--color-muted)" : "var(--color-text)",
+          fontStyle: isPending ? "italic" : "normal",
+        }}
+      >
+        {isPending ? "⏳ AI 분석 대기 중" : title}
       </div>
       <div
         style={{

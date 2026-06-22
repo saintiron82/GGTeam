@@ -3,6 +3,7 @@ package com.ggteam.cs.dashboard;
 import com.ggteam.cs.common.enums.InquiryStatus;
 import com.ggteam.cs.common.enums.InquiryType;
 import com.ggteam.cs.common.enums.Urgency;
+import com.ggteam.cs.dashboard.dto.DashboardStats;
 import com.ggteam.cs.dashboard.dto.InquiryCard;
 import com.ggteam.cs.dashboard.dto.NotificationCounts;
 import com.ggteam.cs.dashboard.dto.PageResponse;
@@ -10,6 +11,7 @@ import com.ggteam.cs.persistence.entity.AIAnalysis;
 import com.ggteam.cs.persistence.entity.Inquiry;
 import com.ggteam.cs.persistence.repository.AIAnalysisRepository;
 import com.ggteam.cs.persistence.repository.InquiryRepository;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -76,6 +78,40 @@ public class DashboardService {
         return new NotificationCounts(unassigned, urgent);
     }
 
+    /** 통계 (US-27): 상태별/유형별 분포 + 핵심 지표. */
+    @Transactional(readOnly = true)
+    public DashboardStats getStats() {
+        List<Inquiry> all = inquiryRepository.findAll();
+        long total = all.size();
+
+        ZoneId kst = ZoneId.of("Asia/Seoul");
+        ZonedDateTime todayStart = ZonedDateTime.now(kst).toLocalDate().atStartOfDay(kst);
+        long todayCount = all.stream()
+                .filter(i -> i.getCreatedAt() != null && !i.getCreatedAt().isBefore(todayStart))
+                .count();
+
+        Map<String, Long> statusCounts = new LinkedHashMap<>();
+        for (InquiryStatus s : BOARD_STATUSES) {
+            statusCounts.put(s.name(), 0L);
+        }
+        statusCounts.put(InquiryStatus.MANUAL_CLASSIFICATION_PENDING.name(), 0L);
+        all.forEach(i -> statusCounts.merge(i.getStatus().name(), 1L, Long::sum));
+
+        Map<String, Long> typeCounts = new LinkedHashMap<>();
+        for (InquiryType t : InquiryType.values()) {
+            typeCounts.put(t.name(), 0L);
+        }
+        all.forEach(i -> typeCounts.merge(i.getCustomerType().name(), 1L, Long::sum));
+
+        long completed = statusCounts.getOrDefault(InquiryStatus.SENT.name(), 0L);
+        long unassigned = statusCounts.getOrDefault(InquiryStatus.PENDING_ASSIGNMENT.name(), 0L);
+        long inProgress = total - completed;
+        long urgent = countUrgentOpen();
+
+        return new DashboardStats(total, todayCount, unassigned, urgent, inProgress, completed,
+                statusCounts, typeCounts);
+    }
+
     /** 긴급(HIGH) 미처리(미발송) 건수 집계. */
     private long countUrgentOpen() {
         List<Inquiry> pending = inquiryRepository.findByStatus(InquiryStatus.PENDING_ASSIGNMENT);
@@ -105,6 +141,7 @@ public class DashboardService {
                     a != null && a.getAiType() != null ? a.getAiType().name() : null,
                     a != null && a.getUrgency() != null ? a.getUrgency().name() : null,
                     a != null ? a.getSummary() : null,
+                    i.getContent(),
                     i.getStatus().name(),
                     i.getAssignedOperatorId(),
                     i.getCreatedAt());

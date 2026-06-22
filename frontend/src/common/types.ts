@@ -70,9 +70,22 @@ export interface InquiryCard {
   aiType?: InquiryType;
   urgency: Urgency;
   summary?: string;
+  content?: string;
   status: InquiryStatus;
   assignedOperator?: string;
   createdAt: string;
+}
+
+// 통계 대시보드 (US-27)
+export interface DashboardStats {
+  total: number;
+  todayCount: number;
+  unassigned: number;
+  urgent: number;
+  inProgress: number;
+  completed: number;
+  statusCounts: Record<string, number>;
+  typeCounts: Record<string, number>;
 }
 
 export interface InquiryDetail {

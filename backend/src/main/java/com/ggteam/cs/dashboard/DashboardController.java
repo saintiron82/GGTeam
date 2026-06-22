@@ -70,4 +70,10 @@ public class DashboardController {
     public ResponseEntity<ApiResponse<NotificationCounts>> notifications() {
         return ResponseEntity.ok(ApiResponse.of(dashboardService.getNotifications()));
     }
+
+    /** 통계: 상태별/유형별 분포 + 핵심 지표 (US-27). */
+    @GetMapping("/stats")
+    public ResponseEntity<ApiResponse<com.ggteam.cs.dashboard.dto.DashboardStats>> stats() {
+        return ResponseEntity.ok(ApiResponse.of(dashboardService.getStats()));
+    }
 }

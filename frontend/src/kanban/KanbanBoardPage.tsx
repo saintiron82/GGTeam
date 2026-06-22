@@ -52,9 +52,11 @@ export function KanbanBoardPage() {
     [navigate],
   );
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const loadData = useCallback(async (silent = false) => {
+    if (!silent) {
+      setLoading(true);
+      setError(null);
+    }
     try {
       const [notif] = await Promise.all([fetchNotifications()]);
       setNotifications(notif);
@@ -64,14 +66,20 @@ export function KanbanBoardPage() {
         setList(await fetchInquiries({ ...appliedFilter, page: 0, size: 50 }));
       }
     } catch (err) {
-      setError(extractErrorMessage(err, "보드를 불러오지 못했습니다."));
+      if (!silent) setError(extractErrorMessage(err, "보드를 불러오지 못했습니다."));
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [view, appliedFilter]);
 
   useEffect(() => {
     loadData();
+  }, [loadData]);
+
+  // 3초 폴링: 새로고침 없이 새 문의가 보드에 자동 반영 (조용히 갱신 — 로딩 깜빡임 없음)
+  useEffect(() => {
+    const id = setInterval(() => loadData(true), 3000);
+    return () => clearInterval(id);
   }, [loadData]);
 
   function applyFilters() {
@@ -92,6 +100,12 @@ export function KanbanBoardPage() {
   return (
     <AppLayout>
       <div className="page">
+        <div className="page-header">
+          <div>
+            <h1 className="page-title">문의 보드</h1>
+            <p className="page-subtitle">상태별 문의 처리 흐름</p>
+          </div>
+        </div>
         {/* 알림 배지 */}
         <div
           style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 16 }}
@@ -264,7 +278,7 @@ export function KanbanBoardPage() {
                     <td>{STATUS_LABEL[card.status]}</td>
                     <td>{card.assignedOperator ?? "-"}</td>
                     <td style={{ color: "var(--color-muted)" }}>
-                      {card.summary ?? "-"}
+                      {card.summary ?? (card.content ? card.content.slice(0, 40) : "분석 대기 중")}
                     </td>
                   </tr>
                 ))}

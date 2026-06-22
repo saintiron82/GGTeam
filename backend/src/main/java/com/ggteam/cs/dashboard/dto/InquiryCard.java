@@ -15,6 +15,7 @@ public record InquiryCard(
         String aiType,
         String urgency,
         String summary,
+        String content,
         String status,
         UUID assignedOperator,
         ZonedDateTime createdAt) {}

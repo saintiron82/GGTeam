@@ -1,6 +1,7 @@
 // API 호출 함수 모음 — 01-api-contract 기준. ApiResponse 래퍼를 벗겨 반환.
 import { apiClient } from "./apiClient";
 import type { ApiResponse } from "./types";
+import type { DashboardStats } from "./types";
 import type {
   LoginRequest,
   TokenResponse,
@@ -128,6 +129,12 @@ export async function fetchNotifications(): Promise<NotificationSummary> {
   const res = await apiClient.get<ApiResponse<NotificationSummary>>(
     "/dashboard/notifications",
   );
+  return unwrap(res);
+}
+
+// 통계 (US-27)
+export async function fetchStats(): Promise<DashboardStats> {
+  const res = await apiClient.get<ApiResponse<DashboardStats>>("/dashboard/stats");
   return unwrap(res);
 }
 

@@ -3,6 +3,11 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { logout as logoutApi } from "./api";
 
+const NAV = [
+  { to: "/dashboard", label: "대시보드", icon: "▦" },
+  { to: "/board", label: "문의 보드", icon: "▤" },
+];
+
 export function AppLayout({ children }: { children: ReactNode }) {
   const { operator, logout } = useAuth();
   const navigate = useNavigate();
@@ -17,23 +22,41 @@ export function AppLayout({ children }: { children: ReactNode }) {
     navigate("/login", { replace: true });
   }
 
+  const initial = (operator?.username ?? "U").charAt(0).toUpperCase();
+
   return (
-    <div>
-      <header className="app-header">
-        <h1>AI CS 문의 처리</h1>
-        <nav>
-          <NavLink to="/board" className={({ isActive }) => (isActive ? "active" : "")}>
-            칸반 보드
-          </NavLink>
-          <span style={{ color: "var(--color-muted)" }}>
-            {operator?.username ?? "운영자"}
-          </span>
-          <button onClick={handleLogout} data-testid="logout-btn">
+    <div className="app-shell">
+      <aside className="sidebar">
+        <div className="sidebar-brand">
+          <span className="brand-logo" />
+          <span>CS Agent</span>
+        </div>
+        <nav className="sidebar-nav">
+          {NAV.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")}
+            >
+              <span className="nav-icon">{item.icon}</span>
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+        <div className="sidebar-foot">
+          <div className="user-chip">
+            <span className="avatar">{initial}</span>
+            <div className="user-meta">
+              <span className="user-name">{operator?.username ?? "운영자"}</span>
+              <span className="user-role">{operator?.role ?? ""}</span>
+            </div>
+          </div>
+          <button onClick={handleLogout} data-testid="logout-btn" style={{ width: "100%" }}>
             로그아웃
           </button>
-        </nav>
-      </header>
-      {children}
+        </div>
+      </aside>
+      <main className="app-main">{children}</main>
     </div>
   );
 }

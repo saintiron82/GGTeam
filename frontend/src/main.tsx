@@ -6,6 +6,7 @@ import { AuthProvider } from "./common/AuthContext";
 import { ProtectedRoute } from "./common/ProtectedRoute";
 import { LoginPage } from "./auth/LoginPage";
 import { InquiryFormPage } from "./customer/InquiryFormPage";
+import { DashboardPage } from "./dashboard/DashboardPage";
 import { KanbanBoardPage } from "./kanban/KanbanBoardPage";
 import { InquiryDetailPage } from "./detail/InquiryDetailPage";
 import { SimulationControlPage } from "./dev/SimulationControlPage";
@@ -16,17 +17,22 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* 루트 → 운영자 보드. 미인증이면 ProtectedRoute가 /login으로 보냄 */}
-          <Route path="/" element={<Navigate to="/board" replace />} />
+          {/* 루트 → 대시보드. 미인증이면 ProtectedRoute가 /login으로 보냄 */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
           {/* 공개: 운영자 로그인 / 고객 문의 접수 */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/submit" element={<InquiryFormPage />} />
 
-          {/* 개발용: 트래픽 시뮬레이터 제어판 (sim 프로파일 백엔드 필요) */}
-          <Route path="/dev/sim" element={<SimulationControlPage />} />
-
           {/* 운영자 전용 (인증 필요) */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/board"
             element={
@@ -44,8 +50,11 @@ function App() {
             }
           />
 
-          {/* 그 외 → 보드(→ 미인증 시 로그인) */}
-          <Route path="*" element={<Navigate to="/board" replace />} />
+          {/* 개발 전용: 트래픽 시뮬레이터 제어판 */}
+          <Route path="/dev/sim" element={<SimulationControlPage />} />
+
+          {/* 그 외 → 대시보드(→ 미인증 시 로그인) */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
