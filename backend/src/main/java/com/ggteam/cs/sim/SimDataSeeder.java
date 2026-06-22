@@ -36,10 +36,6 @@ public class SimDataSeeder implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(SimDataSeeder.class);
 
-    /** 데모 운영자 로그인 계정 (대시보드 접근용). */
-    private static final String DEMO_OPERATOR_USERNAME = "operator";
-    private static final String DEMO_OPERATOR_PASSWORD = "demo1234";
-
     private final ScenarioAssigner assigner;
     private final SimProperties props;
     private final AccountRepository accountRepo;
@@ -68,18 +64,22 @@ public class SimDataSeeder implements CommandLineRunner {
         SeedSummary s = seed(assigner.assign(props.getCount()), props.getItemTarget());
         log.info("========== [SIM] 시드 완료 ==========");
         log.info("[SIM] accounts={} payments={} items={}", s.accounts(), s.payments(), s.items());
-        log.info("[SIM] 데모 운영자 로그인: {} / {}", DEMO_OPERATOR_USERNAME, DEMO_OPERATOR_PASSWORD);
+        log.info("[SIM] 데모 로그인: admin / admin1234 (ADMIN), operator / demo1234 (OPERATOR)");
         log.info("[SIM] 제어판: http://localhost:5173/dev/sim  (드립 시작은 제어판에서)");
         log.info("=====================================");
     }
 
-    /** 대시보드 로그인용 데모 운영자 1명을 시드한다(이미 있으면 건너뜀). */
+    /** 대시보드 로그인용 데모 운영자 계정을 시드한다(이미 있으면 건너뜀). */
     private void seedOperator() {
-        if (operatorRepo.findByUsername(DEMO_OPERATOR_USERNAME).isPresent()) {
+        seedOperatorIfAbsent("admin", "admin1234", OperatorRole.ADMIN);
+        seedOperatorIfAbsent("operator", "demo1234", OperatorRole.OPERATOR);
+    }
+
+    private void seedOperatorIfAbsent(String username, String rawPassword, OperatorRole role) {
+        if (operatorRepo.findByUsername(username).isPresent()) {
             return;
         }
-        operatorRepo.save(Operator.of(DEMO_OPERATOR_USERNAME,
-                passwordEncoder.encode(DEMO_OPERATOR_PASSWORD), OperatorRole.OPERATOR));
+        operatorRepo.save(Operator.of(username, passwordEncoder.encode(rawPassword), role));
     }
 
     /**
