@@ -19,9 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class SimulationController {
 
     private final SimulationService service;
+    private final SimPurgeService purgeService;
 
-    public SimulationController(SimulationService service) {
+    public SimulationController(SimulationService service, SimPurgeService purgeService) {
         this.service = service;
+        this.purgeService = purgeService;
     }
 
     @PostMapping("/start")
@@ -49,6 +51,14 @@ public class SimulationController {
     @PostMapping("/reset")
     public ResponseEntity<ApiResponse<SimulationStatus>> reset() {
         return ResponseEntity.ok(ApiResponse.of(service.reset()));
+    }
+
+    /** 완전 초기화: 드립 정지 + 문의/분석/진단/초안/이력 전체 삭제(계정/결제/아이템 시드는 유지). */
+    @PostMapping("/purge")
+    public ResponseEntity<ApiResponse<SimulationStatus>> purge() {
+        service.reset();
+        purgeService.purge();
+        return ResponseEntity.ok(ApiResponse.of(service.status()));
     }
 
     @GetMapping("/status")

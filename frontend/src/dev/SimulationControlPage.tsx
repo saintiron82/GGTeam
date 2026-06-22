@@ -5,6 +5,7 @@ import {
   resumeSimulation,
   stopSimulation,
   resetSimulation,
+  purgeSimulation,
   fetchSimulationStatus,
 } from "./simApi";
 import type { SimulationStatus } from "./simApi";
@@ -65,6 +66,16 @@ export function SimulationControlPage() {
   const handleResume = () => handleAction(resumeSimulation);
   const handleStop = () => handleAction(stopSimulation);
   const handleReset = () => handleAction(resetSimulation);
+  const handlePurge = () => {
+    if (
+      !window.confirm(
+        "모든 문의/분석/진단/초안/이력을 삭제합니다. 계속할까요?\n(계정/결제/아이템 시드와 운영자는 유지됩니다)",
+      )
+    ) {
+      return;
+    }
+    handleAction(purgeSimulation);
+  };
 
   const sent = status?.sent ?? 0;
   const total = status?.total ?? 0;
@@ -188,6 +199,14 @@ export function SimulationControlPage() {
           style={btnStyle("#9e9e9e", loading || running)}
         >
           리셋
+        </button>
+        <button
+          onClick={handlePurge}
+          disabled={loading}
+          style={btnStyle("#b71c1c", loading)}
+          title="문의 데이터 전체 삭제(시드는 유지)"
+        >
+          완전 초기화
         </button>
       </div>
 

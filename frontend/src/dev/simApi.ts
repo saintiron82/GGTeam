@@ -65,6 +65,12 @@ export async function resetSimulation(): Promise<SimulationStatus> {
   return res.data.data;
 }
 
+/** 완전 초기화: 드립 정지 + 문의/분석/진단/초안/이력 전체 삭제(계정/결제/아이템 시드 유지). */
+export async function purgeSimulation(): Promise<SimulationStatus> {
+  const res = await simClient.post<{ data: SimulationStatus }>("/dev/simulation/purge");
+  return res.data.data;
+}
+
 export async function fetchSimulationStatus(): Promise<SimulationStatus> {
   const res = await simClient.get<{ data: SimulationStatus }>("/dev/simulation/status");
   return res.data.data;

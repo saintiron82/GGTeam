@@ -10,6 +10,7 @@ vi.mock("./simApi", () => ({
   resumeSimulation: vi.fn(),
   stopSimulation: vi.fn(),
   resetSimulation: vi.fn(),
+  purgeSimulation: vi.fn(),
   fetchSimulationStatus: vi.fn(),
 }));
 
@@ -40,6 +41,7 @@ describe("SimulationControlPage", () => {
     vi.mocked(simApi.resumeSimulation).mockResolvedValue(makeStatus({ running: true, paused: false }));
     vi.mocked(simApi.stopSimulation).mockResolvedValue(makeStatus());
     vi.mocked(simApi.resetSimulation).mockResolvedValue(makeStatus());
+    vi.mocked(simApi.purgeSimulation).mockResolvedValue(makeStatus());
   });
 
   it("시작 버튼 클릭 시 startSimulation 이 호출된다", async () => {
@@ -85,5 +87,28 @@ describe("SimulationControlPage", () => {
     await waitFor(() => {
       expect(simApi.resumeSimulation).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it("완전 초기화 버튼 클릭 시 확인 후 purgeSimulation 이 호출된다", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    render(<SimulationControlPage />);
+
+    const purgeBtn = await screen.findByRole("button", { name: /완전 초기화/i });
+    fireEvent.click(purgeBtn);
+
+    await waitFor(() => {
+      expect(simApi.purgeSimulation).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("완전 초기화 확인을 취소하면 purgeSimulation 이 호출되지 않는다", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+    render(<SimulationControlPage />);
+
+    const purgeBtn = await screen.findByRole("button", { name: /완전 초기화/i });
+    fireEvent.click(purgeBtn);
+
+    await new Promise((r) => setTimeout(r, 50));
+    expect(simApi.purgeSimulation).not.toHaveBeenCalled();
   });
 });

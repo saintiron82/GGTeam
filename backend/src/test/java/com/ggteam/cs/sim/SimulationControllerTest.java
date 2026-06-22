@@ -11,7 +11,8 @@ import org.junit.jupiter.api.Test;
 class SimulationControllerTest {
 
     private final SimulationService service = mock(SimulationService.class);
-    private final SimulationController controller = new SimulationController(service);
+    private final SimPurgeService purgeService = mock(SimPurgeService.class);
+    private final SimulationController controller = new SimulationController(service, purgeService);
 
     private SimulationStatus sample() {
         return new SimulationStatus(true, 100, 0, 0, 123L, 0, 0, 0.0, "agentcli", false);
@@ -64,5 +65,16 @@ class SimulationControllerTest {
 
         assertThat(resp.getStatusCode().value()).isEqualTo(200);
         verify(service).resume();
+    }
+
+    @Test
+    void purge_드립리셋과_데이터삭제를_위임한다() {
+        when(service.status()).thenReturn(sample());
+
+        var resp = controller.purge();
+
+        assertThat(resp.getStatusCode().value()).isEqualTo(200);
+        verify(service).reset();
+        verify(purgeService).purge();
     }
 }
